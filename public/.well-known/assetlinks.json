@@ -1,0 +1,14 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.templatecookie.jobpilot",
+      "sha256_cert_fingerprints": [
+        "3B:CB:C1:65:32:70:02:E9:06:E6:29:8D:83:A4:05:22:13:F3:CE:68:FE:09:CC:1F:A5:37:94:B6:3A:01:F0:94",
+        "B9:91:E6:93:E6:FD:8D:43:45:F6:7E:95:83:4B:F0:32:32:FC:6C:D2:07:0A:2D:BC:5D:F4:12:29:02:77:6C:EC",
+        "5A:EF:EB:B9:50:0A:E8:25:63:76:52:EE:DA:0B:4D:4F:10:69:4A:2E:B3:61:66:96:8E:AF:68:FA:FC:D5:A6:E4"
+      ]
+    }
+  }
+]
