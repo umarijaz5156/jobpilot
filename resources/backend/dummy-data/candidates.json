@@ -1,0 +1,159 @@
+[{
+        "name": "Loraine Lindsay",
+        "email": "lorainelindsay.com",
+        "image": "dummy-data/images/candidates/candidate-01.jpg",
+        "bio": "Hi I am Loraine. I am PHP expert and I am working as full stack developer in templatecookie"
+    },
+    {
+        "name": "Rakibul Islam",
+        "email": "rakib@mail.com",
+        "image": "dummy-data/images/candidates/candidate-02.jpg",
+        "bio": "Hi I am Rakibul Islam. I am PHP expert and I am working as full stack developer in templatecookie"
+    },
+    {
+        "name": "Armaan Malik",
+        "email": "arman@mail.com",
+        "image": "dummy-data/images/candidates/candidate-03.jpg",
+        "bio": "Hi I am Armaan. I am PHP expert and I am working as full stack developer in templatecookie"
+    },
+    {
+        "name": "Ariful Islam",
+        "email": "arif@mail.com",
+        "image": "dummy-data/images/candidates/candidate-04.jpg",
+        "bio": "Hi I am Ariful islam. I am PHP expert and I am working as full stack developer in templatecookie"
+    },
+    {
+        "name": "Hasibur Rahman",
+        "email": "hasib@mail.com",
+        "image": "dummy-data/images/candidates/candidate-05.jpg",
+        "bio": "Hi I am Hasibur Rahman. I am PHP expert and I am working as full stack developer in templatecookie"
+    },
+    {
+        "name": "Khalilur Rahman",
+        "email": "Khalil@mail.com",
+        "image": "dummy-data/images/candidates/candidate-06.jpg",
+        "bio": "Hi I am Khalil. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Partho Borai",
+        "email": "partho@mail.com",
+        "image": "dummy-data/images/candidates/candidate-07.jpg",
+        "bio": "Hi I am Partho. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Solaiman Hossen",
+        "email": "solaiman@mail.com",
+        "image": "dummy-data/images/candidates/candidate-08.jpg",
+        "bio": "Hi I am Solaiman. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Zahidul Islam",
+        "email": "zahid@mail.com",
+        "image": "dummy-data/images/candidates/candidate-09.jpg",
+        "bio": "Hi I am Zahid. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Sheikh Rashed",
+        "email": "rashed@mail.com",
+        "image": "dummy-data/images/candidates/candidate-10.jpg",
+        "bio": "Hi I am Rashed. I am PHP expert and I am working as full stack developer in templatecookie"
+    },
+    {
+        "name": "Jihadul Islam",
+        "email": "jihad@mail.com",
+        "image": "dummy-data/images/candidates/candidate-11.jpg",
+        "bio": "Hi I am Jihad. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Riyad Hossain",
+        "email": "riyad@mail.com",
+        "image": "dummy-data/images/candidates/candidate-12.jpg",
+        "bio": "Hi I am Riyad Hossain. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Ibnu mahtab",
+        "email": "mahtab@mail.com",
+        "image": "dummy-data/images/candidates/candidate-13.jpg",
+        "bio": "Hi I am Ibnu Mahtab. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Mahfuzur Rahman",
+        "email": "mahfuj@mail.com",
+        "image": "dummy-data/images/candidates/candidate-14.jpg",
+        "bio": "Hi I am Mahfujur Rahman. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Abdullah",
+        "email": "abdullah@mail.com",
+        "image": "dummy-data/images/candidates/candidate-15.jpg",
+        "bio": "Hi I am Abdullah. I am PHP expert and I am working as full stack developer in templatecookie"
+    },
+    {
+        "name": "Masum Billah",
+        "email": "manusm@mail.com",
+        "image": "dummy-data/images/candidates/candidate-16.jpg",
+        "bio": "Hi I am Masum. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Zafor Iqbal",
+        "email": "zafor@mail.com",
+        "image": "dummy-data/images/candidates/candidate-17.jpg",
+        "bio": "Hi I am Zafor Iqbal. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Rasel Rana",
+        "email": "rasel@mail.com",
+        "image": "dummy-data/images/candidates/candidate-18.jpg",
+        "bio": "Hi I am Rasel Rana. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Mizanur Rahman",
+        "email": "mizan@mail.com",
+        "image": "dummy-data/images/candidates/candidate-19.jpg",
+        "bio": "Hi I am Mizanur Rahman. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Mohammad Aslam",
+        "email": "aslam@mail.com",
+        "image": "dummy-data/images/candidates/candidate-20.jpg",
+        "bio": "Hi I am Mohammad Aslam. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Lotika Rana",
+        "email": "lotika@mail.com",
+        "image": "dummy-data/images/candidates/candidate-01.jpg",
+        "bio": "Hi I am Lotika. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Ariful Islam",
+        "email": "ariful@mail.com",
+        "image": "dummy-data/images/candidates/candidate-02.jpg",
+        "bio": "Hi I am Ariful Islam. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Manus Islam",
+        "email": "masud@mail.com",
+        "image": "dummy-data/images/candidates/candidate-03.jpg",
+        "bio": "Hi I am Masud. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Rakibul Islam",
+        "email": "rakibul@mail.com",
+        "image": "dummy-data/images/candidates/candidate-04.jpg",
+        "bio": "Hi I am Loraine. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Nazmul Hosaain",
+        "email": "nazmul@mail.com",
+        "image": "dummy-data/images/candidates/candidate-05.jpg",
+        "bio": "Hi I am Nazmul. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Afif Hossain",
+        "email": "afif@mail.com",
+        "image": "dummy-data/images/candidates/candidate-06.jpg",
+        "bio": "Hi I am Afif Hossain. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Liton Das",
+        "email": "litondas@mail.com",
+        "image": "dummy-data/images/candidates/candidate-07.jpg",
+        "bio": "Hi I am Liton Das. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Mushfiqur Rahim",
+        "email": "musfiq@mail.com",
+        "image": "dummy-data/images/candidates/candidate-08.jpg",
+        "bio": "Hi I am Mushfiqur Rahim. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Sakib Al Hasan",
+        "email": "sakib@mail.com",
+        "image": "dummy-data/images/candidates/candidate-09.jpg",
+        "bio": "Hi I am Sakib Al Hasan. I am PHP expert and I am working as full stack developer in templatecookie"
+    }, {
+        "name": "Mehedi Hasan",
+        "email": "mehedi@mail.com",
+        "image": "dummy-data/images/candidates/candidate-10.jpg",
+        "bio": "Hi I am Mehedi Hassan. I am PHP expert and I am working as full stack developer in templatecookie"
+    }
+]
