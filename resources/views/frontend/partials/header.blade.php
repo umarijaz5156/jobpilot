@@ -382,6 +382,14 @@
                                 </a>
                             </div>
                         @endif
+                        <div class="contact-info xs:tw-inline-flex tw-hidden">
+                            <a class="text-gray-900" href="mailto:{{ $setting?->email }}">
+                                <x-svg.mail-icon />
+                                {{ $setting?->email }}
+                            </a>
+                        </div>
+
+                        
                         @if ($setting->language_changing)
                             <div class="dropdown">
                                 @php
@@ -414,7 +422,7 @@
                                 @endif
                             </div>
                         @endif
-                        @if (count($headerCurrencies) && $setting->currency_switcher)
+                        <!-- @if (count($headerCurrencies) && $setting->currency_switcher)
                             @php
                                 $currency_count = count($headerCurrencies) && count($headerCurrencies) > 1;
                                 $current_currency_code = currentCurrencyCode();
@@ -441,7 +449,7 @@
                                     </ul>
                                 @endif
                             </div>
-                        @endif
+                        @endif -->
                         @if ($setting->app_country_type === 'multiple_base')
                             <form action="{{ route('website.job') }}" method="GET" id="search-form"
                                 class="mx-width-300 xs:tw-inline-flex tw-hidden">
@@ -712,12 +720,12 @@
                             @endauth
                             @guest
                                 <ul class="list-unstyled tw-flex tw-flex-wrap tw-gap-3 tw-items-center tw-justify-between">
-                                    <li>
+                                    <!-- <li>
                                         <a href="{{ route('login') }}"
                                             class="btn btn-outline-light">{{ __('sign_in') }}</a>
-                                    </li>
+                                    </li> -->
                                     <li class="d-none d-sm-block">
-                                        <a href="{{ route('company.job.create') }}"
+                                        <a href="{{ route('website.plan') }}"
                                             class="btn btn-light">{{ __('post_job') }}
                                         </a>
                                     </li>

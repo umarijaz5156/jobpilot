@@ -1,4 +1,4 @@
-@if ($cookies?$cookies->allow_cookies:false)
+<!-- @if ($cookies?$cookies->allow_cookies:false)
     <link rel="stylesheet" href="{{ asset('frontend\plugins\cookieconsent\cookieconsent.css') }}" media="print"
         onload="this.media='all'">
     <script async src="{{ asset('frontend/plugins/cookieconsent/cookieconsent.js') }}"></script>
@@ -131,4 +131,4 @@
             });
         });
     </script>
-@endif
+@endif -->
