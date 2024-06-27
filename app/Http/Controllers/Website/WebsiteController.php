@@ -224,6 +224,8 @@ class WebsiteController extends Controller
         }
     }
 
+    
+
     /**
      * Job category page view
      *
