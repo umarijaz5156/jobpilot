@@ -618,6 +618,7 @@
                                                 @endif
                                             @endcompany
                                         </a>
+                                        
                                         @candidate
                                         <ul class="custom-border dropdown-menu" aria-labelledby="dropdownMenuButton1">
                                             <li>
