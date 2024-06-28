@@ -292,7 +292,7 @@
                                             <span class="tw-flex tw-items-center tw-gap-1">
                                                 <i class="ph-map-pin"></i>
                                                 <span class="tw-location">
-                                                    {{ $job->country }}
+                                                    {{  $job->state->name ?? '' }}
                                                 </span>
                                             </span>
                                         </div>

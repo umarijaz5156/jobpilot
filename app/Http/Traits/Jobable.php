@@ -30,7 +30,6 @@ trait JobAble
         $filteredJobs = $this->filterJobs($request)->latest();
         $featured_jobs = $this->filterJobs($request)->latest()->where('featured', 1)->take(18)->get();
         $jobs = $filteredJobs->paginate(18)->withQueryString();
-
         return [
             'total_jobs' => $jobs->total(),
             'jobs' => $jobs,
@@ -85,6 +84,10 @@ trait JobAble
                 ])
                 ->withoutEdited()
                 ->active();
+        }
+
+        if (isset($params['state_id'])) {
+            $query->where('state_id', $params['state_id']);
         }
 
         // company search

@@ -40,6 +40,7 @@
                             @endphp
 
                             @if ($map == 'google-map')
+                    
                                 <div class="flex-grow-1 fromGroup has-icon banner-select no-border">
                                     <input type="text" id="searchInput" placeholder="{{ __('enter_location') }}"
                                         name="location" value="{{ $oldLocation }}" class="text-gray-900">
@@ -50,17 +51,39 @@
                                     </div>
                                 </div>
                             @else
-                                <div class="flex-grow-1 fromGroup has-icon banner-select no-border">
-                                    <input name="long" class="leaf_lon" type="hidden">
-                                    <input name="lat" class="leaf_lat" type="hidden">
-                                    <input type="text" id="leaflet_search" placeholder="{{ __('enter_location') }}"
-                                        name="location" value="{{ $oldLocation }}" autocomplete="off"
-                                        class="text-gray-900">
-                                    <div class="icon-badge">
-                                        <x-svg.location-icon stroke="{{ $setting->frontend_primary_color }}" width="24"
-                                            height="24" />
-                                    </div>
+                            @php
+                                 $country = Modules\Location\Entities\Country::where('name','Australia')->first();
+                                 $states = App\Models\State::where('country_id',$country->id)->get();
+                            @endphp
+
+                            <div class="flex-grow-1 fromGroup has-icon banner-select no-border">
+                                <input name="long" class="leaf_lon" type="hidden">
+                                <input name="lat" class="leaf_lat" type="hidden">
+                                <select style="border: none;"  name="state_id" class="text-gray-900">
+                                    <option value="" selected disabled>{{ __('Select a state') }}</option>
+                                    @foreach($states as $state)
+                                        <option value="{{ $state->id }}">{{ $state->name }}</option>
+                                    @endforeach
+                                </select>
+                                
+                                <div class="icon-badge">
+                                    <x-svg.location-icon stroke="{{ $setting->frontend_primary_color }}" width="24" height="24" />
                                 </div>
+                            </div>
+
+                               {{-- <div class="flex-grow-1 fromGroup has-icon banner-select no-border">
+                                <input name="long" class="leaf_lon" type="hidden">
+                                <input name="lat" class="leaf_lat" type="hidden">
+                                <input type="text" id="leaflet_search" placeholder="{{ __('enter_location') }}"
+                                       name="location" value="{{ $oldLocation }}" autocomplete="off"
+                                       class="text-gray-900">
+                                
+                                <div class="icon-badge">
+                                    <x-svg.location-icon stroke="{{ $setting->frontend_primary_color }}" width="24" height="24" />
+                                </div>
+                               
+                            </div> --}}
+                        
                             @endif
                             <div class="flex-grow-0">
                                 <button type="submit"
@@ -323,7 +346,7 @@
                                             </div>
                                             <span class="tw-flex tw-items-center tw-gap-1">
                                                 <i class="ph-map-pin"></i>
-                                                <span class="tw-location">{{ $job->country }}</span>
+                                                <span class="tw-location">{{  $job->state->name ?? '' }}</span>
                                             </span>
                                         </div>
                                     </div>

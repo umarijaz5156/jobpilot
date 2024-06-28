@@ -33,6 +33,7 @@ class JobFormRequest extends FormRequest
                 'company_id' => 'nullable',
                 'company_name' => 'required_if:company_id,null',
                 'category_id' => 'required|numeric',
+                'state_id' => 'required|numeric',
                 'role_id' => 'required|numeric',
                 'experience' => 'required',
                 'education' => 'required',

@@ -523,13 +523,28 @@
                         <form action="{{ route('website.job') }}" method="GET" id="search-form"
                             class="mx-width-300 header-search-form d-lg-block d-none">
                             <div class="search-box">
-                                <select id="headerSearch" onchange="changeSearchSelection()" class="form-select"
+                                {{-- <select id="headerSearch" onchange="changeSearchSelection()" class="form-select"
                                     aria-label="Default select example">
                                     <option @selected(session('header_search_role') == 'job') value="job">{{ __('jobs') }}</option>
                                     <option @selected(session('header_search_role') == 'candidate') value="candidate">{{ __('candidate') }}
                                     </option>
                                     <option @selected(session('header_search_role') == 'company') value="company">{{ __('company') }}</option>
-                                </select>
+                                </select> --}}
+                                @php
+                                $country = Modules\Location\Entities\Country::where('name','Australia')->first();
+                                $states = App\Models\State::where('country_id',$country->id)->get();
+                           @endphp
+
+                           <div class="flex-grow-1 fromGroup has-icon banner-select no-border">
+                              
+                               <select style="border: none;"  name="state_id" class="text-gray-900">
+                                   <option value="" selected disabled>{{ __('Select a state') }}</option>
+                                   @foreach($states as $state)
+                                       <option {{ request('state_id') == $state->id ? 'selected' : '' }} value="{{ $state->id }}">{{ $state->name }}</option>
+                                   @endforeach
+                               </select>
+                            
+                           </div>
                                 <div class="d-flex flex-column flex-md-row align-items-center tw-ps-3">
                                     <svg class="searcbox-searchicon" width="24" height="24"
                                         viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

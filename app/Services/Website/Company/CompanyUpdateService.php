@@ -92,6 +92,7 @@ class CompanyUpdateService
 
             $job->update([
                 'category_id' => $job_category_id,
+                'state_id' => $request->state_id,
                 'role_id' => $job_role_id,
                 'education_id' => $request->education,
                 'experience_id' => $request->experience,

@@ -62,7 +62,7 @@
                         </div>
                         <span class="tw-flex tw-items-center tw-gap-1">
                             <i class="ph-map-pin"></i>
-                            <span class="tw-location">{{ $job->country }}</span>
+                            <span class="tw-location">{{ $job->state->name }} </span>
                         </span>
                     </div>
                 </div>
@@ -131,7 +131,7 @@
                         <span class="tw-flex tw-items-center tw-gap-1">
                             <i class="ph-map-pin"></i>
                             <span class="tw-location">
-                                {{ $job->locations ?? 'No Location' }}
+                                {{  $job->state->name ?? 'No Location' }}
                             </span>
                             <span><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                     stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -177,7 +177,7 @@
                         <span class="tw-flex tw-items-center tw-gap-1">
                             <i class="ph-map-pin"></i>
                             <span class="tw-location">
-                                {{ $job->formattedLocationFull ?? 'No Location' }}
+                                {{  $job->state->name ?? 'No Location' }}
                             </span>
                         </span>
                     </div>

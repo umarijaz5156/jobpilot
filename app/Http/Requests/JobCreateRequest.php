@@ -27,6 +27,7 @@ class JobCreateRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'category_id' => 'required',
+            'state_id' => 'required',
             'role_id' => 'required',
             'experience' => 'required',
             'education' => 'required',

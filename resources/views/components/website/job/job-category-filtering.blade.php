@@ -94,9 +94,25 @@
                         @else
                             <input name="long" class="leaf_lon" type="hidden" value="{{ request('lat') }}">
                             <input name="lat" class="leaf_lat" type="hidden" value="{{ request('long') }}">
-                            <input type="text" id="leaflet_search" placeholder="{{ __('enter_location') }}"
+                            {{-- <input type="text" id="leaflet_search" placeholder="{{ __('enter_location') }}"
                                 name="location" value="{{ request('location') }}" class="tw-border-0 tw-pl-12"
-                                autocomplete="off" />
+                                autocomplete="off" /> --}}
+                                @php
+                                $country = Modules\Location\Entities\Country::where('name','Australia')->first();
+                                $states = App\Models\State::where('country_id',$country->id)->get();
+                           @endphp
+
+                           <div class="flex-grow-1 fromGroup has-icon banner-select no-border">
+                               <input name="long" class="leaf_lon" type="hidden">
+                               <input name="lat" class="leaf_lat" type="hidden">
+                               <select style="border: none;margin-left:20px"  name="state_id" class="text-gray-900">
+                                   <option value="" selected disabled>{{ __('Select a state') }}</option>
+                                   @foreach($states as $state)
+                                       <option {{ request('state_id') == $state->id ? 'selected' : '' }} value="{{ $state->id }}">{{ $state->name }}</option>
+                                   @endforeach
+                               </select>
+                            
+                           </div>
                         @endif
 
                         <div class="tw-absolute tw-top-1/2 -tw-translate-y-1/2 tw-left-3">

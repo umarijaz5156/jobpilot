@@ -74,7 +74,7 @@ return [
     'careerjet_default_locale' => 'en_US',
     'careerjet_limit' => '10',
 
-    'default_job_provider' => 'indeed',
+    'default_job_provider' => '',
 
     'pusher_app_id' => env('PUSHER_APP_ID'),
     'pusher_app_key' => env('PUSHER_APP_KEY'),

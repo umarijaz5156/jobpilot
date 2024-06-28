@@ -155,6 +155,7 @@ Route::controller(SocialLoginController::class)->group(function () {
 // =============================Guest Routes=============================
 // ======================================================================
 Route::controller(WebsiteController::class)->name('website.')->group(function () {
+    Route::get('/register-company', 'RegisterCompany')->name('registerCompany');
     Route::get('/', 'index')->name('home');
     Route::get('/about', 'about')->name('about');
     Route::get('/contact', 'contact')->name('contact');

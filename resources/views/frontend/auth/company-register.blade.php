@@ -47,7 +47,7 @@
                                             </p>
                                             <div
                                                 class="switcher-container tw-px-0 tw-w-full tw-border-2 tw-border-red-600 tw-flex">
-                                                <input id="switcher-toggle-on"
+                                                {{-- <input id="switcher-toggle-on"
                                                     class="switcher-toggle switcher-toggle-left tw-w-full" name="role"
                                                     value="candidate" type="radio" checked="">
                                                 <label for="switcher-toggle-on"
@@ -55,16 +55,15 @@
                                                     id="web-btn">
                                                     <span><x-svg.candidate-profile-icon /></span>
                                                     <span>{{ __('candidate') }}</span>
-                                                </label>
-                                                {{-- <input id="switcher-toggle-off"
-                                                    class="switcher-toggle switcher-toggle-right tw-w-full" name="role"
-                                                    value="company" type="radio">
+                                                </label> --}}
+                                                <input  name="role"
+                                                    value="company" type="hidden">
                                                 <label for="switcher-toggle-off"
                                                     class="switcher-button tw-w-full  tw-rounded-tr-md tw-rounded-br-md"
                                                     id="wp-btn">
                                                     <span><x-svg.employer-profile-icon /></span>
                                                     <span>{{ __('employer') }}</span>
-                                                </label> --}}
+                                                </label>
                                             </div>
                                         </div>
 

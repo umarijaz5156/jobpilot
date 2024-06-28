@@ -24,6 +24,7 @@ use App\Models\OrganizationType;
 use App\Models\PaymentSetting;
 use App\Models\SalaryType;
 use App\Models\Skill;
+use App\Models\State;
 use App\Models\Tag;
 use App\Models\TeamSize;
 use App\Models\User;
@@ -379,6 +380,8 @@ class CompanyController extends Controller
                 return redirect()->route('company.plan');
             }
 
+            $country = Country::where('name','Australia')->first();
+            $data['states'] = State::where('country_id',$country->id)->get();
             $data['jobCategories'] = JobCategory::all()->sortBy('name');
             $data['roles'] = JobRole::all()->sortBy('name');
             $data['experiences'] = Experience::all();
@@ -445,6 +448,8 @@ class CompanyController extends Controller
             $data['skills'] = Skill::all()->sortBy('name');
             $job->load('tags', 'benefits');
             $data['job'] = $job;
+            $country = Country::where('name','Australia')->first();
+            $data['states'] = State::where('country_id',$country->id)->get();
 
             $all_benefits = Benefit::all()->sortBy('name');
             $non_company_benefits = $all_benefits->whereNull('company_id');

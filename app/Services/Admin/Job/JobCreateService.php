@@ -39,6 +39,7 @@ class JobCreateService
             'company_id' => $companyId,
             'company_name' => $companyName,
             'category_id' => $request->category_id,
+            'state_id' => $request->state_id,
             'role_id' => $request->role_id,
             'salary_mode' => $request->salary_mode,
             'custom_salary' => $request->custom_salary,

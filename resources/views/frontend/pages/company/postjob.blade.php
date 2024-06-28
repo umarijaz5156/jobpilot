@@ -245,6 +245,28 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            <div class="row mb-3 form-group">
+                                <div class=" col-md-12">
+                                    <label for="state_id">
+                                        {{ __('state') }}
+                                        <span class="text-red font-weight-bold">*</span></label>
+                                    <select name="state_id"
+                                        class="form-control select2-taggable select2-search @error('state_id') is-invalid @enderror"
+                                        id="state_id" required>
+                                        <option value=""> {{ __('Select State') }}</option>
+                                        @foreach ($states as $state)
+                                            <option {{ old('state_id') == $state->id ? 'selected' : '' }}
+                                                value="{{ $state->id }}"> {{ $state->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('state_id')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ __($message) }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
                             <div class="row">
                                 @if (config('templatecookie.map_show'))
                                     <div class="col-12 rt-mb-15">

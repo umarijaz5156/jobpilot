@@ -131,6 +131,12 @@ class WebsiteController extends Controller
         }
     }
 
+    public function RegisterCompany(){
+        $data['candidates'] = Candidate::count();
+
+        return view('frontend.auth.company-register',$data); 
+    }
+
     /**
      * Terms and condition page view
      *
@@ -197,6 +203,7 @@ class WebsiteController extends Controller
      */
     public function jobs(Request $request)
     {
+
         try {
             $data = (new JobListService())->jobs($request);
 
@@ -483,6 +490,8 @@ class WebsiteController extends Controller
      */
     public function employees(Request $request)
     {
+
+    
         try {
             abort_if(auth('user')->check() && authUser()->role == 'company', 404);
 

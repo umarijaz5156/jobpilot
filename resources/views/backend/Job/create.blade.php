@@ -151,6 +151,29 @@
                         </div>
                         <div class="section pt-3" id="location">
                             <div class="card mb-0">
+
+                                <div class="row  p-3 form-group">
+                                    <div class=" col-md-12">
+                                        <label for="state_id">
+                                            {{ __('state') }}
+                                            <span class="text-red font-weight-bold">*</span></label>
+                                        <select name="state_id"
+                                            class="form-control select2bs4 @error('state_id') is-invalid @enderror"
+                                            id="state_id" required>
+                                            <option value=""> {{ __('Select State') }}</option>
+                                            @foreach ($states as $state)
+                                                <option {{ old('state_id') == $state->id ? 'selected' : '' }}
+                                                    value="{{ $state->id }}"> {{ $state->name }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('state_id')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ __($message) }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+                                </div>
+
                                 {{-- <div class="card-header">
                                     <div class="card-title">
                                         {{ __('location') }}
@@ -205,6 +228,13 @@
                                         </small>
                                     </div>
                                 </div>
+                                
+                           
+
+             
+
+                           
+
                                 <div class="card-body">
                                     <x-website.map.map-warning />
                                     @php
@@ -223,6 +253,7 @@
                                     @error('location')
                                         <span class="ml-3 text-md text-danger">{{ $message }}</span>
                                     @enderror
+                                    
                                 </div>
                                 @php
                                     $location = session()->get('location');
