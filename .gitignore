@@ -21,5 +21,3 @@ Homestead.yaml
 Homestead.json
 /.vagrant
 .phpunit.result.cache
-app/Http/Traits/JobAble.php
-public/uploads/
