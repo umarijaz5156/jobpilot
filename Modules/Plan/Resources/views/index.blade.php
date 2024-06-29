@@ -150,7 +150,7 @@
                                     @endif
                                 </h5>
                             </div>
-                            <div class="mb-2 d-flex align-items-center justify-content-between">
+                            {{-- <div class="mb-2 d-flex align-items-center justify-content-between">
                                 <div class="d-flex">
                                     <span class="icon mr-2">
                                         <x-check-icon width="22" height="22" />
@@ -181,7 +181,7 @@
                                         </svg>
                                     </span>
                                 @endif
-                            </div>
+                            </div> --}}
 
                         </div>
                         <div class="card-footer">

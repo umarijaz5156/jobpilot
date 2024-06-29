@@ -531,7 +531,7 @@
                                     <option @selected(session('header_search_role') == 'company') value="company">{{ __('company') }}</option>
                                 </select> --}}
                                 @php
-                                $country = Modules\Location\Entities\Country::where('name','Australia')->first();
+                                $country = App\Models\SearchCountry::where('name','Australia')->first();
                                 $states = App\Models\State::where('country_id',$country->id)->get();
                            @endphp
 

@@ -1,6 +1,6 @@
     <div class="container">
         <div class="row">
-            <div class="col-xl-6 rt-mb-24">
+            <div class="col-xl-12 rt-mb-24">
                 <div class="cta-1 ct-height bgprefix-cover"
                     style="background-image: url({{ asset($cms_setting->candidate_image) }}">
                     <h5 class="lg:tw-mb-4 tw-mb-1.5 tw-text-xl lg:tw-text-[28px] lg:tw-leading-[38px]">{{ __('candidate_title') }}</h5>
@@ -29,7 +29,7 @@
                 </div>
 
             </div>
-            <div class="col-xl-6 rt-mb-24">
+            {{-- <div class="col-xl-6 rt-mb-24">
                 <div class="cta-1 ct-height bgprefix-cover"
                     style="background-image: url({{ asset($cms_setting->employers_image) }}">
                     <h5 class="lg:tw-mb-4 tw-mb-1.5 tw-text-xl lg:tw-text-[28px] lg:tw-leading-[38px] text-gray-10">{{ __('employers_title') }}</h5>
@@ -56,6 +56,6 @@
                         </button>
                     </form>
                 </div>
-            </div>
+            </div> --}}
         </div>
     </div>

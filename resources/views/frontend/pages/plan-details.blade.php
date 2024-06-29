@@ -9,9 +9,21 @@
     <section class="section benefits bgcolor--gray-10 mt-5 pt-5">
         <div class="container">
             <div class="row mt-5 pt-5">
-                <h4 class="text-info">{{ __('total_amount_to_pay') }}: {{ currencyPosition($plan->price, true) }}</h4>
+                @php
+                $originalPrice = $plan->price;
+                $percentage = env('GST_PERCENTAGE', 10);
+                $extraAmount = $originalPrice * ($percentage / 100);
+                $totalAmount = $originalPrice + $extraAmount;
+            @endphp
+            
+            <div class="mb-3" style="display: flex;">
+            <h4 class="text-info">
+                {{ __('total_amount_to_pay') }}: {{ currencyPosition($totalAmount, true) }}
+            </h4>
+            <span style="margin-top: 4px;margin-left:10px">(GST Include)</span>
             </div>
-            <div class="row py-5">
+                        </div>
+            {{-- <div class="row py-5">
                 <h5>{{ __('online_payment_gatewats') }}</h5>
                 @if (config('paypal.active') ||
                     config('templatecookie.stripe_active') ||
@@ -21,9 +33,8 @@
                     config('templatecookie.flw_active') ||
                     config('templatecookie.im_active') ||
                     config('templatecookie.midtrans_active') ||
-                    config('templatecookie.mollie_active'))
+                    config('templatecookie.mollie_active'))  
 
-                    {{-- Paypal payment --}}
                     @if (config('paypal.mode') == 'sandbox')
                         @if (config('paypal.active') && config('paypal.sandbox.client_id') && config('paypal.sandbox.client_secret'))
                             <div class="col-4 my-2">
@@ -54,7 +65,7 @@
                                     <div class="card-body">
                                         <div class="rt-single-icon-box">
                                             <div class="iconbox-content">
-                                                <div class="body-font-1 rt-mb-12">
+                                                <div class="body-font-1 rt-mb-12"> 
                                                     {{ __('paypal') }}
                                                 </div>
                                             </div>
@@ -72,7 +83,6 @@
                         @endif
                     @endif
 
-                    {{-- Stripe payment --}}
                     @if (config('templatecookie.stripe_active') && config('templatecookie.stripe_key') && config('templatecookie.stripe_secret'))
                         <div class="col-4 my-2">
                             <div class="card jobcardStyle1">
@@ -118,7 +128,6 @@
                     </div>
                     @endif
 
-                    {{-- Razorpay payment --}}
                     @if (config('templatecookie.razorpay_active') &&
                         config('templatecookie.razorpay_key') &&
                         config('templatecookie.razorpay_secret'))
@@ -144,7 +153,6 @@
                         </div>
                     @endif
 
-                    {{-- Paystack payment --}}
                     @if (config('templatecookie.paystack_active') &&
                         config('templatecookie.paystack_key') &&
                         config('templatecookie.paystack_secret'))
@@ -170,7 +178,6 @@
                         </div>
                     @endif
 
-                    {{-- Flutterwave payment --}}
                     @if (config('templatecookie.flw_public_key') &&
                         config('templatecookie.flw_secret') &&
                         config('templatecookie.flw_secret_hash') &&
@@ -197,7 +204,6 @@
                         </div>
                     @endif
 
-                    {{-- Mollie payment --}}
                     @if (config('templatecookie.mollie_key') && config('templatecookie.mollie_active'))
                         <div class="col-4 my-2">
                             <div class="card jobcardStyle1">
@@ -221,7 +227,6 @@
                         </div>
                     @endif
 
-                    {{-- Instamojo payment --}}
                     @if (config('templatecookie.im_key') &&
                         config('templatecookie.im_secret') &&
                         config('templatecookie.im_url') &&
@@ -248,7 +253,6 @@
                         </div>
                     @endif
 
-                    {{-- Midtrans payment --}}
                     @if (config('templatecookie.midtrans_active') &&
                         config('templatecookie.midtrans_merchat_id') &&
                         config('templatecookie.midtrans_client_key') &&
@@ -275,7 +279,6 @@
                         </div>
                     @endif
 
-                    {{-- SSl Commerz payment --}}
                     @if (config('sslcommerz.active') &&
                         config('sslcommerz.store.id') &&
                         config('sslcommerz.store.password'))
@@ -306,7 +309,7 @@
                         <h5 class="mt-4">{{ __('no_payment_method_available_here') }}</h5>
                     </div>
                 @endif
-            </div>
+            </div> --}}
             @if ($manual_payments && count($manual_payments))
                 <div class="row mb-5">
                     <h5>{{ __('manual_payment_gateways') }}</h5>

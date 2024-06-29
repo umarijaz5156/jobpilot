@@ -27,7 +27,10 @@ class ManualPaymentController extends Controller
             $price = session('job_total_amount') ?? '100';
         } else {
             $plan = Plan::findOrFail($request->plan_id);
-            $price = $plan->price;
+            $originalPrice = $plan->price;
+            $percentage = env('GST_PERCENTAGE', 10);
+            $extraAmount = $originalPrice * ($percentage / 100);
+            $price = $originalPrice + $extraAmount;
         }
 
         $payment = ManualPayment::findOrFail($request->payment_id);

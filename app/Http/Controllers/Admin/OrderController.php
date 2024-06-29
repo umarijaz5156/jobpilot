@@ -78,18 +78,22 @@ class OrderController extends Controller
         try {
             $plan = Plan::find($request->plan_id);
 
+            $originalPrice = $plan->price;
+            $percentage = env('GST_PERCENTAGE', 10);
+            $extraAmount = $originalPrice * ($percentage / 100);
+            $price = $originalPrice + $extraAmount;
             $earning = new Earning();
             $earning->order_id = uniqid();
             $earning->transaction_id = uniqid('tr_');
             $earning->payment_provider = $request->payment_provider;
             $earning->plan_id = $request->plan_id;
-            $earning->amount = $plan->price;
+            $earning->amount = $price;
             $earning->company_id = $request->company_id;
             $earning->manual_payment_id = $request->payment_provider == 'offline' ? $request->manual_payment_id : null;
             $earning->payment_status = $request->status;
             $earning->payment_type = 'subscription_based';
             $earning->currency_symbol = env('APP_CURRENCY_SYMBOL');
-            $earning->usd_amount = usdAmount($plan->price);
+            $earning->usd_amount = usdAmount($price);
             $earning->save();
 
             // Create benefit under this order

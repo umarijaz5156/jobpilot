@@ -17,6 +17,7 @@ use App\Models\JobCategory;
 use App\Models\JobRole;
 use App\Models\JobType;
 use App\Models\SalaryType;
+use App\Models\SearchCountry;
 use App\Models\Skill;
 use App\Models\State;
 use App\Models\Tag;
@@ -84,7 +85,7 @@ class JobController extends Controller
             abort_if(! userCan('job.create'), 403);
 
             $data['countries'] = Country::all();
-            $country = Country::where('name','Australia')->first();
+            $country = SearchCountry::where('name','Australia')->first();
             $data['states'] = State::where('country_id',$country->id)->get();
             $data['companies'] = Company::all();
             $data['job_category'] = JobCategory::all()->sortBy('name');
@@ -202,7 +203,7 @@ class JobController extends Controller
             $data['lat'] = $job->lat ? floatval($job->lat) : floatval(setting('default_lat'));
             $data['long'] = $job->long ? floatval($job->long) : floatval(setting('default_long'));
             $data['skills'] = Skill::all()->sortBy('name');
-            $country = Country::where('name','Australia')->first();
+            $country = SearchCountry::where('name','Australia')->first();
             $data['states'] = State::where('country_id',$country->id)->get();
             return view('backend.Job.edit', $data);
         } catch (\Exception $e) {
