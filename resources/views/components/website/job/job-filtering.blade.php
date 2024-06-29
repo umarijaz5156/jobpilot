@@ -106,7 +106,7 @@
                                 name="location" value="{{ request('location') }}" class="tw-border-0 tw-pl-12"
                                 autocomplete="off" /> --}}
                                 @php
-                                $country = Modules\Location\Entities\Country::where('name','Australia')->first();
+                                $country = App\Models\SearchCountry::where('name','Australia')->first();
                                 $states = App\Models\State::where('country_id',$country->id)->get();
                            @endphp
 

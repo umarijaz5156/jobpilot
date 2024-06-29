@@ -50,7 +50,7 @@
                     </a>
                 </div>
                 @if ($setting->per_job_active)
-                    <div class="pay-per-job">
+                    {{-- <div class="pay-per-job">
                         <h2 class="">{{ __('Or_pay_per_job_post') }}</h2>
                         <p>{{ __('pay_only_for_a_single_job_creation_and_you_can_also_highlight_or_featured_them') }}</p>
                         @auth('user')
@@ -60,7 +60,7 @@
                             <a href="{{ route('company.job.payPerJobCreate') }}"
                                 class="btn btn-primary login_required">{{ __('pay_per_job') }}</a>
                         @endauth
-                    </div>
+                    </div> --}}
                 @endif
 
             </div>
@@ -106,7 +106,10 @@
                                         <div>
                                             <span
                                                 class="tw-text-[#0A65CC] tw-text-[36px] tw-leading-[44px] tw-font-medium">
-                                                {{ currencyPosition($plan->price, true,$current_currency) }}
+                                                {{ currencyPosition($plan->price, true,$current_currency) }} 
+                                            </span>
+                                            <span>
+                                                (+ gst)
                                             </span>
                                         </div>
                                     </div>
@@ -165,7 +168,7 @@
                                                     {{ __('candidate_profile_view') }}
                                                 </span>
                                             </li>
-                                            <li style="display: flex ;align-items: center ">
+                                            {{-- <li style="display: flex ;align-items: center ">
                                                 @if ($plan->profile_verify)
                                                     <span>
                                                         <img src="{{ asset('frontend') }}/assets/images/icon/check.png"
@@ -186,7 +189,7 @@
                                                 <span>
                                                     {{ __('ability_to_profile_verify') }}
                                                 </span>
-                                            </li>
+                                            </li> --}}
                                         </ul>
                                     </div>
                                     <div class="price-footer">
@@ -249,7 +252,7 @@
     </section>
 
     @if ($cms_setting->payment_logo1 || $cms_setting->payment_logo2 || $cms_setting->payment_logo3 || $cms_setting->payment_logo4 ||$cms_setting->payment_logo5 || $cms_setting->payment_logo6)
-        <section class="tw-py-10">
+        {{-- <section class="tw-py-10">
             <div class="container">
                 <div
                     class="tw-max-w-max tw-mx-auto tw-px-8 tw-py-4 tw-rounded-lg tw-shadow-[0px_0px_32px_0px_rgba(0,0,0,0.12)] tw-bg-white">
@@ -281,7 +284,7 @@
                     </ul>
                 </div>
             </div>
-        </section>
+        </section> --}}
     @endif
     @if ($faqs->count())
         <section class="tw-py-16">
@@ -318,7 +321,7 @@
             <div class="tw-flex md:tw-flex-row tw-flex-col tw-gap-5 tw-items-center">
                 <div
                     class="tw-w-full tw-rounded-lg tw-flex tw-flex-col tw-gap-3 tw-p-4 tw-shadow-[0px_0px_32px_0px_rgba(0,0,0,0.12)] tw-bg-white">
-                    <h4 class="tw-text-xl">{{ __('connect_with_us') }}</h4>
+                    <h4 class="tw-text-xl">{{ __('Please call us or email your jobs') }}</h4>
                     <div class="tw-flex tw-flex-wrap tw-h-auto tw-gap-4 tw-items-center tw-min-h-[38px]">
                         <a href="tel:{{ $cms_setting?->footer_phone_no }}"
                             class="tw-inline-flex tw-text-base tw-font-medium tw-text-primary-500 hover:tw-text-primary-700 tw-gap-1.5 tw-items-center">
@@ -336,12 +339,12 @@
                         </a>
                     </div>
                 </div>
-                <div
+                {{-- <div
                     class="tw-w-full tw-rounded-lg tw-flex tw-flex-col tw-gap-3 tw-p-4 tw-shadow-[0px_0px_32px_0px_rgba(0,0,0,0.12)] tw-bg-white">
                     <h4 class="tw-text-xl">{{ __('are_you_interested_with_us') }}</h4>
                     <a href="{{ route('register') }}"
                         class="btn tw-bg-primary-500 hover:tw-bg-transparent tw-border tw-border-transparent hover:tw-border-primary-500 hover:tw-text-primary-500 tw-text-white tw-py-2 tw-text-sm">{{__('register_now')}}</a>
-                </div>
+                </div> --}}
             </div>
         </div>
     </section>

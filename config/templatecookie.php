@@ -24,7 +24,7 @@ return [
     'paypal_live_client_id' => 'AT3P4kyT_5kQ7cekb4z4JRl9wwjhYJpDEYP_8_AX9zZ3h16h-l1pe5n5rv6WdODNOk_n4Kbn6WHz9eRB',
     'paypal_live_secret' => 'EHTOE0nCzLn_DtiNESl6onVjhpTh44BoGyCkafDDnhFVorb5XXRO8QQLBxHq8GCKRZzxCW2EP-2cleSJ',
     'paypal_mode' => 'live',
-    'paypal_active' => true,
+    'paypal_active' => false,
 
     'stripe_key' => '',
     'stripe_secret' => '',
