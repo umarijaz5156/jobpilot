@@ -21,16 +21,19 @@ class JobListService
         if ($data['total_jobs'] == 0 || $data['total_jobs'] < 18) {
 
             // Mix jobs (Careerjet + Indeed + App Jobs)
-            $page = rand(1, 10000);
-            $per_page = 18 - $data['total_jobs'];
+            // $page = rand(1, 10000);
+            // $per_page = 18 - $data['total_jobs'];
 
-            // Careerjet Jobs
-            $careerjet_job_list = $this->getCareerjetJobs($request, $per_page, $page);
-            $careerjet_jobs = $this->careerjetJobs($careerjet_job_list);
+            // // Careerjet Jobs
+            // $careerjet_job_list = $this->getCareerjetJobs($request, $per_page, $page);
+            // $careerjet_jobs = $this->careerjetJobs($careerjet_job_list);
 
-            // Indeed Jobs
-            $indeed_job_list = $this->getIndeedJobs($request, $per_page, $page);
-            $indeed_jobs = $this->indeedJobs($indeed_job_list);
+            // // Indeed Jobs
+            // $indeed_job_list = $this->getIndeedJobs($request, $per_page, $page);
+            // $indeed_jobs = $this->indeedJobs($indeed_job_list);
+
+            $careerjet_jobs = [];
+            $indeed_jobs = [];
         } else {
             $careerjet_jobs = [];
             $indeed_jobs = [];

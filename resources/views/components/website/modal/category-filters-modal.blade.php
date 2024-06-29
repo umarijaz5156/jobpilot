@@ -33,7 +33,7 @@
                         </div>
                     @endforeach
                 </div>
-                <hr class="tw-bg-[#E4E5E8] tw-m-0">
+                {{-- <hr class="tw-bg-[#E4E5E8] tw-m-0">
                 <div class="tw-p-5">
                     <h2 class="tw-text-sm tw-text-[#0A65CC] tw-mb-8 tw-font-medium">{{ __('salary') }}</h2>
                     <div>
@@ -97,7 +97,7 @@
                         <label for="100000Up"
                             class="tw-text-sm tw-text-[#18191C] tw-mt-[2px]">{{ $currency_symbol }}100,000 Up</label>
                     </div>
-                </div>
+                </div> --}}
                 <hr class="tw-bg-[#E4E5E8] tw-m-0">
                 <div class="tw-px-5 tw-pt-5">
                     <h2 class="tw-text-sm tw-text-[#0A65CC] tw-mb-2 tw-font-medium">{{ __('category') }}</h2>

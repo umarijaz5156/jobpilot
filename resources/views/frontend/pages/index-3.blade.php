@@ -450,7 +450,7 @@
     @endif
     <!-- google adsense area end -->
     <!-- newsletter -->
-    <section class="section-box tw-mb-8">
+    {{-- <section class="section-box tw-mb-8">
         <div class="container">
             <div class="tw-bg-primary-500 tw-p-8 tw-rounded-xl">
                 <div class="row align-items-center">
@@ -490,7 +490,12 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> --}}
+    @php
+    $cms = App\Models\Cms::first('home_page_banner_image');
+    $bannerImage = $cms->home_page_banner_image ?? 'frontend/assets/images/hero-bg-3.jpeg';
+@endphp
+  
 @endsection
 
 @section('css')
@@ -500,7 +505,7 @@
     <style>
         .hero-section-3 {
             padding: 100px 0px;
-            background-image: url('{{ asset('frontend/assets/images/hero-bg-3.jpeg') }}');
+            background-image: url('{{ asset($bannerImage) }}');
             background-repeat: no-repeat;
             background-size: cover;
             position: relative;
