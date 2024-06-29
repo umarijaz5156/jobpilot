@@ -86,10 +86,7 @@ trait JobAble
                 ->active();
         }
 
-        if (isset($params['state_id'])) {
-            $query->where('state_id', $params['state_id']);
-        }
-
+    
         // company search
         if ($request->has('company') && $request->company != null) {
             $company = $request->company;
@@ -137,6 +134,10 @@ trait JobAble
                     $q->where('job_tag.tag_id', $tag->tag_id);
                 });
             }
+        }
+
+        if (isset($request->state_id)) {
+            $query->where('state_id', $request->state_id);
         }
 
         // id filter for load more
@@ -227,7 +228,6 @@ trait JobAble
                 });
             }
         }
-
         return $query;
     }
 

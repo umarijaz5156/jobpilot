@@ -28,8 +28,8 @@
                         </div>
                     @endforeach
                 </div>
-                <hr class="tw-bg-[#E4E5E8] tw-m-0">
-                <div class="tw-p-5">
+                {{-- <hr class="tw-bg-[#E4E5E8] tw-m-0"> --}}
+                {{-- <div class="tw-p-5">
                     <h2 class="tw-text-sm tw-text-[#0A65CC] tw-mb-8 tw-font-medium">{{ __('salary') }}</h2>
                     <div>
                         <input type="hidden" name="price_min" id="price_min"
@@ -94,7 +94,7 @@
                             class="tw-text-sm tw-text-[#18191C] tw-mt-[2px]">{{ $currentCurrency->symbol }}100,000
                             Up</label>
                     </div>
-                </div>
+                </div> --}}
                 <hr class="tw-bg-[#E4E5E8] tw-m-0">
                 <div class="tw-px-5 tw-pt-5">
                     <h2 class="tw-text-sm tw-text-[#0A65CC] tw-mb-2 tw-font-medium">{{ __('category') }}</h2>

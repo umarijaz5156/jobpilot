@@ -537,7 +537,7 @@
 
                            <div class="flex-grow-1 fromGroup has-icon banner-select no-border">
                               
-                               <select style="border: none;"  name="state_id" class="text-gray-900">
+                               <select style="border: none;width:100%"  name="state_id" class="text-gray-900">
                                    <option value="" selected disabled>{{ __('Select a state') }}</option>
                                    @foreach($states as $state)
                                        <option {{ request('state_id') == $state->id ? 'selected' : '' }} value="{{ $state->id }}">{{ $state->name }}</option>

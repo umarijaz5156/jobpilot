@@ -104,13 +104,21 @@
                                             @endif
                                         </span>
                                         <div>
+                                            @if ($plan->label === 'Unlimited 12 Month Package')
                                             <span
-                                                class="tw-text-[#0A65CC] tw-text-[36px] tw-leading-[44px] tw-font-medium">
-                                                {{ currencyPosition($plan->price, true,$current_currency) }} 
-                                            </span>
-                                            <span>
-                                                (+ gst)
-                                            </span>
+                                            class="tw-text-[#0A65CC]  tw-leading-[44px] tw-font-medium">
+                                            Please Call for Details
+                                        </span>
+                                            @else
+                                            <span
+                                            class="tw-text-[#0A65CC] tw-text-[36px] tw-leading-[44px] tw-font-medium">
+                                            {{ currencyPosition($plan->price, true,$current_currency) }} 
+                                        </span>
+                                        <span>
+                                            (+ gst)
+                                        </span>
+                                            @endif
+                                           
                                         </div>
                                     </div>
                                     <div class="price-body">
@@ -154,7 +162,7 @@
                                                 <span><b>{{ $plan->highlight_job_limit }}</b>
                                                     {{ __('highlights_job') }}</span>
                                             </li>
-                                            <li>
+                                            {{-- <li>
                                                 <span class="tw-inline-flex tw-justify-center tw-items-center tw-w-6 tw-h-6 tw-rounded-full tw-bg-[#eef5fc]">
                                                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                                                         xmlns="http://www.w3.org/2000/svg">
@@ -167,7 +175,7 @@
                                                     <b>{{ $plan->candidate_cv_view_limitation == 'limited' ? $plan->candidate_cv_view_limit : __('unlimited') }}</b>
                                                     {{ __('candidate_profile_view') }}
                                                 </span>
-                                            </li>
+                                            </li> --}}
                                             {{-- <li style="display: flex ;align-items: center ">
                                                 @if ($plan->profile_verify)
                                                     <span>
@@ -211,17 +219,34 @@
                                                     </button>
                                                 </form>
                                             @else
-                                                <a href="{{ route('website.plan.details', $plan->label) }}"
-                                                    class="btn btn-primary-50 d-block">
-                                                    <span class="button-content-wrapper ">
-                                                        <span class="button-icon align-icon-right">
-                                                            <i class="ph-arrow-right"></i>
-                                                        </span>
-                                                        <span class="button-text">
-                                                            {{ __('get_started') }}
-                                                        </span>
+
+                                            @if ($plan->label === 'Unlimited 12 Month Package')
+                                            <button type="button" class="btn btn-primary-50 d-block">
+                                                <span class="button-content-wrapper ">
+                                                    <span class="button-icon align-icon-right">
+                                                        <i class="ph-arrow-right"></i>
                                                     </span>
-                                                </a>
+                                                    <span class="button-text">
+                                                        {{ __('Call for details') }}
+                                                    </span>
+                                                </span>
+                                            </button>
+                                            @else
+
+                                            <a href="{{ route('website.plan.details', $plan->label) }}"
+                                                class="btn btn-primary-50 d-block">
+                                                <span class="button-content-wrapper ">
+                                                    <span class="button-icon align-icon-right">
+                                                        <i class="ph-arrow-right"></i>
+                                                    </span>
+                                                    <span class="button-text">
+                                                        {{ __('get_started') }}
+                                                    </span>
+                                                </span>
+                                            </a>
+                                                    
+                                            @endif
+
                                             @endif
                                         @else
                                             <button type="button" class="btn btn-primary-50 d-block login_required">
