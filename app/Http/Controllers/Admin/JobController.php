@@ -14,6 +14,7 @@ use App\Models\Education;
 use App\Models\Experience;
 use App\Models\Job;
 use App\Models\JobCategory;
+use App\Models\JobCategoryTranslation;
 use App\Models\JobRole;
 use App\Models\JobType;
 use App\Models\SalaryType;
@@ -21,6 +22,7 @@ use App\Models\SearchCountry;
 use App\Models\Skill;
 use App\Models\State;
 use App\Models\Tag;
+use App\Models\User;
 use App\Notifications\JobApprovalNotification;
 use App\Notifications\Website\Candidate\RelatedJobNotification;
 use App\Services\Admin\Job\JobCreateService;
@@ -50,7 +52,7 @@ class JobController extends Controller
     public function index(Request $request)
     {
         try {
-            abort_if(! userCan('job.view'), 403);
+            abort_if(!userCan('job.view'), 403);
 
             $jobs = (new JobListService())->execute($request);
             $job_categories = JobCategory::all()->sortBy('name');
@@ -68,7 +70,7 @@ class JobController extends Controller
                 'edited_jobs' => $edited_jobs,
             ]);
         } catch (\Exception $e) {
-            flashError('An error occurred: '.$e->getMessage());
+            flashError('An error occurred: ' . $e->getMessage());
 
             return back();
         }
@@ -82,11 +84,11 @@ class JobController extends Controller
     public function create()
     {
         try {
-            abort_if(! userCan('job.create'), 403);
+            abort_if(!userCan('job.create'), 403);
 
             $data['countries'] = Country::all();
-            $country = SearchCountry::where('name','Australia')->first();
-            $data['states'] = State::where('country_id',$country->id)->get();
+            $country = SearchCountry::where('name', 'Australia')->first();
+            $data['states'] = State::where('country_id', $country->id)->get();
             $data['companies'] = Company::all();
             $data['job_category'] = JobCategory::all()->sortBy('name');
             $data['job_roles'] = JobRole::all()->sortBy('name');
@@ -100,7 +102,7 @@ class JobController extends Controller
 
             return view('backend.Job.create', $data);
         } catch (\Exception $e) {
-            flashError('An error occurred: '.$e->getMessage());
+            flashError('An error occurred: ' . $e->getMessage());
 
             return back();
         }
@@ -109,7 +111,7 @@ class JobController extends Controller
     public function jobStatusChange(Job $job, Request $request)
     {
         try {
-            abort_if(! userCan('job.update'), 403);
+            abort_if(!userCan('job.update'), 403);
 
             $job->update([
                 'status' => $request->status,
@@ -133,7 +135,7 @@ class JobController extends Controller
 
             return back();
         } catch (\Exception $e) {
-            flashError('An error occurred: '.$e->getMessage());
+            flashError('An error occurred: ' . $e->getMessage());
 
             return back();
         }
@@ -148,14 +150,14 @@ class JobController extends Controller
     public function store(JobFormRequest $request)
     {
         try {
-            abort_if(! userCan('job.create'), 403);
+            abort_if(!userCan('job.create'), 403);
             (new JobCreateService())->execute($request);
 
             flashSuccess(__('job_created_successfully'));
 
             return redirect()->route('job.index');
         } catch (\Exception $e) {
-            flashError('An error occurred: '.$e->getMessage());
+            flashError('An error occurred: ' . $e->getMessage());
 
             return back();
         }
@@ -169,11 +171,11 @@ class JobController extends Controller
     public function show(Job $job)
     {
         try {
-            abort_if(! userCan('job.view'), 403);
+            abort_if(!userCan('job.view'), 403);
 
             return view('backend.Job.show', compact('job'));
         } catch (\Exception $e) {
-            flashError('An error occurred: '.$e->getMessage());
+            flashError('An error occurred: ' . $e->getMessage());
 
             return back();
         }
@@ -187,7 +189,7 @@ class JobController extends Controller
     public function edit(Job $job)
     {
         try {
-            abort_if(! userCan('job.update'), 403);
+            abort_if(!userCan('job.update'), 403);
 
             $data['companies'] = Company::all();
             $data['job_category'] = JobCategory::all()->sortBy('name');
@@ -203,11 +205,11 @@ class JobController extends Controller
             $data['lat'] = $job->lat ? floatval($job->lat) : floatval(setting('default_lat'));
             $data['long'] = $job->long ? floatval($job->long) : floatval(setting('default_long'));
             $data['skills'] = Skill::all()->sortBy('name');
-            $country = SearchCountry::where('name','Australia')->first();
-            $data['states'] = State::where('country_id',$country->id)->get();
+            $country = SearchCountry::where('name', 'Australia')->first();
+            $data['states'] = State::where('country_id', $country->id)->get();
             return view('backend.Job.edit', $data);
         } catch (\Exception $e) {
-            flashError('An error occurred: '.$e->getMessage());
+            flashError('An error occurred: ' . $e->getMessage());
 
             return back();
         }
@@ -222,7 +224,7 @@ class JobController extends Controller
     public function update(JobFormRequest $request, Job $job)
     {
         try {
-            abort_if(! userCan('job.update'), 403);
+            abort_if(!userCan('job.update'), 403);
 
             (new JobUpdateService())->execute($request, $job);
 
@@ -230,7 +232,7 @@ class JobController extends Controller
 
             return back();
         } catch (\Exception $e) {
-            flashError('An error occurred: '.$e->getMessage());
+            flashError('An error occurred: ' . $e->getMessage());
 
             return back();
         }
@@ -244,7 +246,7 @@ class JobController extends Controller
     public function destroy(Job $job)
     {
         try {
-            abort_if(! userCan('job.delete'), 403);
+            abort_if(!userCan('job.delete'), 403);
 
             if ($job->delete()) {
                 flashSuccess(__('job_deleted_successfully'));
@@ -256,7 +258,7 @@ class JobController extends Controller
                 return back();
             }
         } catch (\Exception $e) {
-            flashError('An error occurred: '.$e->getMessage());
+            flashError('An error occurred: ' . $e->getMessage());
 
             return back();
         }
@@ -278,14 +280,14 @@ class JobController extends Controller
         try {
             $newJob = $job->replicate();
             $newJob->created_at = now();
-            $newJob->slug = Str::slug($job->title).'-'.time().'-'.uniqid();
+            $newJob->slug = Str::slug($job->title) . '-' . time() . '-' . uniqid();
             $newJob->save();
 
             flashSuccess(__('job_cloned_successfully'));
 
             return back();
         } catch (\Exception $e) {
-            flashError('An error occurred: '.$e->getMessage());
+            flashError('An error occurred: ' . $e->getMessage());
 
             return back();
         }
@@ -297,7 +299,7 @@ class JobController extends Controller
     public function editedJobList(Request $request)
     {
         try {
-            abort_if(! userCan('job.view'), 403);
+            abort_if(!userCan('job.view'), 403);
 
             $query = Job::latest()->edited();
 
@@ -348,7 +350,7 @@ class JobController extends Controller
 
             return view('backend.Job.edited_jobs', compact('jobs', 'job_categories', 'experiences', 'job_types'));
         } catch (\Exception $e) {
-            flashError('An error occurred: '.$e->getMessage());
+            flashError('An error occurred: ' . $e->getMessage());
 
             return back();
         }
@@ -364,7 +366,7 @@ class JobController extends Controller
 
             return view('backend.Job.show_edited', compact('parent_job', 'job'));
         } catch (\Exception $e) {
-            flashError('An error occurred: '.$e->getMessage());
+            flashError('An error occurred: ' . $e->getMessage());
 
             return back();
         }
@@ -417,7 +419,7 @@ class JobController extends Controller
 
             return redirect()->route('admin.job.edited.index');
         } catch (\Exception $e) {
-            flashError('An error occurred: '.$e->getMessage());
+            flashError('An error occurred: ' . $e->getMessage());
 
             return back();
         }
@@ -459,5 +461,160 @@ class JobController extends Controller
         return view('backend.Job.applied_job_show', [
             'applied_job' => $applied_job,
         ]);
+    }
+
+
+
+    // upload old jobs
+
+    public function fileUploadJobs()
+    {
+
+        $filePath = public_path('jobs_export.csv');
+
+        // Open the file
+        $file = fopen($filePath, 'r');
+
+        // Read the header
+        $header = fgetcsv($file);
+
+        // Initialize an array to store the parsed data
+        $dataArray = [];
+
+        // Loop through the file and parse each row
+        while ($row = fgetcsv($file)) {
+            $data = array_combine($header, $row);
+            $dataArray[] = $data;
+        }
+
+        fclose($file);
+
+
+        $country = SearchCountry::where('name', 'Australia')->first();
+        $states = State::where('country_id', $country->id)->get();
+        $jobsCategory = JobCategoryTranslation::get();
+
+        foreach ($dataArray as $data) {
+
+         
+
+                $company = User::where('name', $data['company'])->first();
+
+                if (!$company) {
+                    continue;
+                }
+
+
+                $state_id = null;
+                $state_territory = $data['state_territory'];
+                $location = $data['location'];
+                $threshold = 50;
+                foreach ($states as $state) {
+                    $similarity = 0;
+                    similar_text($state_territory, $state->name, $similarity);
+
+                    if ($similarity >= $threshold) {
+                        $state_id = $state->id;
+                        break;
+                    }
+                }
+
+                if (!$state_id) {
+                    foreach ($states as $state) {
+                        $similarity = 0;
+                        similar_text($location, $state->name, $similarity);
+                        if ($similarity >= $threshold) {
+                            $state_id = $state->id;
+                            break;
+                        }
+                    }
+                }
+
+                if (!$state_id) {
+                    $state_id = '3909';
+                }
+                $region = State::where('id', $state_id)->first('name');
+
+
+                $category_id = null;
+                $threshold2 = 30;
+                if (!$category_id) {
+                    foreach ($jobsCategory as $category) {
+                        $similarity = 0;
+                        similar_text($data['title'], $category->name, $similarity);
+                        if ($similarity >= $threshold2) {
+                            $category_id = $category->job_category_id;
+                            break;
+                        }
+                    }
+                }
+                if (!$category_id) {
+                    $category_id = 1;
+                }
+
+                $highlight =  0;
+                $featured = strtolower($data['featured']) == 'true' ? 1 : 0;
+
+                $deadline = Carbon::parse($data['expiration_date'])->format('Y-m-d') ?? 'null';
+
+                $apply_on = !empty($data['apply_url']) ? 'custom_url' : 'app';
+
+                $experience_id = 4;
+                $role_id = 2;
+                $education_id = 5;
+                $job_type_id = 1;
+                $salary_type_id = 1;
+                $salary_mode = 'custom';
+                $custom_salary = 'Competitive';
+                $vacancies = 1;
+                $description = 'The job Title is' .  $data['title'] ?? 'Woker' . 'and the location is' . $data['location'] ?? 'Australia.';
+
+                if($data['status'] == 'published'){
+                    $status = 'active';
+                }else if($data['status'] == 'draft'){
+                    $status = 'pending';
+                }else {
+                    $status = 'expired';
+                }
+
+                $jobCreated = Job::create([
+                    'title' => $data['title'],
+                    'company_id' => $company->company->id,
+                    'company_name' => $company->name,
+                    'state_id' => $state_id,
+                    'category_id' => $category_id,
+                    'role_id' => $role_id,
+                    'salary_mode' => $salary_mode,
+                    'custom_salary' => $custom_salary,
+                    'min_salary' => null,
+                    'max_salary' => null,
+                    'salary_type_id' => $salary_type_id,
+                    'deadline' => $deadline,
+                    'education_id' => $education_id,
+                    'experience_id' => $experience_id,
+                    'job_type_id' => $job_type_id,
+                    'vacancies' => $vacancies,
+                    'apply_on' => $apply_on,
+                    'apply_email' => $data['apply_email'] ?? null,
+                    'apply_url' => $data['apply_url'] ?? null,
+                    'description' => $description,
+                    'featured' => $featured,
+                    'highlight' => $highlight,
+                    'is_remote' => strtolower($data['remote']) == 'remote' ? 1 : 0,
+                    'country' => 'Australia',
+                    'region' => $region->name,
+                    'exact_location' => $data['location'] ?? '',
+                    'address' => $data['location'] ?? '',
+                    'status' => $status,
+                    'old_id' =>  $data['id']
+                ]);
+
+
+                // Location insert
+                updateMap($jobCreated);
+            
+        }
+
+        dd('done all');
     }
 }

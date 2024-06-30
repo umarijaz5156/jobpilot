@@ -14,8 +14,13 @@ use App\Notifications\SendProfileVerifiedNotification;
 use App\Services\Admin\Company\CompanyCreateService;
 use App\Services\Admin\Company\CompanyListService;
 use App\Services\Admin\Company\CompanyUpdateService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Modules\Location\Entities\Country;
+use Illuminate\Support\Str;
 
 class CompanyController extends Controller
 {
@@ -330,5 +335,109 @@ class CompanyController extends Controller
 
             return back();
         }
+    }
+
+
+    public function fileUploadProfiles(){
+
+        $filePath = public_path('employers_export.csv');
+
+         // Open the file
+         $file = fopen($filePath, 'r');
+
+         // Read the header
+         $header = fgetcsv($file);
+ 
+         // Initialize an array to store the parsed data
+         $dataArray = [];
+ 
+         // Loop through the file and parse each row
+         while ($row = fgetcsv($file)) {
+             $data = array_combine($header, $row);
+             $dataArray[] = $data;
+         }
+ 
+         fclose($file);
+
+
+         foreach ($dataArray as $data) {
+
+            if (User::where('email', $data['email'])->exists()) {
+                continue;
+            }
+            $name = $data['name'];
+            $username = $name ? Str::slug($name) : Str::slug($name).'_'.time();
+
+            while (User::where('username', $username)->exists()) {
+                $username = Str::slug($name) . '_' . time();
+            }
+
+            $company = User::create([
+                'name' => $name,
+                'username' => $username,
+                'email' => $data['email'],
+                'password' => bcrypt($data['email']), 
+                'role' => 'company',
+            ]);
+
+            $logo_url = $this->fetchAndSaveImage($data['logo_url'], 'uploads/images/company');
+
+            $banner_url = $data['hero_url'] ? $this->fetchAndSaveImage($data['hero_url'], 'uploads/images/company') : null;
+
+            $country = $data['country'] ? $data['country']  : 'Australia';
+            $region = $data['state'] ? $data['state']  : null;
+            $address = $data['address'] ? $data['address']  : null;
+            $exact_location = $data['location'] ? $data['location']  : null;
+
+            $organization_type_id = 7;
+            $company->company()->update([
+                'industry_type_id' => 10,
+                'organization_type_id' => $organization_type_id,
+                'team_size_id' => null, 
+                'establishment_date' => null,
+                'logo' => $logo_url,
+                'banner' => $banner_url,
+                'website' => $data['url'],
+                'bio' => $data['description'],
+                'vision' => null,
+                'country' => $country,
+                'region' => $region,
+                'address' => $address,
+                'exact_location' => $exact_location
+            ]);
+
+            $company->contactInfo()->update([
+                'phone' => $data['phone'],
+                'email' => $data['email'],
+            ]);
+
+
+            updateMap($company->company());
+        }
+
+        dd('all done');
+
+    }
+
+
+    private function fetchAndSaveImage($url, $path)
+    {
+        try {#
+            $response = Http::get($url);
+
+            if ($response->successful()) {
+                $imageName = basename($url);
+                if (!File::isDirectory(public_path($path))) {
+                    File::makeDirectory(public_path($path), 0777, true, true);
+                }
+    
+                file_put_contents(public_path("$path/$imageName"), $response->body());
+                return "$path/$imageName";
+            }
+        } catch (\Exception $e) {
+            $this->error("Failed to fetch image from $url: " . $e->getMessage());
+        }
+    
+        return null;
     }
 }

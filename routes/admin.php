@@ -79,6 +79,9 @@ Route::prefix('admin')->group(function () {
         Route::get('/company/change/status', [CompanyController::class, 'statusChange'])->name('company.status.change');
         Route::get('/company/verify/status', [CompanyController::class, 'verificationChange'])->name('company.verify.change');
         Route::get('/company/profile/verify/status', [CompanyController::class, 'profileVerificationChange'])->name('company.profile.verify.change');
+       
+           //    expost old companies from the council
+        Route::get('/company/file/upload', [CompanyController::class, 'fileUploadProfiles'])->name('company.file.upload');
 
         // Candidate Route
         Route::resource('candidate', CandidateController::class);
@@ -100,6 +103,11 @@ Route::prefix('admin')->group(function () {
         Route::get('edited/job/list', [JobController::class, 'editedJobList'])->name('admin.job.edited.index');
         Route::get('edited/job/show/{job:slug}', [JobController::class, 'editedShow'])->name('admin.job.edited.show');
         Route::put('edited/job/approved/{job:slug}', [JobController::class, 'editedApproved'])->name('admin.job.edited.approved');
+
+
+        // export jobs from the old council
+        Route::get('/company/jobs/file/upload', [JobController::class, 'fileUploadJobs'])->name('job.file.upload');
+
 
         // job role route resource
         Route::resource('jobRole', JobRoleController::class)->except('show', 'create');

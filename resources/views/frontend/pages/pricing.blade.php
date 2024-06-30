@@ -122,6 +122,9 @@
                                         </div>
                                     </div>
                                     <div class="price-body">
+                                        @if ($plan->label === 'Unlimited 12 Month Package')
+
+                                        @else
                                         <ul class="rt-list">
                                             <li>
                                                 <span class="tw-inline-flex tw-justify-center tw-items-center tw-w-6 tw-h-6 tw-rounded-full tw-bg-[#eef5fc]">
@@ -199,6 +202,8 @@
                                                 </span>
                                             </li> --}}
                                         </ul>
+                                        @endif
+                                        
                                     </div>
                                     <div class="price-footer">
                                         @auth('user')
