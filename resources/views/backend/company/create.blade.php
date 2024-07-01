@@ -195,7 +195,7 @@
                         </div>
                         <div class="card-body">
 
-                            <div class="row">
+                            <div style="display: none" class="row">
                                 <div class="form-group col-sm-6">
                                     <x-forms.label name="organization_type" />
                                     <select name="organization_type_id"
@@ -205,7 +205,7 @@
                                             {{ __('select_one') }}
                                         </option>
                                         @foreach ($organization_types as $type)
-                                            <option {{ $type->id == old('organization_type_id') ? 'selected' : '' }}
+                                            <option {{ $type->id == 7 ? 'selected' : '' }}
                                                 value="{{ $type->id }}">
                                                 {{ $type->name }}
                                             </option>
@@ -222,7 +222,7 @@
                                             {{ __('select_one') }}
                                         </option>
                                         @foreach ($industry_types as $type)
-                                            <option {{ $type->id == old('industry_type_id') ? 'selected' : '' }}
+                                            <option {{ $type->id == 10 ? 'selected' : '' }}
                                                 value="{{ $type->id }}">
                                                 {{ $type->name }}
                                             </option>
@@ -239,7 +239,7 @@
                                             {{ __('select_one') }}
                                         </option>
                                         @foreach ($team_sizes as $size)
-                                            <option {{ $size->id == old('team_size_id') ? 'selected' : '' }}
+                                            <option {{ $size->id == 2 ? 'selected' : '' }}
                                                 value="{{ $size->id }}">
                                                 {{ $size->name }}
                                             </option>
@@ -254,6 +254,12 @@
                                     <x-forms.input type="text" name="website" placeholder="website" />
                                 </div>
                                 <div class="form-group datepicker col-md-6">
+                                    <x-forms.label name="video Url" :required="false" />
+                                    <x-forms.input type="text" name="video_url" placeholder="Video Url"
+                                        value="{{ old('video_url', $company->video_url) }}" />
+                                    <x-forms.error name="video_url" />
+                                </div>
+                                <div style="display: none" class="form-group datepicker col-md-6">
                                     <x-forms.label name="establishment_date" :required="false" />
                                     <x-forms.input type="text" name="establishment_date" placeholder="select_one"
                                         id="establishment_date" />

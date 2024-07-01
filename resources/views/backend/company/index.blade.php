@@ -102,12 +102,12 @@
                                     @if (userCan('company.update'))
                                         <th>{{ __('account') }} {{ __('status') }}</th>
                                     @endif
-                                    @if (userCan('company.update'))
+                                    {{-- @if (userCan('company.update'))
                                         <th>{{ __('email_verification') }}</th>
                                     @endif
                                     @if (userCan('company.update'))
                                         <th>{{ __('profile') }} {{ __('status') }}</th>
-                                    @endif
+                                    @endif --}}
                                     @if (userCan('company.update') || userCan('compnay.delete'))
                                         <th width="12%">
                                             {{ __('action') }}
@@ -164,7 +164,7 @@
                                                 </a>
                                             </td>
                                         @endif
-                                        @if (userCan('company.update'))
+                                        {{-- @if (userCan('company.update'))
                                             <td tabindex="0">
                                                 <a href="#" class="active-status">
                                                     <label class="switch ">
@@ -176,8 +176,8 @@
                                                     <p style="min-width:70px" class="{{ $company->user->email_verified_at ? 'active' : '' }}" id="verification_status_{{ $company->user_id }}">{{ $company->user->email_verified_at ? __('verified') : __('unverified') }}</p>
                                                 </a>
                                             </td>
-                                        @endif
-                                        @if (userCan('company.update') || userCan('compnay.delete'))
+                                        @endif --}}
+                                        {{-- @if (userCan('company.update') || userCan('compnay.delete'))
                                             <td tabindex="0">
                                                 <a href="#" class="active-status">
                                                     <label class="switch ">
@@ -192,7 +192,7 @@
                                                     <a href="{{route('admin.company.documents',$company)}}">View Documents</a>
                                                 </div>
                                             </td>
-                                        @endif
+                                        @endif --}}
 
                                     @if (userCan('company.update') || userCan('compnay.delete'))
                                             <td>

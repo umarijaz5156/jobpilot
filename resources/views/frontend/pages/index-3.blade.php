@@ -59,12 +59,28 @@
                             <div class="flex-grow-1 fromGroup has-icon banner-select no-border">
                                 <input name="long" class="leaf_lon" type="hidden">
                                 <input name="lat" class="leaf_lat" type="hidden">
-                                <select style="border: none;"  name="state_id" class="text-gray-900">
-                                    <option value="" selected disabled>{{ __('Select a state') }}</option>
-                                    @foreach($states as $state)
-                                        <option value="{{ $state->id }}">{{ $state->name }}</option>
+                                <select style="border: none;font-size: 16px;color: #a3a4a7 !important;" name="state_id" class="text-gray-900">
+                                    <option value="" selected disabled>{{ __('Select state') }}</option>
+                                    @php
+                                        $orderedStates = [
+                                            'NSW (New South Wales)',
+                                            'VIC (Victoria)',
+                                            'QLD (Queensland)',
+                                            'TAS (Tasmania)',
+                                            'NT (Northern Territory)',
+                                            'SA (South Australia)',
+                                            'ACT (Australian Capital Territory)',
+                                            'NZ (New Zealand)',
+                                             'WA (Western Australia)'
+                                        ];
+                                    @endphp
+                                    @foreach($orderedStates as $stateName)
+                                        @if($state = $states->where('name', $stateName)->first())
+                                            <option {{ request('state_id') == $state->id ? 'selected' : '' }}  value="{{ $state->id }}">{{ $state->name }}</option>
+                                        @endif
                                     @endforeach
                                 </select>
+                                
                                 
                                 <div class="icon-badge">
                                     <x-svg.location-icon stroke="{{ $setting->frontend_primary_color }}" width="24" height="24" />

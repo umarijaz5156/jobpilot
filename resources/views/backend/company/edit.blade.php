@@ -259,7 +259,7 @@
                         </div>
                         <div class="card-body">
 
-                            <div class="row">
+                            <div style="display: none" class="row">
                                 <div class="form-group col-md-6">
                                     <x-forms.label name="organization_type" />
                                     <select name="organization_type_id"
@@ -316,9 +316,15 @@
                                     <x-forms.label name="website" :required="false" />
                                     <x-forms.input type="text" name="website" placeholder="website"
                                         value="{{ old('website', $company->website) }}" />
-                                    <x-forms.error name="establishment_date" />
+                                    <x-forms.error name="website" />
                                 </div>
                                 <div class="form-group datepicker col-md-6">
+                                    <x-forms.label name="video Url" :required="false" />
+                                    <x-forms.input type="text" name="video_url" placeholder="Video Url"
+                                        value="{{ old('video_url', $company->video_url) }}" />
+                                    <x-forms.error name="video_url" />
+                                </div>
+                                <div style="display: none" class="form-group datepicker col-md-6">
                                     <x-forms.label name="establishment_date" :required="false" />
                                     <x-forms.input type="text" name="establishment_date" placeholder="select_one"
                                         id="establishment_date"

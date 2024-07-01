@@ -114,6 +114,8 @@ class CompanyCreateService
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'role' => 'company',
+            'email_verified_at' =>now(),
+            'status' => 1
         ]);
 
         // insert logo
@@ -155,6 +157,8 @@ class CompanyCreateService
             'website' => $request->website,
             'bio' => $request->bio,
             'vision' => $request->vision,
+            'video_url' => $request->video_url ?? '',
+            'is_profile_verified' => 1
         ]);
 
         // company contact info update
