@@ -379,7 +379,7 @@
                                     <div class="card-title">{{ __('attributes') }}</div>
                                 </div>
                                 <div class="card-body">
-                                    <div class="row form-group">
+                                    <div style="display: none" class="row form-group">
                                         <div class="col-md-6">
                                             <x-forms.label name="experience" for="experience" :required="true" />
                                             <select name="experience"
@@ -387,7 +387,7 @@
                                                 id="experience" required>
                                                 <option value=""> {{ __('experience') }}</option>
                                                 @foreach ($experiences as $experience)
-                                                    <option {{ $experience->id == old('experience') ? 'selected' : '' }}
+                                                    <option {{ $experience->id == 4 ? 'selected' : '' }}
                                                         value="{{ $experience->id }}"> {{ $experience->name }}
                                                     </option>
                                                 @endforeach
@@ -405,7 +405,7 @@
                                                 id="role_id" required>
                                                 <option value=""> {{ __('job_role') }}</option>
                                                 @foreach ($job_roles as $role)
-                                                    <option {{ $role->id == old('role_id') ? 'selected' : '' }}
+                                                    <option {{ $role->id == 1 ? 'selected' : '' }}
                                                         value="{{ $role->id }}">
                                                         {{ $role->name }}</option>
                                                 @endforeach
@@ -419,14 +419,14 @@
                                     </div>
 
                                     <div class="row form-group">
-                                        <div class="col-md-6">
+                                        <div style="display: none" class="col-md-6">
                                             <x-forms.label name="education" for="education" :required="true" />
                                             <select id="education" name="education"
                                                 class="form-control select2bs4 @error('education') is-invalid @enderror"
                                                 required>
                                                 <option value=""> {{ __('education') }}</option>
                                                 @foreach ($educations as $education)
-                                                    <option {{ $education->id == old('education') ? 'selected' : '' }}
+                                                    <option {{ $education->id == 2 ? 'selected' : '' }}
                                                         value="{{ $education->id }}">{{ $education->name }}
                                                     </option>
                                                 @endforeach
@@ -454,7 +454,7 @@
                                             @enderror
                                         </div>
                                     </div>
-                                    <div class="row form-group">
+                                    <div style="display: none" class="row form-group">
                                         <div class="col-md-12 mb-2">
                                             <x-forms.label name="tags" for="tags" :required="true" />
                                             <select name="tags[]"
