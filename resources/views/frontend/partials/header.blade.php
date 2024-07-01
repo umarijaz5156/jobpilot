@@ -537,12 +537,26 @@
 
                            <div class="flex-grow-1 fromGroup has-icon banner-select no-border">
                               
-                               <select style="border: none;width:100%"  name="state_id" class="text-gray-900">
-                                   <option value="" selected disabled>{{ __('Select a state') }}</option>
-                                   @foreach($states as $state)
-                                       <option {{ request('state_id') == $state->id ? 'selected' : '' }} value="{{ $state->id }}">{{ $state->name }}</option>
-                                   @endforeach
-                               </select>
+                            <select style="border: none;width:100%; font-size: 16px;color: #a3a4a7 !important;" name="state_id" class="text-gray-900">
+                                <option value="" selected disabled>{{ __('Select state') }}</option>
+                                @foreach($states->sortBy(function($state) {
+                                    $order = [
+                                        'NSW (New South Wales)',
+                                        'VIC (Victoria)',
+                                        'QLD (Queensland)',
+                                        'TAS (Tasmania)',
+                                        'NT (Northern Territory)',
+                                        'SA (South Australia)',
+                                        'ACT (Australian Capital Territory)',
+                                        'NZ (New Zealand)',
+                                        'WA (Western Australia)'
+                                    ];
+                                    return array_search($state->name, $order);
+                                }) as $state)
+                                    <option {{ request('state_id') == $state->id ? 'selected' : '' }} value="{{ $state->id }}">{{ $state->name }}</option>
+                                @endforeach
+                            </select>
+                            
                             
                            </div>
                                 <div class="d-flex flex-column flex-md-row align-items-center tw-ps-3">

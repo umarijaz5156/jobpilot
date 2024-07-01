@@ -38,7 +38,7 @@
                                     </div>
 
                                     <div class="row" id="company-input-container">
-                                        <div class="col-sm-12 form-group" id="company-input-select">
+                                        {{-- <div class="col-sm-12 form-group" id="company-input-select">
                                             <label for="company_id" id="company_label">
                                                 {{ __('select') }} {{ __('company') }}
                                                 <span class="text-red font-weight-bold">*</span></label>
@@ -56,6 +56,27 @@
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ __($message) }}</strong>
                                                 </span>
+                                            @enderror
+                                        </div> --}}
+                                        <div class="col-sm-12 form-group" id="company-input-select">
+                                            <label for="company_id" id="company_label">
+                                                {{ __('select') }} {{ __('company') }}
+                                                <span class="text-red font-weight-bold">*</span>
+                                            </label>
+                                            <select name="company_id"
+                                                    class="form-control select2bs4 @error('company_id') is-invalid @enderror"
+                                                    id="company_id" onchange="updateLeafletSearch()" required>
+                                                <option value=""> {{ __('Choose a company') }}</option>
+                                                @foreach ($companies as $company)
+                                                    <option {{ old('company_id') == $company->id ? 'selected' : '' }}
+                                                            value="{{ $company->id }}"> {{ $company->user->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @error('company_id')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ __($message) }}</strong>
+                                            </span>
                                             @enderror
                                         </div>
 
@@ -247,7 +268,8 @@
                                     </div>
                                     <div class="{{ $map == 'leaflet' ? '' : 'd-none' }}">
                                         <input type="text" autocomplete="off" id="leaflet_search"
-                                            placeholder="{{ __('enter_city_name') }}" class="form-control" /> <br>
+                                               placeholder="{{ __('enter_city_name') }}" class="form-control"
+                                               value="" /> <br>
                                         <div id="leaflet-map"></div>
                                     </div>
                                     @error('location')
@@ -806,6 +828,16 @@
 
 @section('script')
     @livewireScripts
+
+    <script>
+        function updateLeafletSearch() {
+            var companySelect = document.getElementById('company_id');
+            var leafletSearchInput = document.getElementById('leaflet_search');
+            var selectedOption = companySelect.options[companySelect.selectedIndex];
+            leafletSearchInput.value = selectedOption.text.trim();
+        }
+    </script>
+
     <script>
         $(document).ready(function() {
             $('.select21').select2();

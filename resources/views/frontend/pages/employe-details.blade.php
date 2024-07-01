@@ -63,10 +63,10 @@
                                                     </div>
                                                 @endif
                                             </a>
-                                        @if ($companyDetails->industry)
+                                        {{-- @if ($companyDetails->industry)
                                                 <p class="f-size-16 text-gray-600 m-0">
                                                     {{ $companyDetails->industry->name }}</p>
-                                       @endif
+                                       @endif --}}
                                         </div>
                                     </div>
                                 </div>
@@ -97,10 +97,14 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-7 rt-mb-lg-30">
-                    <div class="body-font-1 ft-wt-5 rt-mb-20">{{ __('company_description') }}</div>
+                    {{-- <div class="body-font-1 ft-wt-5 rt-mb-20">{{ __('company_description') }}</div> --}}
                     <div class="body-font-3 text-gray-500" style="overflow: hidden;">
                         {!! $user->company->bio !!}
                     </div>
+                    @if ($user->company->video_url)
+
+                    <iframe style="width:100%"  height="400" src="{{ $user->company->video_url }}" frameborder="0" allowfullscreen></iframe>    
+                    @endif
                     <div class="share-job rt-pt-50">
                         <ul class="rt-list gap-8">
                             <li class="d-inline-block body-font-3">
@@ -141,7 +145,7 @@
                 </div>
                 <div class="col-lg-5">
                     <div class="cadidate-details-sidebar">
-                        @if ($user->company->establishment_date || $companyDetails->organization || $companyDetails->team_size)
+                        {{-- @if ($user->company->establishment_date || $companyDetails->organization || $companyDetails->team_size)
                             <div class="sidebar-widget">
                                 <div class="row">
                                     @if ($user->company->establishment_date)
@@ -185,7 +189,7 @@
                                     @endif
                                 </div>
                             </div>
-                        @endif
+                        @endif --}}
                         <!-- contact information  START -->
                         <x-website.company.contact-information :user="$user" />
 

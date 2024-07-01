@@ -81,6 +81,11 @@ class CompanyListService
             $query->where('team_size_id', $team_size->id);
         }
 
+        
+        // if (isset($request->state_id)) {
+        //     $query->where('state_id', $request->state_id);
+        // }
+
         $companies = $query->latest('activejobs')->paginate(12);
 
         $team_sizes = TeamSize::all(['id']);

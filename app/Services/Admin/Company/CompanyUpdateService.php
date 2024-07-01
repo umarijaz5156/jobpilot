@@ -102,6 +102,8 @@ class CompanyUpdateService
             'website' => $request->website,
             'bio' => $request->bio,
             'vision' => $request->vision,
+            'video_url' => $request->video_url ?? '',
+
         ]);
 
         // update logo

@@ -208,7 +208,7 @@
                                     <div class="price-footer">
                                         @auth('user')
                                             @if ($plan->price == 0)
-                                                <form action="{{ route('purchase.free.plan') }}" method="POST">
+                                                {{-- <form action="{{ route('purchase.free.plan') }}" method="POST">
                                                     @csrf
                                                     <input type="hidden" class="d-none tw-hidden" name="plan"
                                                         value="{{ $plan->id }}" readonly>
@@ -222,12 +222,32 @@
                                                             </span>
                                                         </span>
                                                     </button>
-                                                </form>
+                                                </form> --}}
+                                                <button type="button" class="btn btn-primary-50 d-block " onclick="scrollToSection()">
+                                                    <span class="button-content-wrapper">
+                                                        <span class="button-icon align-icon-right">
+                                                            <i class="ph-arrow-right"></i>
+                                                        </span>
+                                                        <span class="button-text">
+                                                            {{ __('get_started') }}
+                                                        </span>
+                                                    </span>
+                                                </button>
                                             @else
 
                                             @if ($plan->label === 'Unlimited 12 Month Package')
-                                            <button type="button" class="btn btn-primary-50 d-block">
+                                            {{-- <button type="button" class="btn btn-primary-50 d-block">
                                                 <span class="button-content-wrapper ">
+                                                    <span class="button-icon align-icon-right">
+                                                        <i class="ph-arrow-right"></i>
+                                                    </span>
+                                                    <span class="button-text">
+                                                        {{ __('Call for details') }}
+                                                    </span>
+                                                </span>
+                                            </button> --}}
+                                            <button type="button" class="btn btn-primary-50 d-block " onclick="scrollToSection()">
+                                                <span class="button-content-wrapper">
                                                     <span class="button-icon align-icon-right">
                                                         <i class="ph-arrow-right"></i>
                                                     </span>
@@ -238,7 +258,7 @@
                                             </button>
                                             @else
 
-                                            <a href="{{ route('website.plan.details', $plan->label) }}"
+                                            {{-- <a href="{{ route('website.plan.details', $plan->label) }}"
                                                 class="btn btn-primary-50 d-block">
                                                 <span class="button-content-wrapper ">
                                                     <span class="button-icon align-icon-right">
@@ -248,14 +268,9 @@
                                                         {{ __('get_started') }}
                                                     </span>
                                                 </span>
-                                            </a>
-                                                    
-                                            @endif
-
-                                            @endif
-                                        @else
-                                            <button type="button" class="btn btn-primary-50 d-block login_required">
-                                                <span class="button-content-wrapper ">
+                                            </a> --}}
+                                            <button type="button" class="btn btn-primary-50 d-block " onclick="scrollToSection()">
+                                                <span class="button-content-wrapper">
                                                     <span class="button-icon align-icon-right">
                                                         <i class="ph-arrow-right"></i>
                                                     </span>
@@ -264,6 +279,22 @@
                                                     </span>
                                                 </span>
                                             </button>
+                                                    
+                                            @endif
+
+                                            @endif
+                                        @else
+                                        <button type="button" class="btn btn-primary-50 d-block " onclick="scrollToSection()">
+                                            <span class="button-content-wrapper">
+                                                <span class="button-icon align-icon-right">
+                                                    <i class="ph-arrow-right"></i>
+                                                </span>
+                                                <span class="button-text">
+                                                    {{ __('get_started') }}
+                                                </span>
+                                            </span>
+                                        </button>
+                                        
                                         @endauth
                                     </div>
                                 </div>
@@ -346,7 +377,7 @@
         </section>
     @endif
 
-    <section class="tw-py-10">
+    <section id="contact-section" class="tw-py-10">
         <div class="container">
             <div class="tw-flex md:tw-flex-row tw-flex-col tw-gap-5 tw-items-center">
                 <div
@@ -378,9 +409,27 @@
             </div>
         </div>
     </section>
+    <section class="tw-py-10">
+        <div class="container">
+
+        <video  width="100%" controls>
+            <source src="{{ asset('videos/Council_Direct_revised.mp4') }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        </div>
+        
+    </section>
 
     {{-- Subscribe Newsletter --}}
     <x-website.subscribe-newsletter />
+
+    <script>
+        function scrollToSection() {
+            const section = document.getElementById('contact-section');
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+        </script>
+        
 @endsection
 @section('css')
     <style>
