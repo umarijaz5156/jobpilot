@@ -336,7 +336,7 @@
                                     <div class="card-title">{{ __('attributes') }}</div>
                                 </div>
                                 <div class="card-body">
-                                    <div class="row form-group">
+                                    <div style="display: none" class="row form-group">
                                         <div class="col-md-6">
                                             <label for="experience">
                                                 {{ __('experience') }}
@@ -374,7 +374,7 @@
                                         </div>
                                     </div>
                                     <div class="row form-group">
-                                        <div class="col-md-6">
+                                        <div style="display: none" class="col-md-6">
                                             <label for="education">
                                                 {{ __('education') }}
                                             </label>
@@ -411,7 +411,7 @@
                                             @enderror
                                         </div>
                                     </div>
-                                    <div class="row form-group">
+                                    <div style="display: none" class="row form-group">
                                         <div class="col-md-12 mb-2">
                                             <x-forms.label name="tags" for="tags" :required="true" />
                                             <select name="tags[]"
