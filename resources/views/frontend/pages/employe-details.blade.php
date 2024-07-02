@@ -27,7 +27,7 @@
     <div class="breadcrumbs breadcrumbs-height">
         <div class="container">
             <div class="breadcrumb-menu">
-                <h6 class="f-size-18 m-0">{{ __('employer_details') }}</h6>
+                <h6 class="f-size-18 m-0">{{ __('Organisation Details') }}</h6>
                 <ul>
                     <li><a href="{{ route('website.home') }}">{{ __('home') }}</a></li>
                     <li>/</li>
@@ -54,14 +54,14 @@
                                         <div class="post-main-title2">
                                             <a href="{{ route('website.employe.details', $user->username) }}" style="display: flex ;align-items: center"  >
                                                 {{ $user->name }}
-                                                @if($companyDetails->is_profile_verified)
+                                                {{-- @if($companyDetails->is_profile_verified)
                                                     <div  style=" display: inline-flex ;width: 24px ; height: 24px ; color: #0BA02C ; margin-left: 6px">
                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" >
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                         </svg>
 
                                                     </div>
-                                                @endif
+                                                @endif --}}
                                             </a>
                                         {{-- @if ($companyDetails->industry)
                                                 <p class="f-size-16 text-gray-600 m-0">
@@ -99,12 +99,19 @@
                 <div class="col-lg-7 rt-mb-lg-30">
                     {{-- <div class="body-font-1 ft-wt-5 rt-mb-20">{{ __('company_description') }}</div> --}}
                     <div class="body-font-3 text-gray-500" style="overflow: hidden;">
+                        @if ($user->company->video_url)
+                        <style>
+                            .video_url iframe{
+                                width: 100%;height:400px;margin-bottom: 20px;
+                            }
+                            </style>
+                        <div class="video_url" style="">
+                        {!! $user->company->video_url !!}  
+                        </div>
+                        @endif
                         {!! $user->company->bio !!}
                     </div>
-                    @if ($user->company->video_url)
-
-                    <iframe style="width:100%"  height="400" src="{{ $user->company->video_url }}" frameborder="0" allowfullscreen></iframe>    
-                    @endif
+                   
                     <div class="share-job rt-pt-50">
                         <ul class="rt-list gap-8">
                             <li class="d-inline-block body-font-3">
