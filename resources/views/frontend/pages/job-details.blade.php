@@ -130,11 +130,36 @@
                             <div class="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-flex-col md:tw-flex-row">
                                 <div class="tw-flex tw-items-center tw-gap-2.5 tw-flex-grow">
                                     @if ($job->company)
-                                        <a href="{{ route('website.employe.details', $job->company->user->username) }}"
+                                    <style>
+                                        .custom-button {
+                                            background-color: #5cb85c;
+                                            color: white;
+                                            border: none;
+                                            padding: 10px 20px;
+                                            border-radius: 5px;
+                                            font-size: 16px;
+                                            box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.15);
+                                            transition: background-color 0.3s;
+                                        }
+                                
+                                        .custom-button:hover {
+                                            background-color: #4cae4c;
+                                            color: white;
+                                        }
+                                
+                                        /* .custom-button:active {
+                                            background-color: #449d44;
+                                            box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+                                        } */
+                                    </style>
+                                        {{-- <a href="{{ route('website.employe.details', $job->company->user->username) }}"
                                             class="!tw-flex-shrink-0">
                                             <img src="{{ $job->company->getLogoUrl() }}" alt="logo" draggable="false"
                                                 class="tw-w-[68px] tw-h-[68px] tw-rounded-md object-fit-contain">
-                                        </a>
+                                        </a> --}}
+                                        <a href="{{ route('website.employe.details', $job->company->user->username) }}"
+                                            type="button" class=" custom-button">View Profile</a>
+
                                     @else
                                         <svg style="width: 50px ; height: 50px ; color: black"
                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"

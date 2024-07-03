@@ -80,7 +80,7 @@
                                     </div>
                                 </div>
                             </form>
-                            @if ($top_categories->count())
+                            {{-- @if ($top_categories->count())
                                 <div class="f-size-14 banner-quciks-links " data-aos="" data-aos-duration="1000"
                                     data-aos-delay="500">
                                     <span class="text-gray-400">{{ __('suggestion') }}: </span>
@@ -93,7 +93,7 @@
                                         @endif
                                     @endforeach
                                 </div>
-                            @endif
+                            @endif --}}
                         </div>
                     </div>
                     <div class="col-xl-6 d-flex align-items-center">

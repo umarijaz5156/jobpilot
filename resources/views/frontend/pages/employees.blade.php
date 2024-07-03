@@ -19,11 +19,11 @@
             <div class="row align-items-center ">
                 <div class="col-12 position-relative ">
                     <div class="breadcrumb-menu">
-                        <h6 class="f-size-18 m-0">{{ __('find_employers') }}</h6>
+                        <h6 class="f-size-18 m-0">{{ __('Find Councils') }}</h6>
                         <ul>
                             <li><a href="{{ route('website.home') }}">{{ __('home') }}</a></li>
                             <li>/</li>
-                            <li>{{ __('companies') }}</li>
+                            <li>{{ __('Councils') }}</li>
                         </ul>
                     </div>
                 </div>
@@ -40,7 +40,7 @@
                                 <div class="tw-p-3 tw-flex-grow ll-input-border">
                                     <div class="fromGroup tw-w-full has-icon position-relative">
                                         <input id="search" name="keyword" type="text"
-                                            placeholder="{{ __('company_title_keyword') }}" value="{{ request('keyword') }}"
+                                            placeholder="{{ __('Councils Title keyword') }}" value="{{ request('keyword') }}"
                                             autocomplete="off" class="tw-border-0">
                                         <div class="icon-badge">
                                             <x-svg.search-icon />
@@ -54,7 +54,7 @@
                                 @endphp
                                 <div class="fromGroup tw-px-3 position-relative">
 
-                                    @if ($map == 'google-map')
+                                    {{-- @if ($map == 'google-map')
                                         <input type="hidden" name="lat" id="lat" value="">
                                         <input type="hidden" name="long" id="long" value="">
                                         <input type="text" id="searchInput" placeholder="{{ __('enter_location') }}"
@@ -66,7 +66,7 @@
                                         <input name="lat" class="leaf_lat" type="hidden">
                                         <input type="text" id="leaflet_search" placeholder="{{ __('enter_location') }}"
                                             name="location" value="{{ request('location') }}" class="tw-border-0 tw-pl-12"
-                                            autocomplete="off" />
+                                            autocomplete="off" /> --}}
                                             {{-- @php
                                             $country = App\Models\SearchCountry::where('name','Australia')->first();
                                             $states = App\Models\State::where('country_id',$country->id)->get();
@@ -83,16 +83,16 @@
                                            </select>
                                         
                                        </div> --}}
-                                    @endif
+                                    {{-- @endif
 
                                     <div class="tw-absolute tw-top-1/2 -tw-translate-y-1/2 tw-left-3">
                                         <x-svg.location-icon width="24" height="24"
                                             stroke="{{ $setting->frontend_primary_color }}" />
-                                    </div>
+                                    </div> --}}
                                 </div>
                                 <div class="tw-p-3">
                                     <div class="tw-flex tw-flex-col md:tw-flex-row tw-gap-3">
-                                        <div>
+                                        {{-- <div>
                                             <button type="button"
                                                 class="btn tw-inline-flex gap-3 tw-items-center hover:tw-bg-[#F1F2F4] tw-bg-[#F1F2F4] hover:tw-text-[#18191C] tw-text-[#18191C] tw-border-0"
                                                 data-bs-toggle="modal" data-bs-target="#companyFiltersModal">
@@ -133,11 +133,11 @@
                                                 </span>
                                                 <span>Filter</span>
                                             </button>
-                                        </div>
+                                        </div> --}}
                                         <div>
                                             <button type="submit"
                                                 class="btn btn-primary md:tw-inline-block tw-w-full tw-block">
-                                                {{ __('search_employers') }}
+                                                {{ __('Search Councils') }}
                                             </button>
                                         </div>
                                         <span id="autocomplete_job_results"></span>
