@@ -82,6 +82,9 @@ Route::prefix('admin')->group(function () {
        
            //    expost old companies from the council
         Route::get('/company/file/upload', [CompanyController::class, 'fileUploadProfiles'])->name('company.file.upload');
+        Route::get('/company/file/UplaodVideo', [CompanyController::class, 'UplaodVideo'])->name('company.file.UplaodVideo');
+
+        
 
         // Candidate Route
         Route::resource('candidate', CandidateController::class);

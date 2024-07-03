@@ -256,7 +256,7 @@
                                 <div class="form-group datepicker col-md-6">
                                     <x-forms.label name="video Url" :required="false" />
                                     <x-forms.input type="text" name="video_url" placeholder="Video Url"
-                                        value="{{ old('video_url', $company->video_url) }}" />
+                                        value="{{ old('video_url') }}" />
                                     <x-forms.error name="video_url" />
                                 </div>
                                 <div style="display: none" class="form-group datepicker col-md-6">

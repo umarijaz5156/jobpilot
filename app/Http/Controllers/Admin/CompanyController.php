@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Modules\Location\Entities\Country;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CompanyController extends Controller
 {
@@ -337,6 +338,52 @@ class CompanyController extends Controller
         }
     }
 
+
+    public function UplaodVideo(){
+        
+        $filePath = public_path('company_video.xlsx');
+
+        // Convert the Excel file to an array
+        $dataArray = Excel::toArray([], $filePath);
+    
+        // The first sheet is typically at index 0
+        $dataArray = $dataArray[0];
+    
+        // Remove the header row
+        array_shift($dataArray);
+    
+        // Filter out rows where both columns are null
+        $filteredData = array_filter($dataArray, function($row) {
+            return !(is_null($row[0]) && is_null($row[1]));
+        });
+    
+        // Remove the width="930" and height="466" attributes from the iframe tags and ensure space between <iframe and src
+        $cleanedData = array_map(function($row) {
+            $row[1] = preg_replace('/\s*width="930"\s*/', '', $row[1]);
+            $row[1] = preg_replace('/\s*height="466"\s*/', '', $row[1]);
+            $row[1] = preg_replace('/<iframe(?!\s)/', '<iframe ', $row[1]); // Add space after <iframe if missing
+            return $row;
+        }, $filteredData);
+    
+        // dd($cleanedData);
+
+        // foreach ($cleanedData as $data) {
+        //     $userName = $data[0];
+        //     $videoUrl = $data[1];
+    
+        //     $user = User::where('name', $userName)->first();
+        //     if ($user) {
+        //         $company = Company::where('user_id', $user->id)->first();
+        //         if ($company) {
+        //             $company->video_url = $videoUrl;
+        //             $company->save();
+        //         }
+        //     }
+        // }
+        
+        dd('Company video URLs updated successfully.');
+
+    }
 
     public function fileUploadProfiles(){
 
