@@ -140,7 +140,7 @@
                                                 {{ __('Search Councils') }}
                                             </button>
                                         </div>
-                                        <span id="autocomplete_job_results"></span>
+                                        <span id="autocomplete_job_results"></span> 
                                     </div>
                                 </div>
                             </div>
@@ -160,6 +160,7 @@
 
                             <div class="d-flex w-100-p">
                                 @if (Request::get('keyword'))
+                                
                                     <div class="rt-mr-2 icon-badge">
                                         <x-website.candidate.filter-data-component title="{{ __('keyword') }}"
                                             filter="{{ request('keyword') }}" />
