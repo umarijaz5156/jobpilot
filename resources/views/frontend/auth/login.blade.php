@@ -232,7 +232,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="flex-grow-1 rt-mb-24">
+                        {{-- <div class="flex-grow-1 rt-mb-24">
                             <div class="card jobcardStyle1 counterbox4">
                                 <div class="card-body">
                                     <div class="rt-single-icon-box icon-center2">
@@ -247,13 +247,12 @@
                                             </div>
                                             <span class="f-size-14">
                                                 <span>{{ __('candidates') }}</span>
-                                                {{-- <span>{{ __('total_new_jobs') }}</span> --}}
                                             </span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>

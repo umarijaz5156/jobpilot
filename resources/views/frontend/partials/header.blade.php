@@ -263,6 +263,10 @@
                                                             href="{{ route('showCustomPage', $page->slug) }}">{{ $page->title }}</a>
                                                     </li>
                                                 @endforeach
+                                                <li>
+                                                    <a class="!tw-px-5 !tw-py-2"
+                                                        href="{{ route('login') }}">{{ __('Login in') }}</a>
+                                                </li>
                                             </ul>
                                         </li>
                                          @endif
@@ -272,6 +276,11 @@
                                                     href="{{ route('showCustomPage', $page->slug) }}">{{ $page->title }}</a>
                                             </li>
                                         @endforeach
+                                        <li>
+                                            <a class="!tw-px-5 !tw-py-2"
+                                                href="{{ route('login') }}">{{ __('Login') }}</a>
+                                        </li>
+                                       
                                     @endif
                                 </ul>
                             </div>
@@ -624,7 +633,7 @@
                                     @if (auth()->user()->role == 'candidate')
                                         <x-website.candidate.notifications-component />
                                     @endif
-
+                                    
                                     <x-website.company.message-component />
 
                                     <div class="dropdown dropstart">
@@ -750,10 +759,10 @@
                             @endauth
                             @guest
                                 <ul class="list-unstyled tw-flex tw-flex-wrap tw-gap-3 tw-items-center tw-justify-between">
-                                    <!-- <li>
+                                   {{-- <li>
                                         <a href="{{ route('login') }}"
                                             class="btn btn-outline-light">{{ __('sign_in') }}</a>
-                                    </li> -->
+                                    </li> --}}
                                     <li class="d-none d-sm-block">
                                         <a href="{{ route('website.plan') }}"
                                             class="btn btn-light">{{ __('post_job') }}

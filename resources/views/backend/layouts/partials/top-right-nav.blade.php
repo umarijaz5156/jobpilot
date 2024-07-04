@@ -6,7 +6,10 @@
 
 <li class="nav-item dropdown">
     <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
-        <i class="flag-icon {{ $current_language?->icon }}"></i>
+
+        {{-- <i class="flag-icon {{ $current_language?->icon }}"></i> --}}
+        <i class="flag-icon flag-icon-au"></i>
+
         <span class="text-uppercase">{{ $current_language->code }}</span>
     </a>
     <div class="dropdown-menu dropdown-menu-sm dropdown-menu-right">
