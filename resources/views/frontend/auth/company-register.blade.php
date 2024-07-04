@@ -295,7 +295,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="flex-grow-1 rt-mb-24">
+                        {{-- <div class="flex-grow-1 rt-mb-24">
                             <div class="card jobcardStyle1 counterbox4">
                                 <div class="card-body">
                                     <div class="rt-single-icon-box icon-center2">
@@ -313,7 +313,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>

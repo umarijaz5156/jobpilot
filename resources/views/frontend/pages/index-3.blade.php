@@ -293,7 +293,7 @@
                         <div class="flex-grow-1">
                             <h4 class="tw-mb-0">
                                 {{ __('top') }}
-                                <span class="text-primary-500 has-title-shape">{{ __('featured_job') }}
+                                <span class="text-primary-500 has-title-shape">{{ __('featured_jobs') }}
                                     <img src="{{ asset('frontend') }}/assets/images/all-img/title-shape.png"
                                         alt="">
                                 </span>
@@ -397,7 +397,7 @@
                             <div class="d-flex flex-wrap">
                                 <div class="flex-grow-1">
                                     <h4>{{ __('top') }} <span
-                                            class="text-primary-500 has-title-shape">{{ __('companies') }}
+                                            class="text-primary-500 has-title-shape">{{ __('Councils') }}
                                             <img src="{{ asset('frontend') }}/assets/images/all-img/title-shape.png"
                                                 alt="">
                                         </span></h4>

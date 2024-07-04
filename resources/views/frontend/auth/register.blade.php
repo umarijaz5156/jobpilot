@@ -132,9 +132,9 @@
                                         @endif
                                     </div>
                                 @endif
-                                <div class="rt-mb-30">
+                                <div  class="rt-mb-30 d-none">
                                     <div class="form-check from-chekbox-custom align-items-center">
-                                        <input id="term" class="form-check-input" type="checkbox" value="1"
+                                        <input id="term" class="form-check-input" checked type="checkbox" value="1"
                                             required>
                                         <label class="form-check-label pointer text-gray-700 f-size-14" for="term">
                                             {{ __('i_have_read_and_agree_with') }}
