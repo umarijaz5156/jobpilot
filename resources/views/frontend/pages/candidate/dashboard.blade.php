@@ -22,7 +22,7 @@
                             </span>
                         </div>
                         <div class="row">
-                            <div class="col-xl-4 col-lg-6 col-md-6">
+                            {{-- <div class="col-xl-4 col-lg-6 col-md-6">
                                 <div class="single-feature-box">
                                     <div class="single-feature-data">
                                         <h6 class="tw-text-[#18191C] tw-text-2xl tw-font-semibold">{{ $appliedJobs }}</h6>
@@ -32,7 +32,7 @@
                                         <i class="ph-suitcase-simple"></i>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="col-xl-4 col-lg-6 col-md-6">
                                 <div class="single-feature-box">
                                     <div class="single-feature-data">
@@ -44,7 +44,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-xl-4 col-lg-6 col-md-6">
+                            {{-- <div class="col-xl-4 col-lg-6 col-md-6">
                                 <div class="single-feature-box">
                                     <div class="single-feature-data">
                                         <h6 class="tw-text-[#18191C] tw-text-2xl tw-font-semibold">{{ $notifications }}</h6>
@@ -54,10 +54,10 @@
                                         <i class="ph-bell-ringing"></i>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
                         @if ($candidate->profile_complete != 0)
-                            <div class="dashboaed-profile-wrap">
+                            {{-- <div class="dashboaed-profile-wrap">
                                 <div class="dashboaed-profile-left">
                                     <div class="dashboaed-profile-thumb">
                                         <img src="{{ asset($candidate->photo) }}" alt="photo">
@@ -79,9 +79,9 @@
                                         </div>
                                     </a>
                                 </div>
-                            </div>
+                            </div> --}}
                         @endif
-                        <div class="recently-applied-wrap d-flex justify-content-between align-items-center rt-mb-15">
+                        {{-- <div class="recently-applied-wrap d-flex justify-content-between align-items-center rt-mb-15">
                             <h3 class="f-size-16 lh-1 m-0">{{ __('recently_applied') }}</h3>
                             <a class="view-all text-gray-500 f-size-16 d-flex align-items-center hover:text-primary-500"
                                 href="{{ route('candidate.appliedjob') }}">
@@ -201,7 +201,7 @@
                                     @endif
                                 </tbody>
                             </table>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>

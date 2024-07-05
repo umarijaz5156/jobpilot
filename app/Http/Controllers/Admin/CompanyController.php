@@ -42,6 +42,33 @@ class CompanyController extends Controller
         }
     }
 
+    public function featureCompany(){
+
+        $featured_companies = Company::where('featured', 1)->with('user')->get();
+        $all_companies = Company::with('user')->get();
+
+        return view('backend.company.feature', [
+            'featured_companies' => $featured_companies,
+            'all_companies' => $all_companies
+        ]);
+    }
+
+    public function updateFeaturedC(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'featured_Companies' => 'array'
+        ]);
+
+        Company::where('featured', 1)->update(['featured' => 0]);
+
+        if ($request->has('featured_Companies')) {
+            Company::whereIn('id', $request->featured_Companies)->update(['featured' => 1]);
+        }
+
+        return redirect()->back()->with('success', 'Featured Companies updated successfully!');
+    }
+
     /**
      * Show the form for creating a new resource.
      *

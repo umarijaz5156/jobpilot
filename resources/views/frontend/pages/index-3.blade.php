@@ -168,7 +168,7 @@
         <div class="container">
             <div class="row tw-items-center">
                 <div class="col-lg-6">
-                    <img class="tw-rounded-lg" src="https://jobbox.archielite.com/storage/pages/img-profile.png"
+                    <img class="tw-rounded-lg" src="{{ asset('home_page.png') }}"
                         alt="jobBox">
                 </div>
                 <div class="col-lg-6">

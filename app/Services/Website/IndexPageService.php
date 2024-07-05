@@ -28,6 +28,7 @@ class IndexPageService
         $data['candidates'] = Candidate::count();
         $data['testimonials'] = Testimonial::whereCode(currentLangCode())->get();
         $data['top_companies'] = Company::with('user', 'user.contactInfo', 'industry.translations')
+        ->where('featured', 1)
             ->withCount([
                 'jobs as jobs_count' => function ($q) {
                     $q->where('status', 'active');
@@ -36,7 +37,8 @@ class IndexPageService
             ])
             ->latest('jobs_count')
             ->get()
-            ->take(9);
+            ->take(8);
+
 
         // Featured Jobs With Single && Multiple Country Base
         $featured_jobs_query = Job::query()->withoutEdited()->with('company.user', 'job_type:id', 'category')->withCount([
@@ -47,7 +49,7 @@ class IndexPageService
                 $q->where('candidate_id', auth('user')->check() && currentCandidate() ? currentCandidate()->id : '');
             },
         ]);
-        $data['featured_jobs'] = $this->filterCountryBasedJobs($featured_jobs_query)->where('featured', 1)->deadlineActive()->active()->get()->take(6);
+        $data['featured_jobs'] = Job::where('featured', 1)->get()->take(8);
 
         $setting = loadSetting();
         $is_single_base_country_type = $setting->app_country_type == 'single_base' ? true : false;

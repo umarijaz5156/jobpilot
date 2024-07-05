@@ -60,6 +60,8 @@ class JobController extends Controller
             $job_types = JobType::all();
             $companies = Company::with('user:id,name')->get(['id', 'user_id']);
             $edited_jobs = Job::edited()->count();
+            $featured_jobs = Job::where('featured', 1)->get(['id', 'title']);
+            $all_jobs = Job::get(['id', 'title']);
 
             return view('backend.Job.index', [
                 'jobs' => $jobs,
@@ -68,6 +70,8 @@ class JobController extends Controller
                 'job_types' => $job_types,
                 'companies' => $companies,
                 'edited_jobs' => $edited_jobs,
+                'featured_jobs' => $featured_jobs,
+                'all_jobs' => $all_jobs
             ]);
         } catch (\Exception $e) {
             flashError('An error occurred: ' . $e->getMessage());
@@ -464,6 +468,33 @@ class JobController extends Controller
     }
 
 
+    public function featureJobs(){
+        $featured_jobs = Job::where('featured', 1)->get(['id', 'title']);
+        $all_jobs = Job::get(['id', 'title']);
+
+        return view('backend.Job.feature', [
+            'featured_jobs' => $featured_jobs,
+            'all_jobs' => $all_jobs
+        ]);
+    }
+
+    public function updateFeatured(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'featured_jobs' => 'array'
+        ]);
+
+        Job::where('featured', 1)->update(['featured' => 0]);
+
+        if ($request->has('featured_jobs')) {
+            Job::whereIn('id', $request->featured_jobs)->update(['featured' => 1]);
+        }
+
+        return redirect()->back()->with('success', 'Featured jobs updated successfully!');
+    }
+
+
 
     // upload old jobs
 
@@ -617,4 +648,6 @@ class JobController extends Controller
 
         dd('done all');
     }
+
+
 }
