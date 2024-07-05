@@ -15,7 +15,7 @@
                     </span>
                 </a>
             </li>
-            <li>
+            {{-- <li>
                 <a class="{{ request()->routeIs('candidate.appliedjob') ? 'active' : '' }}"
                     href="{{ route('candidate.appliedjob') }}">
                     <span class="button-content-wrapper ">
@@ -27,7 +27,7 @@
                         </span>
                     </span>
                 </a>
-            </li>
+            </li> --}}
             <li>
                 <a class="{{ request()->routeIs('candidate.bookmark') ? 'active' : '' }}"
                     href="{{ route('candidate.bookmark') }}">
@@ -41,7 +41,7 @@
                     </span>
                 </a>
             </li>
-            <li>
+            {{-- <li>
                 <a class="{{ request()->routeIs('candidate.job.alerts') ? 'active' : '' }}"
                     href="{{ route('candidate.job.alerts') }}">
                     <span class="button-content-wrapper ">
@@ -53,8 +53,8 @@
                         </span>
                     </span>
                 </a>
-            </li>
-            <li>
+            </li> --}}
+            {{-- <li>
                 <a href="{{ route('candidate.messages') }}" class="{{ linkActive('candidate.messages') }}">
                     <span class="button-content-wrapper tw-items-center">
                         <span class="button-icon align-icon-left tw-flex tw-items-center">
@@ -65,7 +65,7 @@
                         </span>
                     </span>
                 </a>
-            </li>
+            </li> --}}
             <li>
                 <a class="{{ request()->routeIs('candidate.setting') ? 'active' : '' }}"
                     href="{{ route('candidate.setting') }}">

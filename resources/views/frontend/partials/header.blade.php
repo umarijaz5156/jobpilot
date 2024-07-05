@@ -205,7 +205,7 @@
                                                     </a>
                                                 </li>
                                             @endforeach
-                                            <li class="menu-item extra-page d-none d-lg-inline-block">
+                                            {{-- <li class="menu-item extra-page d-none d-lg-inline-block">
                                                 <a href="javascript:void(0)" class="dropdown-toggle">
                                                     Extra Pages
                                                 </a>
@@ -217,7 +217,7 @@
                                                         </li>
                                                     @endforeach
                                                 </ul>
-                                            </li>
+                                            </li> --}}
                                             @foreach ($custom_pages->where('show_header', 1) as $page)
                                                 <li class="d-lg-none">
                                                     <a class=""

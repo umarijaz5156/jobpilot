@@ -65,7 +65,7 @@
                             </div>
                         </div>
                         <div>
-                            <div class="card jobcardStyle1 counterbox2">
+                            {{-- <div class="card jobcardStyle1 counterbox2">
                                 <div class="card-body">
                                     <div class="rt-single-icon-box">
                                         <div class="icon-thumb rt-mr-24">
@@ -80,7 +80,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>

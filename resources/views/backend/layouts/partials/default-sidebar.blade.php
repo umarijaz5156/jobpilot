@@ -70,6 +70,27 @@
                             {{ __('applied_jobs') }}
                         </x-admin.sidebar-list>
                     @endif
+
+                    <x-admin.sidebar-list :linkActive="Request::is('admin/feature/jobs/*') ||
+                    Request::is('admin/feature/jobs') ||
+                    request()->routeIs('admin.feature.jobs*')
+                        ? true
+                        : false" route="admin.feature.jobs" path="admin.feature.jobs"
+                        plus_icon="" icon="fas fa-check-circle">
+                        {{ __('Feature jobs') }}
+
+                    </x-admin.sidebar-list>
+
+                    <x-admin.sidebar-list :linkActive="Request::is('admin/feature/company/*') ||
+                    Request::is('admin/feature/company') ||
+                    request()->routeIs('admin.feature.company*')
+                        ? true
+                        : false" route="admin.feature.company" path="admin.feature.company"
+                        plus_icon="" icon="fas fa-check-circle">
+                        {{ __('Feature Companies') }}
+
+                    </x-admin.sidebar-list>
+
                     <!-- ======= Job Category ======== -->
                     @if (userCan('job_category.view'))
                         <x-admin.sidebar-list :linkActive="Request::is('admin/jobCategory*') ? true : false" route="jobCategory.index" path="jobCategory.index"

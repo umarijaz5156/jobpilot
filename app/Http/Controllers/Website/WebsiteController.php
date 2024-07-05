@@ -116,7 +116,6 @@ class WebsiteController extends Controller
     {
         try {
             $data = (new IndexPageService())->execute();
-
             if ($this?->setting?->landing_page == 2) {
                 return view('frontend.pages.index-2', $data);
             } elseif ($this->setting->landing_page == 3) {

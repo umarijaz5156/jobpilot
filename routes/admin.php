@@ -39,6 +39,12 @@ use App\Http\Controllers\StateController;
 use App\Http\Controllers\Website\WebsiteSettingController;
 use Illuminate\Support\Facades\Route;
 
+
+
+
+
+
+
 Route::prefix('admin')->group(function () {
     /**
      * Auth routes
@@ -54,6 +60,8 @@ Route::prefix('admin')->group(function () {
         Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('admin.password.reset');
     });
 
+
+   
     Route::middleware(['auth:admin'])->group(function () {
         //Dashboard Route
         Route::get('/', [AdminController::class, 'dashboard']);
@@ -85,7 +93,11 @@ Route::prefix('admin')->group(function () {
         Route::get('/company/file/UplaodVideo', [CompanyController::class, 'UplaodVideo'])->name('company.file.UplaodVideo');
 
         
+        
+            Route::get('/feature/companies', [CompanyController::class, 'featureCompany'])->name('admin.feature.company');
+            Route::post('/company/update-featured', [CompanyController::class, 'updateFeaturedC'])->name('company.updateFeatured');
 
+    
         // Candidate Route
         Route::resource('candidate', CandidateController::class);
         Route::get('/candidate/change/status', [CandidateController::class, 'statusChange'])->name('candidate.status.change');
@@ -106,6 +118,8 @@ Route::prefix('admin')->group(function () {
         Route::get('edited/job/list', [JobController::class, 'editedJobList'])->name('admin.job.edited.index');
         Route::get('edited/job/show/{job:slug}', [JobController::class, 'editedShow'])->name('admin.job.edited.show');
         Route::put('edited/job/approved/{job:slug}', [JobController::class, 'editedApproved'])->name('admin.job.edited.approved');
+        Route::get('feature/jobs', [JobController::class, 'featureJobs'])->name('admin.feature.jobs');
+        Route::post('/jobs/update-featured', [JobController::class, 'updateFeatured'])->name('jobs.updateFeatured');
 
 
         // export jobs from the old council
