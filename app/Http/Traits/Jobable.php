@@ -279,9 +279,17 @@ trait JobAble
         if ($id == null) {
             abort(404);
         } else {
+           
             $category_id = $id->id;
-            $query->where('category_id', $category_id);
+            $query->where(function ($q) use ($category_id) {
+                $q->where('category_id', $category_id)
+                      ->orWhereHas('selectedCategories', function ($q) use ($category_id) {
+                          $q->where('job_selected_categories.category_id', $category_id);
+                      });
+            });
         }
+
+      
 
         // job role filter
         if ($request->has('job_role') && $request->job_role != null) {
@@ -307,6 +315,7 @@ trait JobAble
             }
         }
 
+
         // location
         $final_address = '';
         if ($request->has('location') && $request->location != null) {
@@ -326,18 +335,18 @@ trait JobAble
                 ->orWhere('country', $request->location ? $request->location : '');
         }
 
+       
         // country
         $selected_country = session()->get('selected_country');
-
         if ($selected_country && $selected_country != null) {
             $country = selected_country()->name;
             $query->where('country', 'LIKE', "%$country%");
         } else {
+           
 
             $setting = loadSetting();
             if ($setting->app_country_type == 'single_base') {
                 if ($setting->app_country) {
-
                     $country = Country::where('id', $setting->app_country)->first();
                     if ($country) {
                         $query->where('country', 'LIKE', "%$country->name%");
@@ -345,6 +354,7 @@ trait JobAble
                 }
             }
         }
+    
 
         // Sort by ads
         if ($request->has('sort_by') && $request->sort_by != null) {
@@ -381,8 +391,9 @@ trait JobAble
             $query->where('job_type_id', $job_type_id);
         }
 
-        $featured_jobs = $query->latest()->where('featured', 1)->take(20)->get();
+       
         $jobs = $query->latest()->paginate(20)->withQueryString();
+        $featured_jobs = $query->latest()->where('featured', 1)->take(20)->get();
 
         return [
             'total_jobs' => $jobs->total(),

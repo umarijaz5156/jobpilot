@@ -44,10 +44,12 @@ class JobUpdateService
             $status = 'expired';
         }
 
+        $categoryId = $request->categories[0] ?? 3;
+
         $job->update([
             'company_id' => $companyId,
             'company_name' => $companyName,
-            'category_id' => $request->category_id,
+            'category_id' => $categoryId,
             'state_id' => $request->state_id,
             'role_id' => $request->role_id,
             'salary_mode' => $request->salary_mode,
@@ -84,6 +86,7 @@ class JobUpdateService
 
         // location
         updateMap($job);
+        $job->selectedCategories()->sync($request->categories);
 
         return $job;
     }

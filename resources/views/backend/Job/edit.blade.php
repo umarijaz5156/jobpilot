@@ -97,7 +97,7 @@
                                             <label for="category_id">
                                                 {{ __('category') }}
                                                 <span class="text-red font-weight-bold">*</span></label>
-                                            <select name="category_id"
+                                            {{-- <select name="category_id"
                                                 class="form-control select2bs4 @error('category_id') is-invalid @enderror"
                                                 id="category_id">
                                                 <option value=""> {{ __('category') }}</option>
@@ -106,7 +106,23 @@
                                                         {{ $category->id == $job->category_id ? 'selected' : '' }}>
                                                         {{ $category->name }}</option>
                                                 @endforeach
-                                            </select>
+                                            </select> --}}
+
+                                            @php
+                                                    $selectedCategories = $job->selectedCategories->pluck('id')->toArray();
+
+                                            @endphp
+
+                                        <select id="categories" multiple="multiple" name="categories[]" class="form-control">
+                                            @foreach($job_category  as $category)
+                                                <option value="{{ $category->id }}" 
+                                                    @if(in_array($category->id, old('categories', $selectedCategories ?? []))) selected @endif>
+                                                    {{ $category->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+
+
                                             @error('company_id')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ __($message) }}</strong>
@@ -761,6 +777,14 @@
 @endsection
 
 @section('script')
+<script>
+    $(document).ready(function() {
+        $('#categories').select2({
+            placeholder: 'Select Categories',
+            allowClear: true
+        });
+    });
+</script>
     @livewireScripts
     <script>
         $(document).ready(function() {

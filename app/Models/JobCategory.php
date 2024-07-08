@@ -56,4 +56,15 @@ class JobCategory extends Model implements TranslatableContract
     {
         return $this->hasMany(Job::class, 'category_id');
     }
+
+    public function Categoriesjobs()
+    {
+        return $this->belongsToMany(Job::class, 'job_selected_categories', 'category_id', 'job_id');
+    }
+
+    public function selectedJobs()
+    {
+        return $this->belongsToMany(Job::class, 'category_job', 'category_id', 'job_id');
+    }
+    
 }

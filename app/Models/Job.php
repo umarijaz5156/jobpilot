@@ -256,6 +256,21 @@ class Job extends Model
         return $this->belongsTo(JobCategory::class);
     }
 
+    public function selectedCategories()
+    {
+        return $this->belongsToMany(JobCategory::class, 'job_selected_categories', 'job_id', 'category_id');
+    }
+
+    // public function selectedCategoriesJobs()
+    // {
+    //     return $this->belongsToMany(JobSelectedCategory::class,'job_id', 'category_id');
+    // }
+
+    public function selectedCategoriesJobs()
+    {
+        return $this->belongsToMany(JobCategory::class, 'job_selected_categories', 'job_id', 'category_id');
+    }
+
     /**
      * Get the role that owns the Job
      */

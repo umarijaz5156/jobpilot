@@ -7,7 +7,6 @@
         $userr = auth()->user();
     @endphp
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
 
 <div class="container">
     <h1>Select Jobs</h1>
@@ -26,9 +25,6 @@
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
 
 
