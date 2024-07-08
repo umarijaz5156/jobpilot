@@ -33,12 +33,14 @@ class JobCreateService
             $companyName = $request->get('company_name');
         }
 
+        $categoryId = $request->categories[0] ?? 3;
+
         // Job create
         $jobCreated = Job::create([
             'title' => $request->title,
             'company_id' => $companyId,
             'company_name' => $companyName,
-            'category_id' => $request->category_id,
+            'category_id' => $categoryId,
             'state_id' => $request->state_id,
             'role_id' => $request->role_id,
             'salary_mode' => $request->salary_mode,
@@ -82,6 +84,7 @@ class JobCreateService
 
         // location insert
         updateMap($jobCreated);
+        $jobCreated->selectedCategories()->sync($request->categories);
 
         return $jobCreated;
     }

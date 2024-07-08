@@ -96,7 +96,7 @@
                     </div>
                 </div> --}}
                 <hr class="tw-bg-[#E4E5E8] tw-m-0">
-                <div class="tw-px-5 tw-pt-5">
+                {{-- <div class="tw-px-5 tw-pt-5">
                     <h2 class="tw-text-sm tw-text-[#0A65CC] tw-mb-2 tw-font-medium">{{ __('category') }}</h2>
                     <label class="tw-block ll-filter-category__item" for="allcategory">
                         <input {{ Route::current()->parameter('category') ? '' : 'checked' }} type="radio"
@@ -115,6 +115,30 @@
                             <div
                                 class="tw-text-sm tw-text-[#18191C] tw-font-medium hover:tw-text-[#0A65CC] tw-flex tw-cursor-pointer hover:tw-bg-[#E7F0FA] tw-px-3 tw-py-2 tw-mt-[2px]">
                                 {{ $category->name }}
+                            </div>
+                        </label>
+                    @endforeach
+                </div> --}}
+                <div class="tw-px-5 tw-pt-5">
+                    <h2 class="tw-text-sm tw-text-[#0A65CC] tw-mb-2 tw-font-medium">{{ __('category') }}</h2>
+                    <label class="tw-block ll-filter-category__item" for="allcategory">
+                        <input {{ Route::current()->parameter('category') ? '' : 'checked' }} type="radio"
+                            id="allcategory" class="category-radio tw-hidden" name="category" aria-data-id="category" value="">
+                        <div
+                            class="tw-text-sm tw-text-[#18191C] tw-font-medium hover:tw-text-[#0A65CC] tw-flex tw-cursor-pointer hover:tw-bg-[#E7F0FA] tw-px-3 tw-py-2 tw-mt-[2px]">
+                            {{ __('all_category') }}</div>
+                    </label>
+                    @foreach ($categories as $category)
+                        <label class="tw-block ll-filter-category__item"
+                            for="{{ $category->name }}_{{ $category->id }}">
+                            <input {{ $category->slug ==  request('category') ? 'checked' : '' }}
+                                type="radio" aria-data-id="category" data-id="{{ $category->slug }}"
+                                id="{{ $category->name }}_{{ $category->id }}" class="category-radio tw-hidden"
+                                name="category" value="{{ $category->slug }}">
+                            <div
+                                class="tw-text-sm tw-text-[#18191C] tw-font-medium hover:tw-text-[#0A65CC] tw-flex tw-cursor-pointer hover:tw-bg-[#E7F0FA] tw-px-3 tw-py-2 tw-mt-[2px]">
+                                {{ $category->name }}
+                               
                             </div>
                         </label>
                     @endforeach
@@ -242,6 +266,8 @@
         const checkboxes = document.querySelectorAll('.category-radio');
         checkboxes.forEach(checkbox => {
             checkbox.addEventListener('click', (event) => {
+                console.log(event);
+
                 checkboxes.forEach(cb => {
                     if (cb !== event.target) {
                         cb.checked = false; // Uncheck other checkboxes

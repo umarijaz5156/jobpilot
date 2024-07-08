@@ -14,6 +14,9 @@
 @endsection
 
 @section('main')
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
     <section class="hero-section-3">
         <div class="container">
             <div class="tw-flex tw-justify-center tw-items-center tw-relative tw-z-50">

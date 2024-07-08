@@ -120,21 +120,27 @@
 
                                         </div>
                                     </div>
+                                   
                                     <div class="row form-group">
                                         <div class="col-md-12">
                                             <label for="category_id">
                                                 {{ __('category') }}
                                                 <span class="text-red font-weight-bold">*</span></label>
-                                            <select name="category_id"
-                                                class="form-control select2bs4 @error('category_id') is-invalid @enderror"
+                                            {{-- <select name="categories[]" multiple
+                                                class="form-control select2bs4 @error('categories') is-invalid @enderror"
                                                 id="category_id" required>
                                                 <option value=""> {{ __('category') }}</option>
                                                 @foreach ($job_category as $category)
                                                     <option {{ old('category_id') == $category->id ? 'selected' : '' }}
                                                         value="{{ $category->id }}"> {{ $category->name }}</option>
                                                 @endforeach
+                                            </select> --}}
+                                            <select id="categories" multiple="multiple" name="categories[]" class="form-control" >
+                                                @foreach($job_category as $category)
+                                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                                @endforeach
                                             </select>
-                                            @error('category_id')
+                                            @error('categories')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ __($message) }}</strong>
                                                 </span>
@@ -826,7 +832,19 @@
     @include('map::links')
 @endsection
 
+
+
+
+
 @section('script')
+<script>
+    $(document).ready(function() {
+        $('#categories').select2({
+            placeholder: 'Select Categories',
+            allowClear: true
+        });
+    });
+</script>
     @livewireScripts
 
     <script>
