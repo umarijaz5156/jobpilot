@@ -47,11 +47,11 @@
                                     class="counter">{{ companies() }}</span></div>
                             <span class="text-gray-500 f-size-16">{{ __('companies') }}</span>
                         </div>
-                        <div class="col-md-4 col-sm-4  text-center rt-mb-20">
+                        {{-- <div class="col-md-4 col-sm-4  text-center rt-mb-20">
                             <div class="f-size-24 ft-wt-5 text-gray-10"><span
                                     class="counter">{{ candidate() }}</span></div>
                             <span class="text-gray-500 f-size-16">{{ __('candidates') }}</span>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>

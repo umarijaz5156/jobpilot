@@ -166,128 +166,80 @@
             </div>
         </div>
     </section>
-    <!-- create profile -->
-    <section class="md:tw-py-20 tw-py-12 !tw-border-t !tw-border-b !tw-border-primary-100">
-        <div class="container">
-            <div class="row tw-items-center">
-                <div class="col-lg-6">
-                    <img class="tw-rounded-lg" src="{{ asset('home_page.png') }}"
-                        alt="jobBox">
-                </div>
-                <div class="col-lg-6">
-                    <div class="lg:tw-ps-12 tw-pt-6 lg:tw-pt-0">
-                        <h5 class="tw-text-primary-500 tw-mb-4">{{ __('create_profile') }}</h5>
-                        <h2 class="">{{ __('create_your_personal_account_profile') }}</h2>
-                        <p class="">{{ __('work_profile_description') }}</p>
-                        <div class="">
-                            <a href="{{ route('register') }}" class="btn btn-primary">{{ __('create_profile') }}</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- working process section -->
-    <section class="working-process tw-bg-white">
-        <div class="rt-spacer-100 rt-spacer-md-50"></div>
-        <div class="container">
-            <div class="row">
-                <div class="col-12 text-center text-h4 ft-wt-5">
-                    <span class="text-primary-500 has-title-shape">{{ config('app.name') }}
-                        <img src="{{ asset('frontend') }}/assets/images/all-img/title-shape.png" alt="">
-                    </span>
-                    <label for="">{{ __('working_process') }}</label>
-                </div>
-            </div>
-            <div class="rt-spacer-50"></div>
-            <div class="row">
-                <div class="col-lg-3 col-sm-6 rt-mb-24 position-relative">
-                    <div class="has-arrow first">
-                        <img src="{{ asset('frontend') }}/assets/images/all-img/arrow-1.png" alt=""
-                            draggable="false">
-                    </div>
-                    <div class="rt-single-icon-box hover:!tw-bg-primary-50 working-progress icon-center">
-                        <div class="icon-thumb rt-mb-24">
-                            <div class="icon-72">
-                                <i class="ph-user-plus"></i>
-                            </div>
-                        </div>
-                        <div class="iconbox-content">
-                            <div class="body-font-2 rt-mb-12">{{ __('explore_opportunities') }}</div>
-                            <div class="body-font-4 text-gray-400">
-                                {{ __('browse_through_a_diverse_range_of_job_listings_tailored_to_your_interests_and_expertise') }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 rt-mb-24 col-sm-6 position-relative">
-                    <div class="has-arrow middle">
-                        <img src="{{ asset('frontend') }}/assets/images/all-img/arrow-2.png" alt=""
-                            draggable="false">
-                    </div>
-                    <div class="rt-single-icon-box hover:!tw-bg-primary-50 working-progress icon-center">
-                        <div class="icon-thumb rt-mb-24">
-                            <div class="icon-72">
-                                <i class="ph-cloud-arrow-up"></i>
-                            </div>
-                        </div>
-                        <div class="iconbox-content">
-                            <div class="body-font-2 rt-mb-12">{{ __('create_your_profile') }}</div>
-                            <div class="body-font-4 text-gray-400">
-                                {{ __('build_a_standout_profile_highlighting_your_skills_experience_and_qualifications') }}
+        
+    <!-- top companaies -->
+    @if ($top_companies && count($top_companies) > 0)
+        @if (!auth('user')->check() || (auth('user')->check() && authUser()->role == 'candidate'))
+            <section class="md:tw-py-20 tw-py-12">
+                <div class="container">
+                    <div class="row md:tw-pb-12 tw-pb-8">
+                        <div class="col-12">
+                            <div class="d-flex flex-wrap">
+                                <div class="flex-grow-1">
+                                    <h4>{{ __('top') }} <span
+                                            class="text-primary-500 has-title-shape">{{ __('Councils') }}
+                                            <img src="{{ asset('frontend') }}/assets/images/all-img/title-shape.png"
+                                                alt="">
+                                        </span></h4>
+                                </div>
+                                <a href="{{ route('website.company') }}" class="flex-grow-0 rt-pt-md-10">
+                                    <button class="btn btn-outline-primary">
+                                        <span class="button-content-wrapper ">
+                                            <span class="button-icon align-icon-right">
+                                                <i class="ph-arrow-right"></i>
+                                            </span>
+                                            <span>
+                                                {{ __('view_all') }}
+                                            </span>
+                                        </span>
+                                    </button>
+                                </a>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-lg-3 rt-mb-24 col-sm-6 position-relative">
-                    <div class="has-arrow last">
-                        <img src="{{ asset('frontend') }}/assets/images/all-img/arrow-1.png" alt=""
-                            draggable="false">
-                    </div>
-                    <div class="rt-single-icon-box hover:!tw-bg-primary-50 working-progress icon-center">
-                        <div class="icon-thumb rt-mb-24">
-                            <div class="icon-72">
-                                <i class="ph-magnifying-glass-plus"></i>
+                    <div class="row">
+                        @foreach ($top_companies as $company)
+                            <div class="col-xl-3 col-md-4 fade-in-bottom  condition_class rt-mb-24 tw-self-stretch">
+                                <a href="{{ route('website.employe.details', $company->user->username) }}"
+                                    class="card jobcardStyle1 tw-h-full hover:!-tw-translate-y-1">
+                                    <div class="tw-p-6 tw-flex tw-flex-col tw-gap-1.5">
+                                        <div class="tw-w-14 tw-h-14">
+                                            <img class="tw-w-full tw-h-full tw-object-cover"
+                                                src="{{ $company->logo_url }}" alt="" draggable="false">
+                                        </div>
+                                        <div>
+                                            <div class="">
+                                                <span
+                                                    class="tw-text-[#191F33] tw-text-base tw-font-medium">{{ $company->user->name }}</span>
+                                            </div>
+                                            <span
+                                                class="tw-inline-flex tw-text-sm tw-gap-1 tw-items-center text-gray-400 ">
+                                                <i class="ph-map-pin"></i>
+                                                {{ $company->country }}
+                                            </span>
+                                        </div>
+                                        <div class="tw-flex tw-flex-wrap tw-gap-1.5">
+                                            <span
+                                                class="tw-px-2 tw-py-0.5 tw-inline-block tw-text-xs tw-font-medium tw-text-[#474C54] tw-rounded-[52px] tw-bg-primary-50 ll-primary-border">
+                                                {{ $company?->industry?->name ?? '' }}
+                                            </span>
+                                            <span
+                                                class="tw-px-2 tw-py-0.5 tw-inline-block tw-text-xs tw-font-medium tw-text-[#474C54] tw-rounded-[52px] tw-bg-primary-50 ll-primary-border">{{ $company->jobs_count }}
+                                                {{ __('open_position') }}</span>
+                                        </div>
+                                    </div>
+                                </a>
                             </div>
-                        </div>
-                        <div class="iconbox-content">
-                            <div class="body-font-2 rt-mb-12">{{ __('apply_with_ease') }}</div>
-                            <div class="body-font-4 text-gray-400">
-                                {{ __('effortlessly_apply_to_jobs_that_match_your_preferences_with_just_a_few_clicks') }}
-                            </div>
-                        </div>
+                        @endforeach
                     </div>
                 </div>
-                <div class="col-lg-3 rt-mb-24 col-sm-6">
-                    <div class="rt-single-icon-box hover:!tw-bg-primary-50 working-progress icon-center">
-                        <div class="icon-thumb rt-mb-24">
-                            <div class="icon-72">
-                                <i class="ph-circle-wavy-check"></i>
-                            </div>
-                        </div>
-                        <div class="iconbox-content">
-                            <div class="body-font-2 rt-mb-12">{{ __('track_your_progress') }}</div>
-                            <div class="body-font-4 text-gray-400">
-                                {{ __('stay_informed_on_your_applications_and_manage_your_job_seeking_journey_effectively') }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="rt-spacer-100 rt-spacer-md-50"></div>
-    </section>
-    <!-- google adsense area -->
-    @if (advertisement_status('home_page_ad'))
-        @if (advertisementCode('home_page_fat_ad_after_workingprocess_section'))
-            <div class="container my-4">
-                {!! advertisementCode('home_page_fat_ad_after_workingprocess_section') !!}
-            </div>
+            </section>
         @endif
     @endif
-    <!-- google adsense area end -->
-    <!-- jobs card -->
+
+
+
     <section class="tw-bg-primary-50 md:tw-py-20 tw-py-12">
         <div class="container">
             <div class="row md:tw-pb-12 tw-pb-8">
@@ -389,76 +341,9 @@
             </div>
         @endif
     @endif
+
     <!-- google adsense area end -->
-    <!-- top companaies -->
-    @if ($top_companies && count($top_companies) > 0)
-        @if (!auth('user')->check() || (auth('user')->check() && authUser()->role == 'candidate'))
-            <section class="md:tw-py-20 tw-py-12">
-                <div class="container">
-                    <div class="row md:tw-pb-12 tw-pb-8">
-                        <div class="col-12">
-                            <div class="d-flex flex-wrap">
-                                <div class="flex-grow-1">
-                                    <h4>{{ __('top') }} <span
-                                            class="text-primary-500 has-title-shape">{{ __('Councils') }}
-                                            <img src="{{ asset('frontend') }}/assets/images/all-img/title-shape.png"
-                                                alt="">
-                                        </span></h4>
-                                </div>
-                                <a href="{{ route('website.company') }}" class="flex-grow-0 rt-pt-md-10">
-                                    <button class="btn btn-outline-primary">
-                                        <span class="button-content-wrapper ">
-                                            <span class="button-icon align-icon-right">
-                                                <i class="ph-arrow-right"></i>
-                                            </span>
-                                            <span>
-                                                {{ __('view_all') }}
-                                            </span>
-                                        </span>
-                                    </button>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        @foreach ($top_companies as $company)
-                            <div class="col-xl-3 col-md-4 fade-in-bottom  condition_class rt-mb-24 tw-self-stretch">
-                                <a href="{{ route('website.employe.details', $company->user->username) }}"
-                                    class="card jobcardStyle1 tw-h-full hover:!-tw-translate-y-1">
-                                    <div class="tw-p-6 tw-flex tw-flex-col tw-gap-1.5">
-                                        <div class="tw-w-14 tw-h-14">
-                                            <img class="tw-w-full tw-h-full tw-object-cover"
-                                                src="{{ $company->logo_url }}" alt="" draggable="false">
-                                        </div>
-                                        <div>
-                                            <div class="">
-                                                <span
-                                                    class="tw-text-[#191F33] tw-text-base tw-font-medium">{{ $company->user->name }}</span>
-                                            </div>
-                                            <span
-                                                class="tw-inline-flex tw-text-sm tw-gap-1 tw-items-center text-gray-400 ">
-                                                <i class="ph-map-pin"></i>
-                                                {{ $company->country }}
-                                            </span>
-                                        </div>
-                                        <div class="tw-flex tw-flex-wrap tw-gap-1.5">
-                                            <span
-                                                class="tw-px-2 tw-py-0.5 tw-inline-block tw-text-xs tw-font-medium tw-text-[#474C54] tw-rounded-[52px] tw-bg-primary-50 ll-primary-border">
-                                                {{ $company?->industry?->name ?? '' }}
-                                            </span>
-                                            <span
-                                                class="tw-px-2 tw-py-0.5 tw-inline-block tw-text-xs tw-font-medium tw-text-[#474C54] tw-rounded-[52px] tw-bg-primary-50 ll-primary-border">{{ $company->jobs_count }}
-                                                {{ __('open_position') }}</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </section>
-        @endif
-    @endif
+
     <!-- google adsense area -->
     @if (advertisement_status('home_page_ad'))
         @if (advertisementCode('home_page_fat_ad_after_client_section'))
@@ -467,6 +352,129 @@
             </div>
         @endif
     @endif
+
+        <!-- create profile -->
+        <section class="md:tw-py-20 tw-py-12 !tw-border-t !tw-border-b !tw-border-primary-100">
+            <div class="container">
+                <div class="row tw-items-center">
+                    <div class="col-lg-6">
+                        <img class="tw-rounded-lg" src="{{ asset('home_page.png') }}"
+                            alt="jobBox">
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="lg:tw-ps-12 tw-pt-6 lg:tw-pt-0">
+                            <h5 class="tw-text-primary-500 tw-mb-4">{{ __('create_profile') }}</h5>
+                            <h2 class="">{{ __('create_your_personal_account_profile') }}</h2>
+                            <p class="">{{ __('work_profile_description') }}</p>
+                            <div class="">
+                                <a href="{{ route('register') }}" class="btn btn-primary">{{ __('create_profile') }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- working process section -->
+        <section class="working-process tw-bg-white">
+            <div class="rt-spacer-100 rt-spacer-md-50"></div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 text-center text-h4 ft-wt-5">
+                        <span class="text-primary-500 has-title-shape">{{ config('app.name') }}
+                            <img src="{{ asset('frontend') }}/assets/images/all-img/title-shape.png" alt="">
+                        </span>
+                        <label for="">{{ __('working_process') }}</label>
+                    </div>
+                </div>
+                <div class="rt-spacer-50"></div>
+                <div class="row">
+                    <div class="col-lg-3 col-sm-6 rt-mb-24 position-relative">
+                        <div class="has-arrow first">
+                            <img src="{{ asset('frontend') }}/assets/images/all-img/arrow-1.png" alt=""
+                                draggable="false">
+                        </div>
+                        <div class="rt-single-icon-box hover:!tw-bg-primary-50 working-progress icon-center">
+                            <div class="icon-thumb rt-mb-24">
+                                <div class="icon-72">
+                                    <i class="ph-user-plus"></i>
+                                </div>
+                            </div>
+                            <div class="iconbox-content">
+                                <div class="body-font-2 rt-mb-12">{{ __('explore_opportunities') }}</div>
+                                <div class="body-font-4 text-gray-400">
+                                    {{ __('browse_through_a_diverse_range_of_job_listings_tailored_to_your_interests_and_expertise') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 rt-mb-24 col-sm-6 position-relative">
+                        <div class="has-arrow middle">
+                            <img src="{{ asset('frontend') }}/assets/images/all-img/arrow-2.png" alt=""
+                                draggable="false">
+                        </div>
+                        <div class="rt-single-icon-box hover:!tw-bg-primary-50 working-progress icon-center">
+                            <div class="icon-thumb rt-mb-24">
+                                <div class="icon-72">
+                                    <i class="ph-cloud-arrow-up"></i>
+                                </div>
+                            </div>
+                            <div class="iconbox-content">
+                                <div class="body-font-2 rt-mb-12">{{ __('create_your_profile') }}</div>
+                                <div class="body-font-4 text-gray-400">
+                                    {{ __('build_a_standout_profile_highlighting_your_skills_experience_and_qualifications') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 rt-mb-24 col-sm-6 position-relative">
+                        <div class="has-arrow last">
+                            <img src="{{ asset('frontend') }}/assets/images/all-img/arrow-1.png" alt=""
+                                draggable="false">
+                        </div>
+                        <div class="rt-single-icon-box hover:!tw-bg-primary-50 working-progress icon-center">
+                            <div class="icon-thumb rt-mb-24">
+                                <div class="icon-72">
+                                    <i class="ph-magnifying-glass-plus"></i>
+                                </div>
+                            </div>
+                            <div class="iconbox-content">
+                                <div class="body-font-2 rt-mb-12">{{ __('apply_with_ease') }}</div>
+                                <div class="body-font-4 text-gray-400">
+                                    {{ __('effortlessly_apply_to_jobs_that_match_your_preferences_with_just_a_few_clicks') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 rt-mb-24 col-sm-6">
+                        <div class="rt-single-icon-box hover:!tw-bg-primary-50 working-progress icon-center">
+                            <div class="icon-thumb rt-mb-24">
+                                <div class="icon-72">
+                                    <i class="ph-circle-wavy-check"></i>
+                                </div>
+                            </div>
+                            <div class="iconbox-content">
+                                <div class="body-font-2 rt-mb-12">{{ __('track_your_progress') }}</div>
+                                <div class="body-font-4 text-gray-400">
+                                    {{ __('stay_informed_on_your_applications_and_manage_your_job_seeking_journey_effectively') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="rt-spacer-100 rt-spacer-md-50"></div>
+        </section>
+    
+        <!-- google adsense area -->
+        @if (advertisement_status('home_page_ad'))
+            @if (advertisementCode('home_page_fat_ad_after_workingprocess_section'))
+                <div class="container my-4">
+                    {!! advertisementCode('home_page_fat_ad_after_workingprocess_section') !!}
+                </div>
+            @endif
+        @endif
+        <!-- google adsense area end -->
+        <!-- jobs card -->
     <!-- google adsense area end -->
     <!-- newsletter -->
     {{-- <section class="section-box tw-mb-8">
