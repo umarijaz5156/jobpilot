@@ -311,7 +311,7 @@
                                         </div>
                                         <span class="loacton text-gray-400 d-inline-flex ">
                                             <i class="ph-map-pin"></i>
-                                            {{ $job->country }}
+                                            {{ $job->region }}
                                         </span>
                                     </div>
                                 </div>

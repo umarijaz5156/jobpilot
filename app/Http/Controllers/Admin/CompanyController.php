@@ -53,6 +53,20 @@ class CompanyController extends Controller
         ]);
     }
 
+    public function reportCompany($id){
+        
+        $company = Company::with([
+            'jobs.appliedJobs',
+            'user.socialInfo',
+            'user.contactInfo',
+            'jobs' => function ($job) {
+                return $job->latest()->with('category', 'role', 'job_type', 'salary_type');
+            },
+        ])->findOrFail($id);
+
+        return view('backend.company.report', compact('company'));
+    }
+
     public function updateFeaturedC(Request $request)
     {
         // Validate the request
