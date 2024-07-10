@@ -93,6 +93,8 @@ Route::prefix('admin')->group(function () {
         Route::get('/company/file/UplaodVideo', [CompanyController::class, 'UplaodVideo'])->name('company.file.UplaodVideo');
 
         
+        Route::get('/company/report/{id}', [CompanyController::class, 'reportCompany'])->name('company.report');
+
         
             Route::get('/feature/companies', [CompanyController::class, 'featureCompany'])->name('admin.feature.company');
             Route::post('/company/update-featured', [CompanyController::class, 'updateFeaturedC'])->name('company.updateFeatured');

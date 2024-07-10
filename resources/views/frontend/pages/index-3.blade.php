@@ -284,12 +284,18 @@
                                             </span>
                                         </div>
                                         <div class="tw-flex tw-flex-wrap tw-gap-2 tw-items-center tw-mb-1.5">
-                                            <span
+                                            <div class="tw-w-[56px] tw-h-[56px]">
+                                                <img class="tw-rounded-lg tw-w-[56px] tw-h-[56px]"
+                                                    src="{{ $job?->company?->logo_url }}" alt=""
+                                                    draggable="false">
+
+                                            </div>
+                                            {{-- <span
                                                 class="tw-text-[#0BA02C] tw-text-[12px] tw-leading-[12px] tw-font-semibold tw-bg-[#E7F6EA] tw-px-2 tw-py-1 tw-rounded-[3px]">
                                                 {{ $job->job_type ? $job->job_type->name : '' }}
-                                            </span>
+                                            </span> --}}
                                         </div>
-                                        <div>
+                                        {{-- <div>
                                             <span class="tw-text-sm tw-text-[#767F8C]">
                                                 @if ($job->salary_mode == 'range')
                                                     {{ currencyAmountShort($job->min_salary) }} -
@@ -299,17 +305,12 @@
                                                     {{ $job->custom_salary }}
                                                 @endif
                                             </span>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                     <div class="tw-flex tw-items-center tw-gap-2">
-                                        <span>
-                                            <div class="tw-w-[56px] tw-h-[56px]">
-                                                <img class="tw-rounded-lg tw-w-[56px] tw-h-[56px]"
-                                                    src="{{ $job?->company?->logo_url }}" alt=""
-                                                    draggable="false">
-
-                                            </div>
-                                        </span>
+                                        {{-- <span>
+                                          
+                                        </span> --}}
                                         <div class="iconbox-content">
                                             <div class="tw-mb-1 tw-inline-flex">
                                                 <span

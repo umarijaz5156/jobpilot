@@ -197,6 +197,12 @@
                                     @if (userCan('company.update') || userCan('compnay.delete'))
                                             <td>
                                                 @if (userCan('company.view'))
+                                                <a href="{{ route('company.report', $company->id) }}"
+                                                    class="btn ll-btn ll-border-none">
+                                                    {{__('Report')}}
+                                            <x-svg.table-btn-arrow />
+                                                </a>
+
                                                     <a href="{{ route('company.show', $company->id) }}"
                                                         class="btn ll-btn ll-border-none">
                                                         {{__('view_profile')}}
