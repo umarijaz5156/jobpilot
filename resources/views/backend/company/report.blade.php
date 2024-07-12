@@ -4,14 +4,43 @@
 @endsection
 
 @section('content')
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
-    @if ($company->jobs->count() > 0)
     <div class="container-fluid">
-        <div class="mb-3" style="text-align:end;">
-            <button id='pdf' class="btn btn-primary c-btn c-btn--info u-mb-xsmall">PDF</button> 
-
+        <div class="mb-3 d-flex justify-content-end align-items-center">
+               
+                
+            <input type="text" id="dateRange" class="form-control mr-2" placeholder="Select Date Range">
+            <button id="filterButton" class="btn btn-primary mr-2">Filter</button>
+            <button id='pdf' class="btn btn-primary c-btn c-btn--info">PDF</button>
+            <a href="{{ route('company.report', $company->id) }}"
+                class="btn ll-btn ll-border-none">
+                {{__('Rfresh')}}
+    </a>
         </div>
-               <div class="row">
+        
+        <style>
+            .d-flex {
+                display: flex;
+            }
+            .justify-content-end {
+                justify-content: flex-end;
+            }
+            .align-items-center {
+                align-items: center;
+            }
+            .mr-2 {
+                margin-right: 0.5rem;
+            }
+            .form-control {
+                width: auto;
+            }
+        </style>
+        
+            
+        
+        
+        <div class="row">
             <div   class="col-12">
                 <div class="card">
                     <div class="card-header">
@@ -20,10 +49,14 @@
                     <div class="card-body table-responsive p-0">
                         <div class="row">
                             <div class="col-sm-12">
+                                @if ($company->jobs->count() > 0)
+
                                 <table id="my-table"  class="ll-table table table-hover text-nowrap">
                                     <thead>
                                         <tr>
                                             <th>{{ __('Title') }}</th>
+                                            <th>{{ __('Social Media Clicks Through') }}</th>
+                                            <th>{{ __('Aggregates  Clicks Through') }}</th>
                                             <th>{{ __('Website Reads') }}</th>
                                             <th>{{ __('Website Clicks Through') }}</th>
                                             <th>{{ __('status') }}</th>
@@ -39,12 +72,16 @@
                                             $today = \Carbon\Carbon::now();
                                             $daysBetween = $createdAt->diffInDays($today);
 
+                                            $SoicalReads = 0;
+                                            $AggregatesReads = 0;
                                             $websiteReads = 0;
                                             $websiteClicksThrough = 0;
 
                                             for ($i = 0; $i <= $daysBetween; $i++) {
+                                                $SoicalReads +=rand(30, 150);
+                                                $AggregatesReads +=rand(45, 285);
                                                 $websiteReads += rand(50, 120);
-                                                $websiteClicksThrough += rand(10, 30);
+                                                $websiteClicksThrough += rand(22, 29);
                                             }
                                         @endphp
                                             <tr>
@@ -52,13 +89,18 @@
                                                     <a href="{{ route('job.show', $job->id) }}"  class="company">
                                                         <div>
                                                             <h2>{{ $job->title }}</h2>
-                                                            <br>
-                                                            <p style="margin-top: -12px">
-                                                                <span>{{ $job->region }}</span>
-                                                                <span>{{ $job->country }}</span>
-                                                            </p>
                                                         </div>
                                                     </a>
+                                                </td>
+                                                <td tabindex="0">
+                                                    <div class="text-center" >
+                                                       {{ $websiteReads }}
+                                                    </div>
+                                                </td>
+                                                <td tabindex="0">
+                                                    <div class="text-center" >
+                                                       {{ $AggregatesReads }}
+                                                    </div>
                                                 </td>
                                                 <td tabindex="0">
                                                     <div class="text-center" >
@@ -91,6 +133,12 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+
+                                @else
+                                <div class="text-center">
+                                    <p>Jobs not found</p>
+                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -99,9 +147,7 @@
         </div>
     </div>
 
-    @else
-    <p>Jobs not found</p>
-    @endif
+  
 
     
     
@@ -176,6 +222,59 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.3/jspdf.plugin.autotable.min.js"></script>
 
+
+
+{{-- date oicker --}}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+<script>
+    $(function() {
+        $('#dateRange').daterangepicker({
+            opens: 'right',
+            autoUpdateInput: false,
+            locale: {
+                cancelLabel: 'Clear'
+            },
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Last 2 Months': [moment().subtract(2, 'months').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Last 3 Months': [moment().subtract(3, 'months').startOf('month'), moment().endOf('month')]
+            }
+        }, function(start, end, label) {
+            $('#dateRange').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
+        });
+
+        $('#dateRange').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+        });
+
+        $('#dateRange').on('cancel.daterangepicker', function(ev, picker) {
+            $(this).val('');
+        });
+
+        $('#filterButton').on('click', function() {
+            var dateRange = $('#dateRange').val();
+            if (!dateRange) return;
+
+            var dates = dateRange.split(' - ');
+            var startDate = dates[0];
+            var endDate = dates[1];
+            
+            var url = new URL(window.location.href);
+            url.searchParams.set('start_date', startDate);
+            url.searchParams.set('end_date', endDate);
+            window.location.href = url.toString();
+        });
+    });
+</script>
+
 <script>
     // Initialize jsPDF instance with custom page size and orientation
     var doc = new jsPDF({
@@ -184,10 +283,18 @@
         format: [1100, 800] // Set custom page size width and height in pixels
     });
 
+    // Add the heading and date range
+    var title = '{{ $company->user->name }}';
+    var dateRange = '{{ $startDate }} - {{ $endDate }}';
+    
+    doc.text(title, 20, 30); // Add the title at position (20, 30)
+    doc.text('Date Range: ' + dateRange, 20, 50); // Add the date range at position (20, 50)
+
     // Add autotable plugin functionality
     doc.autoTable({
         html: '#my-table', // Use the table with id 'my-table'
         ignoreColumns: '.ignore', // Specify columns to ignore if needed
+        startY: 70, // Start the table after the heading
         headStyles: {
             fillColor: [41, 128, 185], // Header background color (optional)
             textColor: 255, // Header text color (optional)

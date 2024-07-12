@@ -53,19 +53,48 @@ class CompanyController extends Controller
         ]);
     }
 
-    public function reportCompany($id){
+    // public function reportCompany($id){
         
-        $company = Company::with([
-            'jobs.appliedJobs',
-            'user.socialInfo',
-            'user.contactInfo',
-            'jobs' => function ($job) {
-                return $job->latest()->with('category', 'role', 'job_type', 'salary_type');
-            },
-        ])->findOrFail($id);
+    //     $company = Company::with([
+    //         'jobs.appliedJobs',
+    //         'user.socialInfo',
+    //         'user.contactInfo',
+    //         'jobs' => function ($job) {
+    //             return $job->latest()->with('category', 'role', 'job_type', 'salary_type');
+    //         },
+    //     ])->findOrFail($id);
 
-        return view('backend.company.report', compact('company'));
+    //     return view('backend.company.report', compact('company'));
+    // }
+
+    public function reportCompany(Request $request, $id)
+    {
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+    
+        $company = Company::with([
+            'jobs' => function ($query) use ($startDate, $endDate) {
+                $query->latest()->with('category', 'role', 'job_type', 'salary_type');
+                if ($startDate && $endDate) {
+                    $query->where(function ($q) use ($startDate, $endDate) {
+                        $q->whereBetween('created_at', [$startDate, $endDate])
+                          ->orWhereBetween('deadline', [$startDate, $endDate])
+                          ->orWhere(function ($q) use ($startDate) {
+                              $q->where('status', 'active')
+                                ->where('created_at', '<', $startDate);
+                          });
+                    });
+                }
+            },
+            'user.socialInfo',
+            'user.contactInfo'
+        ])->findOrFail($id);
+    
+        return view('backend.company.report', compact('company', 'startDate', 'endDate'));
     }
+    
+
+    
 
     public function updateFeaturedC(Request $request)
     {
