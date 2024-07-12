@@ -476,7 +476,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-xl-4 col-lg-6 col-md-6 col-sm-4 rt-mb-32">
+                                {{-- <div class="col-xl-4 col-lg-6 col-md-6 col-sm-4 rt-mb-32">
                                     <div class="single-jSidebarWidget">
                                         <div class="icon-thumb">
                                             <i class="ph-user f-size-30 text-primary-500"></i>
@@ -489,8 +489,8 @@
                                             </span>
                                         </div>
                                     </div>
-                                </div>
-                                @if ($job->education)
+                                </div> --}}
+                                {{-- @if ($job->education)
                                     <div class="col-xl-4 col-lg-6 col-md-6 col-sm-4 rt-mb-32">
                                         <div class="single-jSidebarWidget">
                                             <div class="icon-thumb rt-mr-17">
@@ -505,8 +505,8 @@
                                             </div>
                                         </div>
                                     </div>
-                                @endif
-                                @if ($job->experience)
+                                @endif --}}
+                                {{-- @if ($job->experience)
                                     <div class="col-xl-4 col-lg-6 col-md-6 col-sm-4 rt-mb-32">
                                         <div class="single-jSidebarWidget">
                                             <div class="icon-thumb rt-mr-17">
@@ -521,7 +521,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                @endif
+                                @endif --}}
                                 @if ($job->vacancies)
                                     <div class="col-xl-4 col-lg-6 col-md-6 col-sm-4 rt-mb-32">
                                         <div class="single-jSidebarWidget">
