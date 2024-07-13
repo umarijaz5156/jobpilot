@@ -13,6 +13,11 @@
             <input type="text" id="dateRange" class="form-control mr-2" placeholder="Select Date Range">
             <button id="filterButton" class="btn btn-primary mr-2">Filter</button>
             <button id='pdf' class="btn btn-primary c-btn c-btn--info">PDF</button>
+            <button id="sendEmailButton" class="btn btn-primary ml-2 c-btn c-btn--info">
+                <span id="buttonText">Send Email</span>
+                <span id="buttonSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+            </button>
+            
             <a href="{{ route('company.report', $company->id) }}"
                 class="btn ll-btn ll-border-none">
                 {{__('Rfresh')}}
@@ -320,6 +325,45 @@
     $('#pdf').on('click', function() {
         doc.save('{{ $company->user->name }}_Report.pdf');
     });
+
+
+
+
+      // Send Email Button Click Handler
+    // Send Email Button Click Handler
+$('#sendEmailButton').on('click', function() {
+    // Show loading spinner
+    $('#buttonText').hide();
+    $('#buttonSpinner').show();
+
+    var startDate = '{{ $startDate }}';
+    var endDate = '{{ $endDate }}';
+
+    $.ajax({
+        url: '{{ route('send.email') }}',
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        data: {
+            userId: '{{ $company->id }}',
+            startDate: startDate,
+            endDate: endDate
+        },
+        success: function(response) {
+            alert('Email sent successfully!');
+        },
+        error: function(xhr) {
+            alert('Failed to send email.');
+        },
+        complete: function() {
+            // Hide loading spinner
+            $('#buttonSpinner').hide();
+            $('#buttonText').show();
+        }
+    });
+});
+
 </script>
 
 

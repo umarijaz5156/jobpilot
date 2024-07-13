@@ -23,6 +23,10 @@ use Modules\Location\Entities\Country;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
+use App\Mail\UserPdfMail;
+use Illuminate\Support\Facades\Mail;
+use PDF;
+
 class CompanyController extends Controller
 {
     public function index(Request $request)
@@ -53,19 +57,6 @@ class CompanyController extends Controller
         ]);
     }
 
-    // public function reportCompany($id){
-        
-    //     $company = Company::with([
-    //         'jobs.appliedJobs',
-    //         'user.socialInfo',
-    //         'user.contactInfo',
-    //         'jobs' => function ($job) {
-    //             return $job->latest()->with('category', 'role', 'job_type', 'salary_type');
-    //         },
-    //     ])->findOrFail($id);
-
-    //     return view('backend.company.report', compact('company'));
-    // }
 
     public function reportCompany(Request $request, $id)
     {
@@ -93,6 +84,47 @@ class CompanyController extends Controller
         return view('backend.company.report', compact('company', 'startDate', 'endDate'));
     }
     
+    public function sendEmail(Request $request)
+    {
+        // dd($request->all());
+        $startDate = $request->input('startDate');
+        $endDate =$request->input('endDate');
+        $id =$request->input('userId');
+        // $id = 254;
+        $user = Company::with([
+            'jobs' => function ($query) use ($startDate, $endDate) {
+                $query->latest()->with('category', 'role', 'job_type', 'salary_type');
+                if ($startDate && $endDate) {
+                    $query->where(function ($q) use ($startDate, $endDate) {
+                        $q->whereBetween('created_at', [$startDate, $endDate])
+                          ->orWhereBetween('deadline', [$startDate, $endDate])
+                          ->orWhere(function ($q) use ($startDate) {
+                              $q->where('status', 'active')
+                                ->where('created_at', '<', $startDate);
+                          });
+                    });
+                }
+            },
+            'user.socialInfo',
+            'user.contactInfo'
+        ])->findOrFail($id);
+
+        //     $company = $user;
+        // return view('pdf.user-report', compact('company', 'startDate', 'endDate'));
+
+         // Generate the PDF
+         $pdf = PDF::loadView('pdf.user-report', [
+            'company' => $user,
+            'startDate' => $startDate,
+            'endDate' => $endDate
+        ])->setPaper('a3', 'landscape')->output(); // Set paper size to A3 and orientation to landscape
+    
+
+        // Send the email
+        Mail::to($user->user->email)->send(new UserPdfMail($user, $pdf));
+
+        return response()->json(['message' => 'Email sent successfully!']);
+    }
 
     
 
