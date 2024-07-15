@@ -108,17 +108,18 @@
                                             @enderror
 
                                         </div>
-                                        <div class="col-sm-12 form-group">
+                                        {{-- <div class="col-sm-12 form-group">
                                             <div class="form-check">
                                                 <div class="icheck-success d-inline">
                                                     <input value="range" name="is_just_name" type="checkbox"
-                                                        class="form-check-input" {{--                                                {{ old('is_just_name')  ? 'checked':'' }} --}} id="just_name">
+                                                        class="form-check-input"
+                                                          id="just_name">
                                                     <label class="form-check-label mr-5"
                                                         for="just_name">{{ __('create_a_job_without_comapany_account') }}</label>
                                                 </div>
                                             </div>
 
-                                        </div>
+                                        </div> --}}
                                     </div>
                                    
                                     <div class="row form-group">
@@ -677,6 +678,26 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="section pt-3" id="description">
+                            <div class="card mb-0">
+                                <div class="card-header">
+                                    <div class="card-title">{{ __('Land Water site Approval') }}</div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <!-- Hidden input to ensure false is sent if checkbox is unchecked -->
+                                                <input type="hidden" name="ispost_waterland" value="false">
+                                                <input value="true" name="ispost_waterland" type="checkbox" class="form-check-input" id="">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at landandwaterjobs site?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="section pt-3">
                             <button type="submit" class="btn btn-block bg-success">
                                 <i class="fas fa-plus mr-1"></i>

@@ -90,10 +90,10 @@ class JobCreateService
         // location insert
         updateMap($jobCreated);
         $jobCreated->selectedCategories()->sync($request->categories);
-
-
-        $this->sendJobToSecondWebsite($jobCreated,$request->categories);
-
+      
+        if ($request->ispost_waterland === 'true') {
+            $this->sendJobToSecondWebsite($jobCreated, $request->categories);
+        }
         return $jobCreated;
     }
 
