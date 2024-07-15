@@ -62,6 +62,14 @@ class CompanyController extends Controller
     {
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
+
+          // Convert the dates from DD/MM/YYYY to YYYY-MM-DD
+    if ($startDate) {
+        $startDate = Carbon::createFromFormat('d/m/Y', $startDate)->format('Y-m-d');
+    }
+    if ($endDate) {
+        $endDate = Carbon::createFromFormat('d/m/Y', $endDate)->format('Y-m-d');
+    }
     
         $company = Company::with([
             'jobs' => function ($query) use ($startDate, $endDate) {
@@ -86,11 +94,10 @@ class CompanyController extends Controller
     
     public function sendEmail(Request $request)
     {
-        // dd($request->all());
         $startDate = $request->input('startDate');
         $endDate =$request->input('endDate');
         $id =$request->input('userId');
-        // $id = 254;
+
         $user = Company::with([
             'jobs' => function ($query) use ($startDate, $endDate) {
                 $query->latest()->with('category', 'role', 'job_type', 'salary_type');

@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Modules\Seo\Entities\Seo;
 use App\Http\Controllers\Api\CompanyController as ApiCompanyController;
+use App\Http\Controllers\Api\JobController;
 
 // Route::get('/test', function () {
 //     Seo::query()->delete();
@@ -315,3 +316,6 @@ Route::controller(PayPalController::class)->group(function () {
     Route::get('cancel-transaction', 'cancelTransaction')->name('paypal.cancelTransaction');
 });
 Route::get('/payment-from-app/{label}',[ApiCompanyController::class, 'payment']);
+
+
+Route::post('/receivedJob', [JobController::class, 'storeViaApi']);
