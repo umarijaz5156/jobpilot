@@ -140,7 +140,6 @@ class JobCreateService
 
             return json_decode($response->getBody(), true);
         } catch (\Exception $e) {
-            dd($e->getMessage());
             \Log::error('Error sending job to second website: ' . $e->getMessage());
             return null;
         }
