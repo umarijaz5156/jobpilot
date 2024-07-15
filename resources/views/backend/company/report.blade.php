@@ -235,65 +235,82 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
 <script>
-    $(function() {
-        $('#dateRange').daterangepicker({
-            opens: 'right',
-            autoUpdateInput: false,
-            locale: {
-                cancelLabel: 'Clear'
-            },
-            ranges: {
-                'Today': [moment(), moment()],
-                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                'This Month': [moment().startOf('month'), moment().endOf('month')],
-                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-                'Last 2 Months': [moment().subtract(2, 'months').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-                'Last 3 Months': [moment().subtract(3, 'months').startOf('month'), moment().endOf('month')]
-            }
-        }, function(start, end, label) {
-            $('#dateRange').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
-        });
-
-        $('#dateRange').on('apply.daterangepicker', function(ev, picker) {
-            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
-        });
-
-        $('#dateRange').on('cancel.daterangepicker', function(ev, picker) {
-            $(this).val('');
-        });
-
-        $('#filterButton').on('click', function() {
-            var dateRange = $('#dateRange').val();
-            if (!dateRange) return;
-
-            var dates = dateRange.split(' - ');
-            var startDate = dates[0];
-            var endDate = dates[1];
-            
-            var url = new URL(window.location.href);
-            url.searchParams.set('start_date', startDate);
-            url.searchParams.set('end_date', endDate);
-            window.location.href = url.toString();
-        });
+   $(function() {
+    $('#dateRange').daterangepicker({
+        opens: 'right',
+        autoUpdateInput: false,
+        locale: {
+            cancelLabel: 'Clear',
+            format: 'DD/MM/YYYY' // Update format here
+        },
+        ranges: {
+            'Today': [moment(), moment()],
+            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'This Month': [moment().startOf('month'), moment().endOf('month')],
+            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+            'Last 2 Months': [moment().subtract(2, 'months').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+            'Last 3 Months': [moment().subtract(3, 'months').startOf('month'), moment().endOf('month')]
+        }
+    }, function(start, end, label) {
+        $('#dateRange').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY')); // Update format here
     });
+
+    $('#dateRange').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY')); // Update format here
+    });
+
+    $('#dateRange').on('cancel.daterangepicker', function(ev, picker) {
+        $(this).val('');
+    });
+
+    $('#filterButton').on('click', function() {
+        var dateRange = $('#dateRange').val();
+        if (!dateRange) return;
+
+        var dates = dateRange.split(' - ');
+        var startDate = dates[0];
+        var endDate = dates[1];
+        
+        var url = new URL(window.location.href);
+        url.searchParams.set('start_date', startDate);
+        url.searchParams.set('end_date', endDate);
+        window.location.href = url.toString();
+    });
+});
+
 </script>
 
 <script>
-    // Initialize jsPDF instance with custom page size and orientation
-    var doc = new jsPDF({
-        orientation: 'landscape', // Set orientation to landscape
-        unit: 'px', // Use pixels as units
-        format: [1100, 800] // Set custom page size width and height in pixels
-    });
+   // Initialize jsPDF instance with custom page size and orientation
+var doc = new jsPDF({
+    orientation: 'landscape', // Set orientation to landscape
+    unit: 'px', // Use pixels as units
+    format: [1100, 800] // Set custom page size width and height in pixels
+});
 
-    // Add the heading and date range
-    var title = '{{ $company->user->name }}';
-    var dateRange = '{{ $startDate }} - {{ $endDate }}';
-    
-    doc.text(title, 20, 30); // Add the title at position (20, 30)
+// Function to convert date from YYYY-MM-DD to DD/MM/YYYY
+function formatDate(dateString) {
+    var date = new Date(dateString);
+    var day = ('0' + date.getDate()).slice(-2);
+    var month = ('0' + (date.getMonth() + 1)).slice(-2);
+    var year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
+var startDate = '{{ $startDate }}' ? formatDate('{{ $startDate }}') : null;
+var endDate = '{{ $endDate }}' ? formatDate('{{ $endDate }}') : null;
+
+// Add the heading and date range
+var title = '{{ $company->user->name }}';
+
+doc.text(title, 20, 30); // Add the title at position (20, 30)
+if (startDate && endDate) {
+    var dateRange = startDate + ' - ' + endDate;
     doc.text('Date Range: ' + dateRange, 20, 50); // Add the date range at position (20, 50)
+}
+// Your additional PDF generation code here...
 
     // Add autotable plugin functionality
     doc.autoTable({

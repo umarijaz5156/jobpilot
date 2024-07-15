@@ -1335,10 +1335,11 @@ if (! function_exists('getFormattedNumber')) {
         $value,
         $currencyCode = 'USD',
         $locale = 'en_US',
-        $style = NumberFormatter::DECIMAL,
+        // $style = NumberFormatter::DECIMAL,
         $precision = 0,
         $groupingUsed = true,
     ) {
+        return $value;
         if (session()->has('current_lang')) {
             $locale = currentLanguage()->code.'_us' ?? $locale;
         }
