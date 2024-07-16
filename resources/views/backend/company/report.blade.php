@@ -99,7 +99,7 @@
                                                 </td>
                                                 <td tabindex="0">
                                                     <div class="text-center" >
-                                                       {{ $websiteReads }}
+                                                       {{ $SoicalReads }}
                                                     </div>
                                                 </td>
                                                 <td tabindex="0">
