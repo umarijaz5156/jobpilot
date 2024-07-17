@@ -135,6 +135,7 @@ class JobCreateService
                     'featured_until' => $job->featured_until,
                     'highlight_until' => $job->highlight_until,
                     'is_remote' => $job->is_remote,
+                    'status' => 'active',
                 ]
             ]);
 
