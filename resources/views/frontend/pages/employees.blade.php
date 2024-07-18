@@ -40,7 +40,7 @@
                                 <div class="tw-p-3 tw-flex-grow ll-input-border">
                                     <div class="fromGroup tw-w-full has-icon position-relative">
                                         <input id="search" name="keyword" type="text"
-                                            placeholder="{{ __('Councils Title keyword') }}" value="{{ request('keyword') }}"
+                                            placeholder="{{ __('Search Organisations') }}" value="{{ request('keyword') }}"
                                             autocomplete="off" class="tw-border-0">
                                         <div class="icon-badge">
                                             <x-svg.search-icon />

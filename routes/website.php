@@ -318,4 +318,6 @@ Route::controller(PayPalController::class)->group(function () {
 Route::get('/payment-from-app/{label}',[ApiCompanyController::class, 'payment']);
 
 
+// apis for the 2nd website
 Route::post('/receivedJob', [JobController::class, 'storeViaApi']);
+Route::post('/receivedCompany', [JobController::class, 'storeViaApiCompany']);

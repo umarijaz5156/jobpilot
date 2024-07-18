@@ -13,13 +13,13 @@
                     <div class="d-flex flex-wrap justify-content-between">
                         <h3 class="card-title line-height-36">{{ __('job_list') }}</h3>
                         <div class="d-flex flex-column flex-md-row">
-                            <a href="{{ route('admin.job.edited.index') }}" class="btn mx-md-1 my-1 my-md-0 bg-secondary"><i
+                            {{-- <a href="{{ route('admin.job.edited.index') }}" class="btn mx-md-1 my-1 my-md-0 bg-secondary"><i
                                     class="fas fa-hourglass-start"></i>
                                 {{ __('pending_edited_jobs') }}
                                 <span class="badge badge-info right">
                                     {{ $edited_jobs }}
                                 </span>
-                            </a>
+                            </a> --}}
                             <a href="{{ route('job.create') }}" class="btn mx-md-1 my-1 my-md-0 bg-primary"><i
                                     class="fas fa-plus mr-1"></i>
                                 {{ __('create') }}

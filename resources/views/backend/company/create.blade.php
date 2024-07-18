@@ -20,6 +20,14 @@
                         </div>
                         <div class="card-body">
                             <div class="form-group">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="createWaterLandCompany" name="createWaterLandCompany">
+                                    <label class="form-check-label font-bold" for="createWaterLandCompany">
+                                       <b> Create company to the Water land site</b>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <x-forms.label name="employer_name" :required="true" />
                                 <x-forms.input type="text" name="name" data-show-errors="true" placeholder="name" />
                             </div>
@@ -38,6 +46,7 @@
                                 <x-forms.label name="password" />
                                 <x-forms.input type="password" name="password" placeholder="password" />
                             </div>
+                           
                         </div>
                     </div>
                     <div class="card">
