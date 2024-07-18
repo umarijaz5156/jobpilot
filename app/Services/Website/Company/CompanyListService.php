@@ -8,6 +8,7 @@ use App\Models\IndustryTypeTranslation;
 use App\Models\OrganizationType;
 use App\Models\OrganizationTypeTranslation;
 use App\Models\TeamSize;
+use Carbon\Carbon;
 use Modules\Location\Entities\Country;
 
 class CompanyListService
@@ -20,7 +21,9 @@ class CompanyListService
         $query = Company::with('user', 'user.contactInfo', 'industry.translations')
             ->withCount([
                 'jobs as activejobs' => function ($q) {
-                    $q->where('status', 'active');
+                    $q->where('status', 'active')->where('deadline', '>=', Carbon::now()->toDateString());
+                    
+
 
                     $selected_country = session()->get('selected_country');
                     if ($selected_country && $selected_country != null && $selected_country != 'all') {

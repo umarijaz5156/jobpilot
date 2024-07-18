@@ -12,6 +12,6 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        'paypal/payment', 'payment/sslcommerz/*','/receivedJob'
+        'paypal/payment', 'payment/sslcommerz/*','/receivedJob','/receivedCompany'
     ];
 }
