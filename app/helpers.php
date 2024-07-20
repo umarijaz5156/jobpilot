@@ -1031,18 +1031,7 @@ if (! function_exists('updateMap')) {
                 'lat' => array_key_exists('lat', $location) ? $location['lat'] : '',
                 'exact_location' => array_key_exists('exact_location', $location) ? $location['exact_location'] : '',
             ]);
-            session()->forget('location');
-            session([
-                'selectedCountryId' => null,
-                'selectedStateId' => null,
-                'selectedCityId' => null,
-                'selectedCountryLong' => null,
-                'selectedCountryLat' => null,
-                'selectedStateLong' => null,
-                'selectedStateLat' => null,
-                'selectedCityLong' => null,
-                'selectedCityLat' => null,
-            ]);
+          
         }
 
         return true;

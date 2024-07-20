@@ -94,6 +94,10 @@ class JobCreateService
         if ($request->ispost_waterland === 'true') {
             $this->sendJobToSecondWebsite($jobCreated, $request->categories);
         }
+        if ($request->ispost_engineeringjobshub === 'true') {
+            $this->sendJobToEngineeringJobsHub($jobCreated, $request->categories);
+        }
+        
         return $jobCreated;
     }
 
@@ -102,6 +106,55 @@ class JobCreateService
         $client = new Client();
         $categoryId = $categories[0] ?? 3;
          $websiteUrl = env('WEBSITE_URL');  
+
+         $companyData = Company::findOrfail($job->company_id);
+        
+         
+        try {
+            $response = $client->post($websiteUrl, [
+                'json' => [
+                    'title' => $job->title,
+                    'company_email' => $companyData->user->email,
+                    'company_name' => $job->company_name,
+                    'category_id' => $categoryId,
+                    'categories' => $categories,
+                    'state_id' => $job->state_id,
+                    'role_id' => $job->role_id,
+                    'salary_mode' => $job->salary_mode,
+                    'custom_salary' => $job->custom_salary,
+                    'min_salary' => $job->min_salary,
+                    'max_salary' => $job->max_salary,
+                    'salary_type' => $job->salary_type_id,
+                    'deadline' => $job->deadline,
+                    'education' => $job->education_id,
+                    'experience' => $job->experience_id,
+                    'job_type' => $job->job_type_id,
+                    'vacancies' => $job->vacancies,
+                    'apply_on' => $job->apply_on,
+                    'apply_email' => $job->apply_email,
+                    'apply_url' => $job->apply_url,
+                    'description' => $job->description,
+                    'featured' => $job->featured,
+                    'highlight' => $job->highlight,
+                    'featured_until' => $job->featured_until,
+                    'highlight_until' => $job->highlight_until,
+                    'is_remote' => $job->is_remote,
+                    'status' => 'active',
+                ]
+            ]);
+
+            return json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            \Log::error('Error sending job to second website: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    protected function sendJobToEngineeringJobsHub($job,$categories)
+    {
+        $client = new Client();
+        $categoryId = $categories[0] ?? 3;
+         $websiteUrl = env('WEBSITE_URL_JOB_EngineeringJobsHub');  
 
          $companyData = Company::findOrfail($job->company_id);
         

@@ -9,6 +9,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use GuzzleHttp\Client;
 
 class JobController extends Controller
 {
@@ -147,42 +148,158 @@ class JobController extends Controller
           'message' => 'Company created successfully',
       ], 200);
 
-  }
+    }
 
-  function updateMap($company,$location)
-  {
-      
-      $location = $location;
+    function updateMap($company,$location)
+    {
+        
+        $location = $location;
 
-      if ($location) {
-          $company->update([
-              'address' => $location['exact_location'] ?? '',
-              'neighborhood' => $location['neighborhood'] ?? '',
-              'locality' => $location['locality'] ?? '',
-              'place' => $location['place'] ?? '',
-              'district' => $location['district'] ?? '',
-              'postcode' => $location['postcode'] ?? '',
-              'region' => $location['region'] ?? '',
-              'country' => $location['country'] ?? '',
-              'long' => $location['lng'] ?? '',
-              'lat' => $location['lat'] ?? '',
-              'exact_location' => $location['exact_location'] ?? '',
-          ]);
+        if ($location) {
+            $company->update([
+                'address' => $location['exact_location'] ?? '',
+                'neighborhood' => $location['neighborhood'] ?? '',
+                'locality' => $location['locality'] ?? '',
+                'place' => $location['place'] ?? '',
+                'district' => $location['district'] ?? '',
+                'postcode' => $location['postcode'] ?? '',
+                'region' => $location['region'] ?? '',
+                'country' => $location['country'] ?? '',
+                'long' => $location['lng'] ?? '',
+                'lat' => $location['lat'] ?? '',
+                'exact_location' => $location['exact_location'] ?? '',
+            ]);
 
-          session()->forget('location');
-          session([
-              'selectedCountryId' => null,
-              'selectedStateId' => null,
-              'selectedCityId' => null,
-              'selectedCountryLong' => null,
-              'selectedCountryLat' => null,
-              'selectedStateLong' => null,
-              'selectedStateLat' => null,
-              'selectedCityLong' => null,
-              'selectedCityLat' => null,
-          ]);
-      }
+            session()->forget('location');
+            session([
+                'selectedCountryId' => null,
+                'selectedStateId' => null,
+                'selectedCityId' => null,
+                'selectedCountryLong' => null,
+                'selectedCountryLat' => null,
+                'selectedStateLong' => null,
+                'selectedStateLat' => null,
+                'selectedCityLong' => null,
+                'selectedCityLat' => null,
+            ]);
+        }
 
-      return true;
-  }
+        return true;
+    }
+
+    
+
+
+    // Waterland jobs post selected
+
+    public function WaterLandSelectedJobs(Request $request){
+
+        foreach ($request->ids as $jobId) {
+
+           $job = Job::where('id',$jobId)->first();
+
+
+           $client = new Client();
+           $websiteUrl = env('WEBSITE_URL'); 
+       
+           $companyData = Company::findOrFail($job->company_id);
+           $categories = $job->selectedCategories()->pluck('category_id')->toArray();
+           $categoryId = $categories[0] ?? 3;
+           
+         
+               $response = $client->post($websiteUrl, [
+                   'json' => [
+                       'title' => $job->title,
+                       'company_email' => $companyData->user->email,
+                       'company_name' => $job->company_name,
+                       'category_id' => $categoryId,
+                       'categories' => $categories,
+                       'state_id' => $job->state_id,
+                       'role_id' => $job->role_id,
+                       'salary_mode' => $job->salary_mode,
+                       'custom_salary' => $job->custom_salary,
+                       'min_salary' => $job->min_salary,
+                       'max_salary' => $job->max_salary,
+                       'salary_type' => $job->salary_type_id,
+                       'deadline' => $job->deadline,
+                       'education' => $job->education_id,
+                       'experience' => $job->experience_id,
+                       'job_type' => $job->job_type_id,
+                       'vacancies' => $job->vacancies,
+                       'apply_on' => $job->apply_on,
+                       'apply_email' => $job->apply_email,
+                       'apply_url' => $job->apply_url,
+                       'description' => $job->description,
+                       'featured' => $job->featured,
+                       'highlight' => $job->highlight,
+                       'featured_until' => $job->featured_until,
+                       'highlight_until' => $job->highlight_until,
+                       'is_remote' => $job->is_remote,
+                       'status' => 'active',
+                   ]
+               ]);
+       
+            //    return json_decode($response->getBody(), true);
+          
+        }
+
+        return true;
+    }
+
+
+    // Engineering Jobs Selected
+    public function EngineeringjobshubSelectedJobs(Request $request){
+
+        foreach ($request->ids as $jobId) {
+
+           $job = Job::where('id',$jobId)->first();
+
+
+           $client = new Client();
+           $websiteUrl = env('WEBSITE_URL_JOB_EngineeringJobsHub'); 
+       
+           $companyData = Company::findOrFail($job->company_id);
+           $categories = $job->selectedCategories()->pluck('category_id')->toArray();
+           $categoryId = $categories[0] ?? 3;
+           
+         
+               $response = $client->post($websiteUrl, [
+                   'json' => [
+                       'title' => $job->title,
+                       'company_email' => $companyData->user->email,
+                       'company_name' => $job->company_name,
+                       'category_id' => $categoryId,
+                       'categories' => $categories,
+                       'state_id' => $job->state_id,
+                       'role_id' => $job->role_id,
+                       'salary_mode' => $job->salary_mode,
+                       'custom_salary' => $job->custom_salary,
+                       'min_salary' => $job->min_salary,
+                       'max_salary' => $job->max_salary,
+                       'salary_type' => $job->salary_type_id,
+                       'deadline' => $job->deadline,
+                       'education' => $job->education_id,
+                       'experience' => $job->experience_id,
+                       'job_type' => $job->job_type_id,
+                       'vacancies' => $job->vacancies,
+                       'apply_on' => $job->apply_on,
+                       'apply_email' => $job->apply_email,
+                       'apply_url' => $job->apply_url,
+                       'description' => $job->description,
+                       'featured' => $job->featured,
+                       'highlight' => $job->highlight,
+                       'featured_until' => $job->featured_until,
+                       'highlight_until' => $job->highlight_until,
+                       'is_remote' => $job->is_remote,
+                       'status' => 'active',
+                   ]
+               ]);
+       
+            //    return json_decode($response->getBody(), true);
+          
+        }
+
+        return true;
+    }
+  
 }
