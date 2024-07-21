@@ -196,12 +196,30 @@ class CompanyCreateService
         ]);
 
         if($request->createWaterLandCompany === 'on'){
-        try {
-            $this->sendCompanyDataToAnotherSite($request);
-        } catch (\Exception $e) {
-            
+            try {
+                 $this->sendCompanyDataToAnotherSite($request);
+            } catch (\Exception $e) {
+                
+            }
         }
-    }
+        if($request->EngineeringJobsHubCompany === 'on'){
+            try {
+                $this->EngineeringJobsHubCompany($request);
+            } catch (\Exception $e) {
+                
+            }
+        }
+
+        if($request->PlanningJobsCompany === 'on'){
+            try {
+                $this->PlanningJobsCompany($request);
+            } catch (\Exception $e) {
+                
+            }
+        }
+
+        
+    
 
 
         // send mail notification
@@ -210,6 +228,263 @@ class CompanyCreateService
 
     }
 
+    private function PlanningJobsCompany($request) {
+
+        $client = new Client();
+        $url = env('WEBSITE_URL_COMPANY_PlanningJob');  
+    
+    
+              // Get location data from session
+            $locationData = session()->get('location');
+
+            // Prepare location array
+            $location = [
+                'lat' => $locationData['lat'] ?? '',
+                'lng' => $locationData['lng'] ?? '',
+                'country' => $locationData['country'] ?? 'Australia',
+                'region' => $locationData['region'] ?? '',
+                'district' => $locationData['district'] ?? '',
+                'place' => $locationData['place'] ?? '',
+                'exact_location' => $locationData['exact_location'] ?? '',
+            ];
+        
+            $multipart = [
+                [
+                    'name'     => 'name',
+                    'contents' => $request->name,
+                ],
+                [
+                    'name'     => 'username',
+                    'contents' => $request->username,
+                ],
+                [
+                    'name'     => 'email',
+                    'contents' => $request->email,
+                ],
+                [
+                    'name'     => 'password',
+                    'contents' => $request->password,
+                ],
+                [
+                    'name'     => 'contact_phone',
+                    'contents' => $request->contact_phone,
+                ],
+                [
+                    'name'     => 'contact_email',
+                    'contents' => $request->contact_email,
+                ],
+                [
+                    'name'     => 'organization_type_id',
+                    'contents' => $request->organization_type_id,
+                ],
+                [
+                    'name'     => 'industry_type_id',
+                    'contents' => $request->industry_type_id,
+                ],
+                [
+                    'name'     => 'team_size_id',
+                    'contents' => $request->team_size_id,
+                ],
+                [
+                    'name'     => 'website',
+                    'contents' => $request->website,
+                ],
+                [
+                    'name'     => 'video_url',
+                    'contents' => $request->video_url,
+                ],
+                [
+                    'name'     => 'bio',
+                    'contents' => (string) $request->bio,
+                ],
+                [
+                    'name'     => 'vision',
+                    'contents' => (string) $request->vision,
+                ],
+                [
+                    'name'     => 'location',
+                    'contents' => json_encode($location),
+                ],
+              
+            ];
+    
+            // Add social media and URLs
+            if ($request->social_media) {
+                foreach ($request->social_media as $index => $social_media) {
+                    $multipart[] = [
+                        'name'     => "social_media[{$index}]",
+                        'contents' => $social_media,
+                    ];
+                    $multipart[] = [
+                        'name'     => "url[{$index}]",
+                        'contents' => $request->url[$index] ?? '',
+                    ];
+                }
+            }
+
+          
+           
+    
+            // Add logo and image files if present
+            if ($request->hasFile('logo')) {
+                $multipart[] = [
+                    'name'     => 'logo',
+                    'contents' => fopen($request->file('logo')->getPathname(), 'r'),
+                    'filename' => $request->file('logo')->getClientOriginalName(),
+                ];
+            }
+    
+            if ($request->hasFile('image')) {
+                $multipart[] = [
+                    'name'     => 'image',
+                    'contents' => fopen($request->file('image')->getPathname(), 'r'),
+                    'filename' => $request->file('image')->getClientOriginalName(),
+                ];
+            }
+    
+            // Send the request
+            $response = $client->post($url, [
+                'multipart' => $multipart,
+            ]);
+    
+    
+            // Handle the response
+            if ($response->getStatusCode() != 200) {
+                throw new \Exception('Error sending data to another site');
+            }
+    
+            return json_decode($response->getBody(), true);
+       
+    }
+
+    private function EngineeringJobsHubCompany($request) {
+
+        $client = new Client();
+        $url = env('WEBSITE_URL_COMPANY_EngineeringJobsHub');  
+    
+    
+              // Get location data from session
+            $locationData = session()->get('location');
+
+            // Prepare location array
+            $location = [
+                'lat' => $locationData['lat'] ?? '',
+                'lng' => $locationData['lng'] ?? '',
+                'country' => $locationData['country'] ?? 'Australia',
+                'region' => $locationData['region'] ?? '',
+                'district' => $locationData['district'] ?? '',
+                'place' => $locationData['place'] ?? '',
+                'exact_location' => $locationData['exact_location'] ?? '',
+            ];
+        
+            $multipart = [
+                [
+                    'name'     => 'name',
+                    'contents' => $request->name,
+                ],
+                [
+                    'name'     => 'username',
+                    'contents' => $request->username,
+                ],
+                [
+                    'name'     => 'email',
+                    'contents' => $request->email,
+                ],
+                [
+                    'name'     => 'password',
+                    'contents' => $request->password,
+                ],
+                [
+                    'name'     => 'contact_phone',
+                    'contents' => $request->contact_phone,
+                ],
+                [
+                    'name'     => 'contact_email',
+                    'contents' => $request->contact_email,
+                ],
+                [
+                    'name'     => 'organization_type_id',
+                    'contents' => $request->organization_type_id,
+                ],
+                [
+                    'name'     => 'industry_type_id',
+                    'contents' => $request->industry_type_id,
+                ],
+                [
+                    'name'     => 'team_size_id',
+                    'contents' => $request->team_size_id,
+                ],
+                [
+                    'name'     => 'website',
+                    'contents' => $request->website,
+                ],
+                [
+                    'name'     => 'video_url',
+                    'contents' => $request->video_url,
+                ],
+                [
+                    'name'     => 'bio',
+                    'contents' => (string) $request->bio,
+                ],
+                [
+                    'name'     => 'vision',
+                    'contents' => (string) $request->vision,
+                ],
+                [
+                    'name'     => 'location',
+                    'contents' => json_encode($location),
+                ],
+              
+            ];
+    
+            // Add social media and URLs
+            if ($request->social_media) {
+                foreach ($request->social_media as $index => $social_media) {
+                    $multipart[] = [
+                        'name'     => "social_media[{$index}]",
+                        'contents' => $social_media,
+                    ];
+                    $multipart[] = [
+                        'name'     => "url[{$index}]",
+                        'contents' => $request->url[$index] ?? '',
+                    ];
+                }
+            }
+
+          
+           
+    
+            // Add logo and image files if present
+            if ($request->hasFile('logo')) {
+                $multipart[] = [
+                    'name'     => 'logo',
+                    'contents' => fopen($request->file('logo')->getPathname(), 'r'),
+                    'filename' => $request->file('logo')->getClientOriginalName(),
+                ];
+            }
+    
+            if ($request->hasFile('image')) {
+                $multipart[] = [
+                    'name'     => 'image',
+                    'contents' => fopen($request->file('image')->getPathname(), 'r'),
+                    'filename' => $request->file('image')->getClientOriginalName(),
+                ];
+            }
+    
+            // Send the request
+            $response = $client->post($url, [
+                'multipart' => $multipart,
+            ]);
+    
+    
+            // Handle the response
+            if ($response->getStatusCode() != 200) {
+                throw new \Exception('Error sending data to another site');
+            }
+    
+            return json_decode($response->getBody(), true);
+       
+    }
 
     private function sendCompanyDataToAnotherSite($request)
     {

@@ -321,3 +321,12 @@ Route::get('/payment-from-app/{label}',[ApiCompanyController::class, 'payment'])
 // apis for the 2nd website
 Route::post('/receivedJob', [JobController::class, 'storeViaApi']);
 Route::post('/receivedCompany', [JobController::class, 'storeViaApiCompany']);
+
+// Selected jobs waterLand
+Route::get('/jobs/waterLand-selected', [JobController::class, 'WaterLandSelectedJobs'])->name('jobs.WaterLandSelectedJobs');
+
+// Selected jobs engineeringjobshub
+Route::get('/jobs/engineeringjobshub', [JobController::class, 'EngineeringjobshubSelectedJobs'])->name('jobs.engineeringjobshub');
+
+// planningjobs
+Route::get('/jobs/planningjobs', [JobController::class, 'planningjobsSelectedJobs'])->name('jobs.planningjobs');

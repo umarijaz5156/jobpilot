@@ -26,6 +26,18 @@
                                        <b> Create company to the Water land site</b>
                                     </label>
                                 </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="EngineeringJobsHubCompany" name="EngineeringJobsHubCompany">
+                                    <label class="form-check-label font-bold" for="EngineeringJobsHubCompany">
+                                       <b> Create company to the Engineering Jobs Hub site</b>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="PlanningJobsCompany" name="PlanningJobsCompany">
+                                    <label class="form-check-label font-bold" for="PlanningJobsCompany">
+                                       <b> Create company to the Planning Jobs  site</b>
+                                    </label>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <x-forms.label name="employer_name" :required="true" />
