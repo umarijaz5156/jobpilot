@@ -327,3 +327,6 @@ Route::get('/jobs/waterLand-selected', [JobController::class, 'WaterLandSelected
 
 // Selected jobs engineeringjobshub
 Route::get('/jobs/engineeringjobshub', [JobController::class, 'EngineeringjobshubSelectedJobs'])->name('jobs.engineeringjobshub');
+
+// planningjobs
+Route::get('/jobs/planningjobs', [JobController::class, 'planningjobsSelectedJobs'])->name('jobs.planningjobs');

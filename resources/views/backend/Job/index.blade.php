@@ -143,6 +143,10 @@
                                 <span id="button-text-1">{{ __('Engineering Hub') }}</span>
                                 <span id="button-loader-1" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                             </button>
+                            <button id="planningjobs" class="btn btn-primary ml-3">
+                                <span id="button-text-2">{{ __('Planning Jobs') }}</span>
+                                <span id="button-loader-2" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            </button>
                             
                         </div>
                     </div>
@@ -577,6 +581,50 @@
                  });
                  
                 });
+
+                // planning jobs
+                
+                $('#planningjobs').click(function() {
+                        var $button = $(this);
+                        var $buttonText = $button.find('#button-text-2');
+                        var $buttonLoader = $button.find('#button-loader-2');
+
+                        // Show the loader and hide the text
+                        $buttonText.addClass('d-none');
+                        $buttonLoader.removeClass('d-none');
+
+                        var selectedJobsE = [];
+                    $('.job-checkbox:checked').each(function() {
+                        selectedJobsE.push($(this).val());
+                    });
+
+                    function showSuccessMessage(message) {
+                        toastr.success(message);
+                    }
+                    // AJAX request to delete selected jobs
+                    $.ajax({
+                        url: '{{ route('jobs.planningjobs') }}',
+                        data: {
+                            ids: selectedJobsE
+                        },
+                        success: function(response) {
+
+                            showSuccessMessage('Job Posted on the Planning job Site successfully');
+                             // Hide the loader and show the text again
+                             $buttonLoader.addClass('d-none');
+                            $buttonText.removeClass('d-none');
+                            setTimeout(function() {
+                                window.location.reload()
+
+                        }, 2000);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error(error);
+                        }
+                    });
+                 });
+                 
+               
 
         });
     </script>

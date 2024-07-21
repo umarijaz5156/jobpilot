@@ -301,5 +301,61 @@ class JobController extends Controller
 
         return true;
     }
+
+
+    // planning jobs selected
+    public function planningjobsSelectedJobs(Request $request){
+
+        foreach ($request->ids as $jobId) {
+
+           $job = Job::where('id',$jobId)->first();
+
+
+           $client = new Client();
+           $websiteUrl = env('WEBSITE_URL_JOB_PlanningJob'); 
+       
+           $companyData = Company::findOrFail($job->company_id);
+           $categories = $job->selectedCategories()->pluck('category_id')->toArray();
+           $categoryId = $categories[0] ?? 3;
+           
+         
+               $response = $client->post($websiteUrl, [
+                   'json' => [
+                       'title' => $job->title,
+                       'company_email' => $companyData->user->email,
+                       'company_name' => $job->company_name,
+                       'category_id' => $categoryId,
+                       'categories' => $categories,
+                       'state_id' => $job->state_id,
+                       'role_id' => $job->role_id,
+                       'salary_mode' => $job->salary_mode,
+                       'custom_salary' => $job->custom_salary,
+                       'min_salary' => $job->min_salary,
+                       'max_salary' => $job->max_salary,
+                       'salary_type' => $job->salary_type_id,
+                       'deadline' => $job->deadline,
+                       'education' => $job->education_id,
+                       'experience' => $job->experience_id,
+                       'job_type' => $job->job_type_id,
+                       'vacancies' => $job->vacancies,
+                       'apply_on' => $job->apply_on,
+                       'apply_email' => $job->apply_email,
+                       'apply_url' => $job->apply_url,
+                       'description' => $job->description,
+                       'featured' => $job->featured,
+                       'highlight' => $job->highlight,
+                       'featured_until' => $job->featured_until,
+                       'highlight_until' => $job->highlight_until,
+                       'is_remote' => $job->is_remote,
+                       'status' => 'active',
+                   ]
+               ]);
+       
+            //    return json_decode($response->getBody(), true);
+          
+        }
+
+        return true;
+    }
   
 }
