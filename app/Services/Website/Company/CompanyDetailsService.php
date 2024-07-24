@@ -20,21 +20,21 @@ class CompanyDetailsService
                 'jobs as activejobs' => function ($q) {
                     $q->where('status', true);
                     $q->where('deadline', '>=', Carbon::now()->toDateString());
-                    $selected_country = session()->get('selected_country');
-                    if ($selected_country && $selected_country != null && $selected_country != 'all') {
-                        $country = selected_country()->name;
-                        $q->where('country', 'LIKE', "%$country%");
-                    } else {
-                        $setting = loadSetting();
-                        if ($setting->app_country_type == 'single_base') {
-                            if ($setting->app_country) {
-                                $country = Country::where('id', $setting->app_country)->first();
-                                if ($country) {
-                                    $q->where('country', 'LIKE', "%$country->name%");
-                                }
-                            }
-                        }
-                    }
+                    // $selected_country = session()->get('selected_country');
+                    // if ($selected_country && $selected_country != null && $selected_country != 'all') {
+                    //     $country = selected_country()->name;
+                    //     $q->where('country', 'LIKE', "%$country%");
+                    // } else {
+                    //     $setting = loadSetting();
+                    //     if ($setting->app_country_type == 'single_base') {
+                    //         if ($setting->app_country) {
+                    //             $country = Country::where('id', $setting->app_country)->first();
+                    //             if ($country) {
+                    //                 $q->where('country', 'LIKE', "%$country->name%");
+                    //             }
+                    //         }
+                    //     }
+                    // }
                 },
             ])
             ->withCount([
@@ -48,22 +48,22 @@ class CompanyDetailsService
         // open_jobs Jobs With Single && Multiple Country Base
         $open_jobs_query = Job::withoutEdited()->with('company', 'job_type');
 
-        $setting = loadSetting();
-        if ($setting->app_country_type == 'single_base') {
-            if ($setting->app_country) {
-                $country = Country::where('id', $setting->app_country)->first();
-                if ($country) {
-                    $open_jobs_query->where('country', 'LIKE', "%$country->name%");
-                }
-            }
-        } else {
-            $selected_country = session()->get('selected_country');
+        // $setting = loadSetting();
+        // if ($setting->app_country_type == 'single_base') {
+        //     if ($setting->app_country) {
+        //         $country = Country::where('id', $setting->app_country)->first();
+        //         if ($country) {
+        //             $open_jobs_query->where('country', 'LIKE', "%$country->name%");
+        //         }
+        //     }
+        // } else {
+        //     $selected_country = session()->get('selected_country');
 
-            if ($selected_country && $selected_country != null) {
-                $country = selected_country()->name;
-                $open_jobs_query->where('country', 'LIKE', "%$country%");
-            }
-        }
+        //     if ($selected_country && $selected_country != null) {
+        //         $country = selected_country()->name;
+        //         $open_jobs_query->where('country', 'LIKE', "%$country%");
+        //     }
+        // }
         $open_jobs = $open_jobs_query
             ->companyJobs($companyDetails->id)
             ->openPosition()
