@@ -23,7 +23,8 @@ class CompanyListService
                 'jobs as activejobs' => function ($q) {
                     $q->where('status', 'active')->where('deadline', '>=', Carbon::now()->toDateString());
                     
-
+ 
+                    
 
                     // $selected_country = session()->get('selected_country');
                     // if ($selected_country && $selected_country != null && $selected_country != 'all') {
