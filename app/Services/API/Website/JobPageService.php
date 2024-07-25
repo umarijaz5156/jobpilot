@@ -109,24 +109,24 @@ class JobPageService
         }
 
         // country
-        $selected_country = session()->get('selected_country');
+        // $selected_country = session()->get('selected_country');
 
-        if ($selected_country && $selected_country != null) {
-            $country = selected_country()->name;
-            $query->where('country', 'LIKE', "%$country%");
-        } else {
+        // if ($selected_country && $selected_country != null) {
+        //     $country = selected_country()->name;
+        //     $query->where('country', 'LIKE', "%$country%");
+        // } else {
 
-            $setting = Setting::first();
-            if ($setting->app_country_type == 'single_base') {
-                if ($setting->app_country) {
+        //     $setting = Setting::first();
+        //     if ($setting->app_country_type == 'single_base') {
+        //         if ($setting->app_country) {
 
-                    $country = Country::where('id', $setting->app_country)->first();
-                    if ($country) {
-                        $query->where('country', 'LIKE', "%$country->name%");
-                    }
-                }
-            }
-        }
+        //             $country = Country::where('id', $setting->app_country)->first();
+        //             if ($country) {
+        //                 $query->where('country', 'LIKE', "%$country->name%");
+        //             }
+        //         }
+        //     }
+        // }
 
         // Sort by ads
         if ($request->has('sort_by') && $request->sort_by != null) {
