@@ -84,14 +84,14 @@ class IndexPageService
                     }
                 }
             } else {
-                $selected_country = session()->get('selected_country');
+                // $selected_country = session()->get('selected_country');
 
-                if ($selected_country && $selected_country != null) {
-                    $country = selected_country()->name;
-                    $role->open_position_count = $role->jobs()->where('country', 'LIKE', "%$country%")->openPosition()->count();
-                } else {
+                // if ($selected_country && $selected_country != null) {
+                //     $country = selected_country()->name;
+                //     $role->open_position_count = $role->jobs()->where('country', 'LIKE', "%$country%")->openPosition()->count();
+                // } else {
                     $role->open_position_count = $role->jobs()->openPosition()->count();
-                }
+                // }
             }
 
             return $role;

@@ -507,24 +507,24 @@ if (! function_exists('livejob')) {
     {
         $jobs = Job::withoutEdited()->openPosition();
 
-        $selected_country = session()->get('selected_country');
+        // $selected_country = session()->get('selected_country');
 
-        if ($selected_country && $selected_country != null && $selected_country != 'all') {
-            $country = selected_country()->name;
-            $jobs->where('country', 'LIKE', "%$country%");
-        } else {
+        // if ($selected_country && $selected_country != null && $selected_country != 'all') {
+        //     $country = selected_country()->name;
+        //     $jobs->where('country', 'LIKE', "%$country%");
+        // } else {
 
-            $setting = loadSetting();
-            if ($setting->app_country_type == 'single_base') {
-                if ($setting->app_country) {
+        //     $setting = loadSetting();
+        //     if ($setting->app_country_type == 'single_base') {
+        //         if ($setting->app_country) {
 
-                    $country = Country::where('id', $setting->app_country)->first();
-                    if ($country) {
-                        $jobs->where('country', 'LIKE', "%$country->name%");
-                    }
-                }
-            }
-        }
+        //             $country = Country::where('id', $setting->app_country)->first();
+        //             if ($country) {
+        //                 $jobs->where('country', 'LIKE', "%$country->name%");
+        //             }
+        //         }
+        //     }
+        // }
 
         return $jobs->count();
     }
@@ -1185,13 +1185,13 @@ if (! function_exists('setLocationCurrency')) {
                             $database_country = Country::where('name', $user_country)->where('status', 1)->first();
                             if ($database_country) {
                                 // $selected_country = session()->get('country_code');
-                                $selected_country = session()->get('selected_country');
-                                if (! $selected_country) {
-                                    // session()->put('country_code', $database_country->sortname);
-                                    session()->put('selected_country', $database_country->id);
+                                // $selected_country = session()->get('selected_country');
+                                // if (! $selected_country) {
+                                //     // session()->put('country_code', $database_country->sortname);
+                                //     session()->put('selected_country', $database_country->id);
 
-                                    return true;
-                                }
+                                //     return true;
+                                // }
                             }
                         }
                     }
