@@ -50,9 +50,27 @@ use Modules\Testimonial\Entities\Testimonial;
 use Srmklive\PayPal\Services\PayPal;
 use Stevebauman\Location\Facades\Location;
 
+
+use GuzzleHttp\Client;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Illuminate\Support\Facades\Log;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use DateTimeImmutable;
+use Exception;
+
 class WebsiteController extends Controller
 {
     use CandidateAble, HasCountryBasedJobs, JobAble, ResetCvViewsHistoryTrait;
+
+    // private const OAUTH2_TOKEN_ENDPOINT = 'https://auth.dis.gov.au/adfs/oauth2/token';
+    // private const WEB_API_RESOURCE_IDENTIFIER = 'urn:api:webapi:acs';
+    // private const SIGNING_CERTIFICATE_THUMBPRINT = 'FC44DD3A4CEB563A34DF19BF65A25938C0E5DC61';
+    // private const CLIENT_ID = '4ac3c2b4-7b16-4e06-bcb5-dddfabf225ea';
+
+
 
     public $setting;
 
@@ -60,6 +78,158 @@ class WebsiteController extends Controller
     {
         $this->setting = loadSetting(); // see helpers.php
     }
+
+    private const OAUTH2_TOKEN_ENDPOINT = 'https://auth.dis.gov.au/adfs/oauth2/token';
+    private const WEB_API_RESOURCE_IDENTIFIER = 'urn:api:webapi:acs';
+    private const CLIENT_ID = '4ac3c2b4-7b16-4e06-bcb5-dddfabf225ea';
+    private const SIGNING_CERTIFICATE_PATH = 'certificate/sample.pem'; // Update with your certificate path
+    private const SIGNING_CERTIFICATE_PASSPHRASE = 'passowrd'; // Update with your certificate password
+
+
+    public function authtoken()
+    {
+        $assertionValue = $this->getClientAssertionValue();
+       
+       
+
+        $client = new Client();
+        $response = $client->post(self::OAUTH2_TOKEN_ENDPOINT, [
+                'form_params' => [
+                    'resource' => self::WEB_API_RESOURCE_IDENTIFIER,
+                    'client_id' => self::CLIENT_ID,
+                    'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+                    'client_assertion' => $assertionValue,
+                    'grant_type' => 'client_credentials'
+                ]
+            ]);
+
+        // $client = new Client(['proxy' => 'http://proxy.dmz.ige:8080']);
+        // $response = $client->post(self::OAUTH2_TOKEN_ENDPOINT, [
+        //     'form_params' => $formParams,
+        // ]);
+        dd( $response);
+        return response()->json(json_decode($response->getBody(), true));
+    }
+
+
+
+    private function getClientAssertionValue()
+    {
+      return  $this->createClientAssertion(
+            public_path('certificate/sample.pem'),
+            self::SIGNING_CERTIFICATE_PASSPHRASE,
+            self::CLIENT_ID,
+            self::OAUTH2_TOKEN_ENDPOINT
+        );
+    }
+
+
+    private function createClientAssertion($signingCertificatePath, $signingCertificatePassphrase, $clientId, $audience)
+    {
+        // Load the PEM file content
+        $pemContent = file_get_contents($signingCertificatePath);
+        if ($pemContent === false) {
+            throw new \RuntimeException('Unable to read the PEM file');
+        }
+        
+        // Extract private key and certificate
+        $privateKey = null;
+        $certificate = null;
+
+        // Extract private key
+        if (preg_match('/-----BEGIN PRIVATE KEY-----(.*?)-----END PRIVATE KEY-----/s', $pemContent, $matches)) {
+            $privateKey = $matches[0];
+        } else {
+            throw new \RuntimeException('Private key not found in PEM file');
+        }
+
+        // Extract certificate
+        if (preg_match('/-----BEGIN CERTIFICATE-----(.*?)-----END CERTIFICATE-----/s', $pemContent, $matches)) {
+            $certificate = $matches[0];
+            $thumbprint = openssl_x509_fingerprint($certificate, 'sha1');
+            
+        } else {
+            throw new \RuntimeException('Certificate not found in PEM file');
+        }
+
+        // Create JWT configuration
+        $config = Configuration::forAsymmetricSigner(
+            new Sha256(),
+            InMemory::plainText($privateKey),
+            InMemory::plainText($certificate) // Use the certificate as the verification key
+        );
+
+        // Create JWT token
+        $now = new DateTimeImmutable();
+        $token = $config->builder()
+        ->issuedBy($clientId)
+        ->permittedFor($audience)
+        ->identifiedBy((string) Str::uuid(), true)
+        ->issuedAt($now)
+        ->canOnlyBeUsedAfter($now->modify('-5 minutes'))
+        ->expiresAt($now->modify('+5 minutes'))
+        ->relatedTo($clientId) // Use relatedTo for the sub claim
+        ->withHeader('x5t', $thumbprint) // Add x5t header
+        ->getToken($config->signer(), $config->signingKey());
+
+        return $token->toString();
+    }
+
+    
+
+    // public function authtoken(){
+    //     try {
+    //         $assertionValue = $this->getClientAssertionValue();
+    //         dd($assertionValue);
+    //         $client = new Client();
+
+    //         $response = $client->post(self::OAUTH2_TOKEN_ENDPOINT, [
+    //             'form_params' => [
+    //                 'resource' => self::WEB_API_RESOURCE_IDENTIFIER,
+    //                 'client_id' => self::CLIENT_ID,
+    //                 'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+    //                 'client_assertion' => $assertionValue,
+    //                 'grant_type' => 'client_credentials'
+    //             ]
+    //         ]);
+
+    //         dd($response->getBody()->getContents());
+    //         echo $response->getBody()->getContents();
+    //     } catch (\Exception $e) {
+    //         dd($e->getMessage());
+    //         Log::error('Error obtaining OAuth token: ' . $e->getMessage());
+    //         echo "Error: " . $e->getMessage();
+    //     }
+    // }
+
+    // private function getClientAssertionValue()
+    // {
+    //     // Load the certificate
+    //     $certPath = public_path('certificate/sample.pfx');
+    //     $certPassword = 'password';
+    //     $certContent = file_get_contents($certPath);
+    //     $certs = [];
+    //     openssl_pkcs12_read($certContent, $certs, $certPassword);
+       
+    //     $privateKey = $certs['pkey'];
+    //     $publicKey = $certs['cert'];
+
+    //     // Prepare JWT claims
+    //     $now = time();
+    //     $exp = $now + (10 * 60); // 10 minutes expiry
+    //     $claims = [
+    //         'sub' => self::CLIENT_ID,
+    //         'aud' => self::OAUTH2_TOKEN_ENDPOINT,
+    //         'iss' => self::CLIENT_ID,
+    //         'jti' => (string) \Str::uuid(),
+    //         'iat' => $now,
+    //         'exp' => $exp,
+    //     ];
+
+    //     // Encode JWT
+    //     $jwt = JWT::encode($claims, $privateKey, 'RS256');
+    //     return $jwt;
+    // }
 
     /**
      * Show the application dashboard.
