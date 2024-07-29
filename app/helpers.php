@@ -27,6 +27,62 @@ use Stevebauman\Location\Facades\Location;
 use Stichoza\GoogleTranslate\GoogleTranslate;
 use Torann\GeoIP\Facades\GeoIP;
 
+
+// use Lcobucci\JWT\Configuration;
+// use Lcobucci\JWT\Signer\Key\InMemory;
+// use Lcobucci\JWT\Signer\Rsa\Sha256;
+// use DateTimeImmutable;
+
+
+// function getClientAssertionValue($signingCertificatePath, $signingCertificatePassphrase, $clientId, $audience)
+// {
+//     // Load the certificate
+//        // Load the PEM file content
+//        $pemContent = file_get_contents($signingCertificatePath);
+//        if ($pemContent === false) {
+//            throw new RuntimeException('Unable to read the PEM file');
+//        }
+       
+//        // Extract private key and certificate
+//        $privateKey = null;
+//        $certificate = null;
+   
+//        // Extract private key
+//        if (preg_match('/-----BEGIN PRIVATE KEY-----(.*?)-----END PRIVATE KEY-----/s', $pemContent, $matches)) {
+//            $privateKey = $matches[0];
+//        } else {
+//            throw new RuntimeException('Private key not found in PEM file');
+//        }
+   
+//        // Extract certificate
+//        if (preg_match('/-----BEGIN CERTIFICATE-----(.*?)-----END CERTIFICATE-----/s', $pemContent, $matches)) {
+//            $certificate = $matches[0];
+//        } else {
+//            throw new RuntimeException('Certificate not found in PEM file');
+//        }
+   
+//        // Create JWT configuration
+//        $config = Configuration::forAsymmetricSigner(
+//            new Sha256(),
+//            InMemory::plainText($privateKey),
+//            InMemory::plainText($certificate) // Use the certificate as the verification key
+//        );
+   
+//        // Create JWT token
+//        $now = new DateTimeImmutable();
+//        $token = $config->builder()
+//            ->issuedBy($clientId)
+//            ->permittedFor($audience)
+//            ->identifiedBy((string) Str::uuid(), true)
+//            ->issuedAt($now)
+//            ->canOnlyBeUsedAfter($now->modify('-5 minutes'))
+//            ->expiresAt($now->modify('+5 minutes'))
+//            ->relatedTo($clientId) // Use relatedTo for the sub claim
+//            ->getToken($config->signer(), $config->signingKey());
+   
+//        return $token->toString();
+// }
+
 if (! function_exists('uploadImage')) {
     function uploadImage($file, $destinationPath, $fit = null, $quality = 60)
     {
