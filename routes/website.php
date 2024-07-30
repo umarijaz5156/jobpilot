@@ -158,8 +158,6 @@ Route::controller(SocialLoginController::class)->group(function () {
 Route::controller(WebsiteController::class)->name('website.')->group(function () {
     Route::get('/register-company', 'RegisterCompany')->name('registerCompany');
     Route::get('/', 'index')->name('home');
-    Route::get('/authtoken', 'authtoken')->name('authtoken');
-
     Route::get('/about', 'about')->name('about');
     Route::get('/contact', 'contact')->name('contact');
     Route::get('/plans', 'pricing')->name('plan');
