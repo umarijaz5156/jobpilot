@@ -14,11 +14,9 @@ use App\Models\Skill;
 use App\Models\SkillTranslation;
 use App\Models\Tag;
 use App\Models\TagTranslation;
-use App\Models\User;
 use App\Notifications\Website\Candidate\ApplyJobNotification;
 use App\Notifications\Website\Candidate\BookmarkJobNotification;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
@@ -27,111 +25,14 @@ use Modules\Location\Entities\Country;
 
 trait JobAble
 {
-    // protected function getJobs($request)
-    // {
-    //     $filteredJobs = $this->filterJobs($request)->latest();
-    //     $featured_jobs = $this->filterJobs($request)->latest()->where('featured', 1)->take(18)->get();
-    //     $jobs = $filteredJobs->paginate(18)->withQueryString();
-
-    //        // Search for jobs by user name if a keyword is provided
-    //     $userJobs = collect();
-    //     if ($request->has('keyword') && $request->keyword != null) {
-    //         $keyword = $request->get('keyword');
-    //         $users = User::where('name', 'LIKE', "%$keyword%")->with('company.jobs')->get();
-
-    //         // Collect all jobs from the user search
-    //         foreach ($users as $user) {
-    //             if ($user->company) {
-    //                 $userJobs = $userJobs->merge($user->company->jobs);
-    //             }
-    //         }
-    //     }
-
-    //     // Merge the jobs from user search with the filtered jobs
-    //     $allJobs = $filteredJobs->getCollection()->merge($userJobs)->unique('id');
-
-    //     // Paginate the merged collection manually
-    //     $currentPage = LengthAwarePaginator::resolveCurrentPage();
-    //     $perPage = 18;
-    //     $currentPageItems = $allJobs->slice(($currentPage - 1) * $perPage, $perPage)->values();
-
-    //     $paginatedJobs = new LengthAwarePaginator($currentPageItems, $allJobs->count(), $perPage, $currentPage, [
-    //         'path' => LengthAwarePaginator::resolveCurrentPath(),
-    //         'query' => $request->query(),
-    //     ]);
-
-    //     dd( $paginatedJobs);
-
-    //     return [
-    //         'total_jobs' =>  $paginatedJobs->total(),
-    //         'jobs' => $jobs,
-    //         'featured_jobs' => $featured_jobs,
-    //         'countries' => Country::all(['id', 'name', 'slug']),
-    //         'categories' => JobCategory::all()->sortBy('name'),
-    //         'job_roles' => JobRole::all()->sortBy('name'),
-    //         'max_salary' => \DB::table('jobs')->max('max_salary'),
-    //         'min_salary' => \DB::table('jobs')->max('min_salary'),
-    //         'experiences' => Experience::all(),
-    //         'educations' => Education::all(),
-    //         'job_types' => JobType::all(),
-    //         'skills' => Skill::all()->sortBy('name'),
-    //         'popularTags' => $this->popularTags(),
-    //     ];
-    // }
-
-        protected function getJobs($request)
+    protected function getJobs($request)
     {
-        // dd($request->all());
-        $filteredJobsQuery = $this->filterJobs($request)->latest();
+        $filteredJobs = $this->filterJobs($request)->latest();
         $featured_jobs = $this->filterJobs($request)->latest()->where('featured', 1)->take(18)->get();
-
-        // Get the filtered jobs and convert them to a collection
-        $filteredJobsPaginated = $filteredJobsQuery->paginate(18)->withQueryString();
-        $filteredJobs = $filteredJobsPaginated->getCollection();
-
-        // Initialize an empty collection for user jobs
-        $userJobs = collect();
-
-        // Search for jobs by user name if a keyword is provided
-        if ($request->has('keyword') && $request->keyword != null) {
-            $keyword = $request->get('keyword');
-            $users = User::where('name', 'LIKE', "%$keyword%")->with('company.jobs')->get();
-
-            // Collect all jobs from the user search
-            foreach ($users as $user) {
-                if ($user->company) {
-                    $userJobs = $userJobs->merge($user->company->jobs);
-                }
-            }
-        }
-
-        // Merge the jobs from user search with the filtered jobs
-        $allJobs = $filteredJobs->merge($userJobs)->unique('id');
-        // Apply state_id filter if present in the request
-        
-        // dd($allJobs);
-
-        // Apply state_id filter if present in the request
-        if (isset($request->state_id)) {
-            $state_id = $request->state_id;
-            $allJobs = $allJobs->filter(function ($job) use ($state_id) {
-                return $job->state_id == $state_id;
-            });
-        }
-
-        // Paginate the merged collection manually
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 50;
-        $currentPageItems = $allJobs->slice(($currentPage - 1) * $perPage, $perPage)->values();
-
-        $paginatedJobs = new LengthAwarePaginator($currentPageItems, $allJobs->count(), $perPage, $currentPage, [
-            'path' => LengthAwarePaginator::resolveCurrentPath(),
-            'query' => $request->query(),
-        ]);
-
+        $jobs = $filteredJobs->paginate(18)->withQueryString();
         return [
-            'total_jobs' => $paginatedJobs->total(),
-            'jobs' => $paginatedJobs,
+            'total_jobs' => $jobs->total(),
+            'jobs' => $jobs,
             'featured_jobs' => $featured_jobs,
             'countries' => Country::all(['id', 'name', 'slug']),
             'categories' => JobCategory::all()->sortBy('name'),
@@ -145,7 +46,6 @@ trait JobAble
             'popularTags' => $this->popularTags(),
         ];
     }
-
 
     protected function moreJobs($request)
     {
@@ -202,13 +102,7 @@ trait JobAble
                 $keyword = $keyword[0];
             }
             $query->where('title', 'LIKE', "%$keyword%");
-
-            $user = User::where('name', 'LIKE', "%$keyword%")->with('company.jobs')->get();
-
-        
         }
-
-      
 
         // Category filter
         if ($request->has('category') && $request->category != null) {
