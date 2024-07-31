@@ -14,16 +14,16 @@ use App\Models\Skill;
 use App\Models\SkillTranslation;
 use App\Models\Tag;
 use App\Models\TagTranslation;
-use App\Models\User;
 use App\Notifications\Website\Candidate\ApplyJobNotification;
 use App\Notifications\Website\Candidate\BookmarkJobNotification;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Modules\Location\Entities\Country;
+use App\Models\User;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 trait JobAble
 {

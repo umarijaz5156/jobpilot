@@ -116,6 +116,7 @@ class CompanyController extends Controller
             'user.contactInfo'
         ])->findOrFail($id);
 
+        $totalJobs = count($user->jobs) ?? 0;
         //     $company = $user;
         // return view('pdf.user-report', compact('company', 'startDate', 'endDate'));
 
@@ -123,7 +124,8 @@ class CompanyController extends Controller
          $pdf = PDF::loadView('pdf.user-report', [
             'company' => $user,
             'startDate' => $startDate,
-            'endDate' => $endDate
+            'endDate' => $endDate,
+            'totalJobs' => $totalJobs,
         ])->setPaper('a3', 'landscape')->output(); // Set paper size to A3 and orientation to landscape
     
 
