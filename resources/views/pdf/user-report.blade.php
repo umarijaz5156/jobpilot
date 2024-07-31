@@ -26,14 +26,15 @@
         }
     </style>
 </head>
-<body>
+<body> 
     <div class="">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">{{ $company->user->name . ' Report' }}</h3>
                 @if ($startDate && $endDate)
                 <h5>Date range: {{ \Carbon\Carbon::parse($startDate)->format('j F, Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('j F, Y') }}</h5>
-            @endif
+                  @endif
+                  <h6>Total Jobs: {{ $totalJobs }}</h6>
             </div>
             <div class="card-body table-responsive p-0">
                 <div class="row">

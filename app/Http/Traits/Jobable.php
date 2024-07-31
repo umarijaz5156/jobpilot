@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Modules\Location\Entities\Country;
+use App\Models\User;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 trait JobAble
 {
