@@ -49,7 +49,7 @@
                                     <th>{{ __('Website Reads') }}</th>
                                     <th>{{ __('Website Clicks Through') }}</th>
                                     <th>{{ __('Status') }}</th>
-                                    <th>{{ __('Post Date') }}</th>
+                                    {{-- <th>{{ __('Post Date') }}</th> --}}
                                     <th>{{ __('Closing Date') }}</th>
                                 </tr>
                             </thead>
@@ -83,7 +83,7 @@
                                     <td class="text-center">{{ $websiteReads }}</td>
                                     <td class="text-center">{{  $websiteClicksThrough }}</td>
                                     <td>{{ ucfirst($job->status) }}</td>
-                                    <td>{{ date('j F, Y', strtotime($job->created_at)) }}</td>
+                                    {{-- <td>{{ date('j F, Y', strtotime($job->created_at)) }}</td> --}}
                                     <td>{{ date('j F, Y', strtotime($job->deadline)) }}</td>
                                 </tr>
                                 @endforeach

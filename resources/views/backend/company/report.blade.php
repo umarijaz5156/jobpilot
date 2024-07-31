@@ -68,7 +68,7 @@
                                             <th>{{ __('Website Reads') }}</th>
                                             <th>{{ __('Website Clicks Through') }}</th>
                                             <th>{{ __('status') }}</th>
-                                            <th>{{ __('Post Date') }}</th>
+                                            {{-- <th>{{ __('Post Date') }}</th> --}}
                                             <th>{{ __('Closing Date') }}</th>
                                 
                                         </tr>
@@ -126,9 +126,9 @@
                                                 <td tabindex="0">
                                                     <p>{{ ucfirst($job->status) }}</p>
                                                 </td>
-                                                <td tabindex="0">
+                                                {{-- <td tabindex="0">
                                                     {{ date('j F, Y', strtotime($job->created_at)) }}
-                                                </td>
+                                                </td> --}}
                                                 <td tabindex="0">
                                                     {{ date('j F, Y', strtotime($job->deadline)) }}
                                                 </td>
@@ -249,17 +249,16 @@
         ranges: {
             'Today': [moment(), moment()],
             'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
             'This Month': [moment().startOf('month'), moment().endOf('month')],
-            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'Last 1 Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
             'Last 2 Months': [moment().subtract(2, 'months').startOf('month'), moment().subtract(1, 'month').endOf('month')],
             'Last 3 Months': [moment().subtract(3, 'months').startOf('month'), moment().endOf('month')],
+            'Last 6 Months': [moment().subtract(6, 'months').startOf('month'), moment().endOf('month')],
             'Current Year': [moment().startOf('year'), moment()],
-            'Last 12 Months': [moment().subtract(12, 'months').startOf('month'), moment().endOf('month')],
-
-
+            'Last 12 Months': [moment().subtract(12, 'months').startOf('month'), moment().endOf('month')]
         }
+
     }, function(start, end, label) {
         $('#dateRange').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY')); // Update format here
     });
@@ -316,7 +315,7 @@ var title = '{{ $company->user->name }}';
 doc.text(title, 20, 30); // Add the title at position (20, 30)
 if (startDate && endDate) {
     var dateRange = startDate + ' - ' + endDate;
-    doc.text('Date Range: ' + dateRange, 20, 50); // Add the date range at position (20, 50)
+    doc.text('Date Range: ' + dateRange, 20, 65); // Add the date range at position (20, 50)
 }
 doc.text('Total Jobs: ' + totalJobs, 20, 50); // Add the total number of jobs at position (20, 70)
 

@@ -71,23 +71,24 @@ class CompanyController extends Controller
         $endDate = Carbon::createFromFormat('d/m/Y', $endDate)->format('Y-m-d');
     }
     
-        $company = Company::with([
-            'jobs' => function ($query) use ($startDate, $endDate) {
-                $query->latest()->with('category', 'role', 'job_type', 'salary_type');
-                if ($startDate && $endDate) {
-                    $query->where(function ($q) use ($startDate, $endDate) {
-                        $q->whereBetween('created_at', [$startDate, $endDate])
-                          ->orWhereBetween('deadline', [$startDate, $endDate])
-                          ->orWhere(function ($q) use ($startDate) {
-                              $q->where('status', 'active')
-                                ->where('created_at', '<', $startDate);
-                          });
-                    });
-                }
-            },
-            'user.socialInfo',
-            'user.contactInfo'
-        ])->findOrFail($id);
+    $company = Company::with([
+        'jobs' => function ($query) use ($startDate, $endDate) {
+            $query->latest('created_at')->with('category', 'role', 'job_type', 'salary_type');
+            if ($startDate && $endDate) {
+                $query->where(function ($q) use ($startDate, $endDate) {
+                    $q->whereBetween('created_at', [$startDate, $endDate])
+                      ->orWhereBetween('deadline', [$startDate, $endDate])
+                      ->orWhere(function ($q) use ($startDate) {
+                          $q->where('status', 'active')
+                            ->where('created_at', '<', $startDate);
+                      });
+                });
+            }
+        },
+        'user.socialInfo',
+        'user.contactInfo'
+    ])->findOrFail($id);
+    
     
         return view('backend.company.report', compact('company', 'startDate', 'endDate'));
     }
@@ -100,7 +101,7 @@ class CompanyController extends Controller
 
         $user = Company::with([
             'jobs' => function ($query) use ($startDate, $endDate) {
-                $query->latest()->with('category', 'role', 'job_type', 'salary_type');
+                $query->latest('created_at')->with('category', 'role', 'job_type', 'salary_type');
                 if ($startDate && $endDate) {
                     $query->where(function ($q) use ($startDate, $endDate) {
                         $q->whereBetween('created_at', [$startDate, $endDate])
