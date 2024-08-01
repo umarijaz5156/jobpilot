@@ -70,10 +70,11 @@ class CompanyController extends Controller
     if ($endDate) {
         $endDate = Carbon::createFromFormat('d/m/Y', $endDate)->format('Y-m-d');
     }
-    
     $company = Company::with([
         'jobs' => function ($query) use ($startDate, $endDate) {
-            $query->latest('created_at')->with('category', 'role', 'job_type', 'salary_type');
+            $query->with('category', 'role', 'job_type', 'salary_type')
+                  ->ongoingFirst(); // Use the updated scope here
+    
             if ($startDate && $endDate) {
                 $query->where(function ($q) use ($startDate, $endDate) {
                     $q->whereBetween('created_at', [$startDate, $endDate])
@@ -89,7 +90,6 @@ class CompanyController extends Controller
         'user.contactInfo'
     ])->findOrFail($id);
     
-    
         return view('backend.company.report', compact('company', 'startDate', 'endDate'));
     }
     
@@ -101,7 +101,9 @@ class CompanyController extends Controller
 
         $user = Company::with([
             'jobs' => function ($query) use ($startDate, $endDate) {
-                $query->latest('created_at')->with('category', 'role', 'job_type', 'salary_type');
+                $query->with('category', 'role', 'job_type', 'salary_type')
+                      ->ongoingFirst(); // Use the updated scope here
+        
                 if ($startDate && $endDate) {
                     $query->where(function ($q) use ($startDate, $endDate) {
                         $q->whereBetween('created_at', [$startDate, $endDate])

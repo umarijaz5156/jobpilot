@@ -313,12 +313,12 @@
             })
         }
 
-        $(document).ready(function() {
+        // $(document).ready(function() {
             $('#load-more-button').click(function(e) {
                 e.preventDefault();
                 loadMoreJobs();
             });
-        });
+        // });
     </script>
 
     <script>
