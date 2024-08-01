@@ -76,18 +76,18 @@
                                             @enderror
 
                                         </div>
-                                        <div class="col-sm-6 form-group">
+                                        {{-- <div class="col-sm-6 form-group">
                                             <div class="form-check" style="margin-top: 38px">
                                                 <div class="icheck-success d-inline">
                                                     <input value="range" name="is_just_name" type="checkbox"
                                                         class="form-check-input" {{ $job->company_id ? '' : 'checked' }}
-                                                        {{--                                                {{ old('is_just_name')  ? 'checked':'' }} --}} id="just_name">
+                                                        id="just_name">
                                                     <label class="form-check-label mr-5"
                                                         for="just_name">{{ __('create_a_job_without_comapany_account') }}</label>
                                                 </div>
                                             </div>
 
-                                        </div>
+                                        </div> --}}
                                     </div>
 
 
@@ -152,6 +152,21 @@
                                                 value="{{ old('deadline', $job->deadline) }}"
                                                 class="form-control @error('deadline') is-invalid @enderror">
                                             @error('deadline')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ __($message) }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-6 p-2 form-check" style="margin-left:20px;">
+                                            <div class="icheck-success d-inline">
+                                                <input value="1" name="is_ongoing" type="checkbox"
+                                                    class="form-check-input" id="is_ongoing"
+                                                    {{ $job->ongoing ? 'checked' : '' }}>
+                                                <label class="form-check-label mr-5"
+                                                    for="is_ongoing">{{ __('ongoing') }}</label>
+                                            </div>
+                                            @error('is_ongoing')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ __($message) }}</strong>
                                                 </span>

@@ -66,6 +66,7 @@ class JobCreateService
             'highlight_until' => $highlight_days,
             'is_remote' => $request->is_remote ?? 0,
             'status' => 'active',
+            'ongoing' => $request->is_ongoing ?? 0
 
         ]);
 
