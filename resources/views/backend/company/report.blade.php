@@ -130,7 +130,12 @@
                                                     {{ date('j F, Y', strtotime($job->created_at)) }}
                                                 </td> --}}
                                                 <td tabindex="0">
+                                                    @if($job->ongoing == 1)
+                                                    On-going
+                                                    @else
                                                     {{ date('j F, Y', strtotime($job->deadline)) }}
+
+                                                    @endif
                                                 </td>
                                               
                                                 

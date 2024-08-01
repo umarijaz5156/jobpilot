@@ -84,7 +84,14 @@
                                     <td class="text-center">{{  $websiteClicksThrough }}</td>
                                     <td>{{ ucfirst($job->status) }}</td>
                                     {{-- <td>{{ date('j F, Y', strtotime($job->created_at)) }}</td> --}}
-                                    <td>{{ date('j F, Y', strtotime($job->deadline)) }}</td>
+                                    <td>
+                                        @if($job->ongoing == 1)
+                                        On-going
+                                        @else
+                                        {{ date('j F, Y', strtotime($job->deadline)) }}
+
+                                        @endif
+                                    </td>
                                 </tr>
                                 @endforeach
                             </tbody>

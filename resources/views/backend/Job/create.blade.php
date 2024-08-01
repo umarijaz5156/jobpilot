@@ -173,6 +173,21 @@
                                                 </span>
                                             @enderror
                                         </div>
+                                        <div class="col-md-6 p-2 form-check" style="margin-left:20px;">
+                                            <div class="icheck-success d-inline">
+                                                <input value="1" name="is_ongoing" type="checkbox"
+                                                    class="form-check-input" id="is_ongoing"
+                                                    {{ old('is_ongoing') ? 'checked' : '' }}>
+                                                <label class="form-check-label mr-5"
+                                                    for="is_ongoing">{{ __('ongoing') }}</label>
+                                            </div>
+                                            @error('is_ongoing')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ __($message) }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -877,6 +892,19 @@
 
 @section('script')
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+    var deadlineInput = document.getElementById('deadline');
+    var currentDate = new Date();
+    var sixMonthsFromNow = new Date(currentDate.setMonth(currentDate.getMonth() + 6));
+    
+    var day = ('0' + sixMonthsFromNow.getDate()).slice(-2);
+    var month = ('0' + (sixMonthsFromNow.getMonth() + 1)).slice(-2);
+    var year = sixMonthsFromNow.getFullYear();
+    
+    var formattedDate = `${month}/${day}/${year}`;
+    deadlineInput.value = formattedDate;
+});
+
     $(document).ready(function() {
         $('#categories').select2({
             placeholder: 'Select Categories',
