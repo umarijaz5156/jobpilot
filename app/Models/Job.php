@@ -54,6 +54,17 @@ class Job extends Model
         }
     }
 
+    public function scopeOngoingFirst($query)
+    {
+        return $query->orderByRaw("
+            CASE
+                WHEN status = 'ongoing' THEN 1
+                ELSE 2
+            END
+        ")->orderBy('deadline', 'desc'); // Change to 'desc' for descending order
+    }
+    
+
     /**
      * Get the highlight attribute
      *
