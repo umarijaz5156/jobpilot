@@ -79,59 +79,15 @@ trait JobAble
     //     ];
     // }
 
-        protected function getJobs($request)
+    protected function getJobs($request)
     {
-        // dd($request->all());
         $filteredJobsQuery = $this->filterJobs($request)->latest();
         $featured_jobs = $this->filterJobs($request)->latest()->where('featured', 1)->take(18)->get();
-
-        // Get the filtered jobs and convert them to a collection
-        $filteredJobsPaginated = $filteredJobsQuery->paginate(18)->withQueryString();
-        $filteredJobs = $filteredJobsPaginated->getCollection();
-
-        // Initialize an empty collection for user jobs
-        $userJobs = collect();
-
-        // Search for jobs by user name if a keyword is provided
-        if ($request->has('keyword') && $request->keyword != null) {
-            $keyword = $request->get('keyword');
-            $users = User::where('name', 'LIKE', "%$keyword%")->with('company.jobs')->get();
-
-            // Collect all jobs from the user search
-            foreach ($users as $user) {
-                if ($user->company) {
-                    $userJobs = $userJobs->merge($user->company->jobs);
-                }
-            }
-        }
-
-        // Merge the jobs from user search with the filtered jobs
-        $allJobs = $filteredJobs->merge($userJobs)->unique('id');
-        // Apply state_id filter if present in the request
-        
-        // dd($allJobs);
-
-        // Apply state_id filter if present in the request
-        if (isset($request->state_id)) {
-            $state_id = $request->state_id;
-            $allJobs = $allJobs->filter(function ($job) use ($state_id) {
-                return $job->state_id == $state_id;
-            });
-        }
-
-        // Paginate the merged collection manually
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 50;
-        $currentPageItems = $allJobs->slice(($currentPage - 1) * $perPage, $perPage)->values();
-
-        $paginatedJobs = new LengthAwarePaginator($currentPageItems, $allJobs->count(), $perPage, $currentPage, [
-            'path' => LengthAwarePaginator::resolveCurrentPath(),
-            'query' => $request->query(),
-        ]);
-
+        $jobs = $filteredJobsQuery->paginate(18)->withQueryString();
+    
         return [
-            'total_jobs' => $paginatedJobs->total(),
-            'jobs' => $paginatedJobs,
+            'total_jobs' => count($filteredJobsQuery->get()),
+            'jobs' => $jobs,
             'featured_jobs' => $featured_jobs,
             'countries' => Country::all(['id', 'name', 'slug']),
             'categories' => JobCategory::all()->sortBy('name'),
@@ -145,6 +101,7 @@ trait JobAble
             'popularTags' => $this->popularTags(),
         ];
     }
+    
 
 
     protected function moreJobs($request)
@@ -154,188 +111,369 @@ trait JobAble
         return $jobs;
     }
 
-    private function filterJobs($request)
-    {
-        if (auth()->user()) {
-            $query = Job::with('company.user', 'category', 'job_type:id,name')
-                ->withCount([
-                    'bookmarkJobs',
-                    'appliedJobs',
-                    'bookmarkJobs as bookmarked' => function ($q) {
-                        $q->where('candidate_id', currentCandidate() ? currentCandidate()->id : '');
-                    },
-                    'appliedJobs as applied' => function ($q) {
-                        $q->where('candidate_id', currentCandidate() ? currentCandidate()->id : '');
-                    },
-                ])
-                ->active()
-                ->withoutEdited();
-        } else {
-            $query = Job::with('company.user', 'category', 'job_type:id,name')
-                ->withCount([
-                    'bookmarkJobs',
-                    'appliedJobs',
-                    'bookmarkJobs as bookmarked' => function ($q) {
-                        $q->where('candidate_id', '');
-                    },
-                    'appliedJobs as applied' => function ($q) {
-                        $q->where('candidate_id', '');
-                    },
-                ])
-                ->withoutEdited()
-                ->active();
-        }
+    // private function filterJobs($request)
+    // {
+    //     if (auth()->user()) {
+    //         $query = Job::with('company.user', 'category', 'job_type:id,name')
+    //             ->withCount([
+    //                 'bookmarkJobs',
+    //                 'appliedJobs',
+    //                 'bookmarkJobs as bookmarked' => function ($q) {
+    //                     $q->where('candidate_id', currentCandidate() ? currentCandidate()->id : '');
+    //                 },
+    //                 'appliedJobs as applied' => function ($q) {
+    //                     $q->where('candidate_id', currentCandidate() ? currentCandidate()->id : '');
+    //                 },
+    //             ])
+    //             ->active()
+    //             ->withoutEdited();
+    //     } else {
+    //         $query = Job::with('company.user', 'category', 'job_type:id,name')
+    //             ->withCount([
+    //                 'bookmarkJobs',
+    //                 'appliedJobs',
+    //                 'bookmarkJobs as bookmarked' => function ($q) {
+    //                     $q->where('candidate_id', '');
+    //                 },
+    //                 'appliedJobs as applied' => function ($q) {
+    //                     $q->where('candidate_id', '');
+    //                 },
+    //             ])
+    //             ->withoutEdited()
+    //             ->active();
+    //     }
 
-    
-        // company search
-        if ($request->has('company') && $request->company != null) {
-            $company = $request->company;
-            $query->whereHas('company.user', function ($q) use ($company) {
-                $q->where('username', $company);
-            });
-        }
 
-        // Keyword search
-        if ($request->has('keyword') && $request->keyword != null) {
-            $keyword = $request->get('keyword');
-            if (is_array($keyword)) {
-                $keyword = $keyword[0];
-            }
-            $query->where('title', 'LIKE', "%$keyword%");
+    //     // company search
+    //     if ($request->has('company') && $request->company != null) {
+    //         $company = $request->company;
+    //         $query->whereHas('company.user', function ($q) use ($company) {
+    //             $q->where('username', $company);
+    //         });
+    //     }
 
-            $user = User::where('name', 'LIKE', "%$keyword%")->with('company.jobs')->get();
+    //     // Keyword search
+    //     if ($request->has('keyword') && $request->keyword != null) {
+    //         $keyword = $request->get('keyword');
+    //         if (is_array($keyword)) {
+    //             $keyword = $keyword[0];
+    //         }
+    //         $query->where('title', 'LIKE', "%$keyword%");
 
-        
-        }
+    //         $user = User::where('name', 'LIKE', "%$keyword%")->with('company.jobs')->get();
+    //     }
 
       
 
-        // Category filter
-        if ($request->has('category') && $request->category != null) {
-            $category = JobCategory::where('slug', $request->category)->first();
-            $query->when($category, function ($query) use ($category) {
-                return $query->where('category_id', $category->id);
+    //     // Category filter
+    //     if ($request->has('category') && $request->category != null) {
+    //         $category = JobCategory::where('slug', $request->category)->first();
+    //         $query->when($category, function ($query) use ($category) {
+    //             return $query->where('category_id', $category->id);
+    //         });
+    //     }
+
+    //     // job role filter
+    //     if ($request->has('job_role') && $request->job_role != null) {
+    //         $query->where('role_id', $request->job_role);
+    //     }
+
+    //     // Salary filter
+    //     if ($request->has('price_min') && $request->price_min != null) {
+    //         $query->where('min_salary', '>=', $request->price_min);
+    //     }
+    //     if ($request->has('price_max') && $request->price_max != null) {
+    //         $query->where('max_salary', '<=', $request->price_max);
+    //     }
+
+    //     // tags filter
+    //     if ($request->has('tag') && $request->tag != null) {
+    //         $tag = TagTranslation::where('name', $request->tag)->first();
+
+    //         if ($tag) {
+    //             $query->whereHas('tags', function ($q) use ($tag) {
+    //                 $q->where('job_tag.tag_id', $tag->tag_id);
+    //             });
+    //         }
+    //     }
+
+    //     if (isset($request->state_id)) {
+    //         $query->where('state_id', $request->state_id);
+    //     }
+
+    //     // id filter for load more
+    //     if ($request->id) {
+    //         $query->where('id', '<', $request->id);
+    //     }
+
+    //     // location
+    //     $final_address = '';
+    //     if ($request->has('location') && $request->location != null) {
+    //         $adress = $request->location;
+    //         if ($adress) {
+    //             $adress_array = explode(' ', $adress);
+    //             if ($adress_array) {
+    //                 $last_two = array_splice($adress_array, 0, 2);
+    //             }
+    //             $final_address = Str::slug(implode(' ', $last_two));
+    //             $query->Where('country', 'LIKE', '%'.$request->location.'%')
+    //                 ->orWhere('address', 'LIKE', '%'.$final_address.'%');
+    //         }
+    //     }
+    //     // lat Long
+    //     if ($request->has('lat') && $request->has('long') && $request->lat != null && $request->long != null) {
+    //         session()->forget('selected_country');
+    //         // $query->Where('address', $final_address ? $final_address : '')->orWhere('country', $request->location ? $request->location : '');
+    //     }
+
+    //     // country
+    //     // $selected_country = session()->get('selected_country');
+
+    //     // if ($selected_country && $selected_country != null) {
+    //     //     $country = selected_country()->name;
+    //     //     $query->where('country', 'LIKE', "%$country%");
+    //     // } else {
+    //     //     $setting = loadSetting();
+    //     //     if ($setting->app_country_type == 'single_base') {
+    //     //         if ($setting->app_country) {
+    //     //             $country = Country::where('id', $setting->app_country)->first();
+    //     //             if ($country) {
+    //     //                 $query->where('country', 'LIKE', "%$country->name%");
+    //     //             }
+    //     //         }
+    //     //     }
+    //     // }
+
+    //     // Sort by ads
+    //     if ($request->has('sort_by') && $request->sort_by != null) {
+    //         switch ($request->sort_by) {
+    //             case 'latest':
+    //                 $query->latest('id');
+    //                 break;
+    //             case 'featured':
+    //                 $query->where('featured', 1)->latest();
+    //                 break;
+    //         }
+    //     }
+
+    //     // Experience filter
+    //     if ($request->has('experience') && $request->experience != null) {
+    //         $experience_id = Experience::where('name', $request->experience)->value('id');
+    //         $query->where('experience_id', $experience_id);
+    //     }
+
+    //     // Education filter
+    //     if ($request->has('education') && $request->education != null) {
+    //         $education_id = Education::where('name', $request->education)->value('id');
+    //         $query->where('education_id', $education_id);
+    //     }
+
+    //     // Work type filter
+    //     if ($request->has('is_remote') && $request->is_remote != null) {
+    //         $query->where('is_remote', 1);
+    //     }
+
+    //     // Job type filter
+    //     if ($request->has('job_type') && $request->job_type != null) {
+    //         $job_type_id = JobType::where('name', $request->job_type)->value('id');
+    //         $query->where('job_type_id', $job_type_id);
+    //     }
+
+    //     // SKill filter
+    //     if ($request->has('skills') && $request->skills != null) {
+    //         $skills = SkillTranslation::where('name', $request->skills)->first();
+
+    //         if ($skills) {
+    //             $query->whereHas('skills', function ($q) use ($skills) {
+    //                 $q->where('job_skills.skill_id', $skills->skill_id);
+    //             });
+    //         }
+    //     }
+
+
+    //     return $query;
+    // }
+
+    private function filterJobs($request)
+{
+         if (auth()->user()) {
+                $query = Job::with('company.user', 'category', 'job_type:id,name')
+                    ->withCount([
+                        'bookmarkJobs',
+                        'appliedJobs',
+                        'bookmarkJobs as bookmarked' => function ($q) {
+                            $q->where('candidate_id', currentCandidate() ? currentCandidate()->id : '');
+                        },
+                        'appliedJobs as applied' => function ($q) {
+                            $q->where('candidate_id', currentCandidate() ? currentCandidate()->id : '');
+                        },
+                    ])
+                    ->active()
+                    ->withoutEdited();
+            } else {
+                $query = Job::with('company.user', 'category', 'job_type:id,name')
+                    ->withCount([
+                        'bookmarkJobs',
+                        'appliedJobs',
+                        'bookmarkJobs as bookmarked' => function ($q) {
+                            $q->where('candidate_id', '');
+                        },
+                        'appliedJobs as applied' => function ($q) {
+                            $q->where('candidate_id', '');
+                        },
+                    ])
+                    ->withoutEdited()
+                    ->active();
+            }
+
+    // company search
+    if ($request->has('company') && $request->company != null) {
+        $company = $request->company;
+        $query->whereHas('company.user', function ($q) use ($company) {
+            $q->where('username', $company);
+        });
+    }
+
+    // Keyword search
+    if ($request->has('keyword') && $request->keyword != null) {
+        $keyword = $request->get('keyword');
+        if (is_array($keyword)) {
+            $keyword = $keyword[0];
+        }
+
+        // Get jobs where title matches the keyword
+        $query->where('title', 'LIKE', "%$keyword%");
+
+        // Get users where name matches the keyword
+        $users = User::where('name', 'LIKE', "%$keyword%")->with('company.jobs')->get();
+
+        // Collect all jobs from the user search
+        $userJobs = collect();
+        foreach ($users as $user) {
+            if ($user->company) {
+                $userJobs = $userJobs->merge($user->company->jobs);
+            }
+        }
+
+        // Merge the jobs from user search with the current query results
+        $query = $query->orWhereHas('company.user', function ($q) use ($keyword) {
+            $q->where('name', 'LIKE', "%$keyword%");
+        });
+
+        if ($userJobs->isNotEmpty()) {
+            $query = $query->orWhereIn('id', $userJobs->pluck('id'));
+        }
+    }
+
+    // Category filter
+    if ($request->has('category') && $request->category != null) {
+        $category = JobCategory::where('slug', $request->category)->first();
+        $query->when($category, function ($query) use ($category) {
+            return $query->where('category_id', $category->id);
+        });
+    }
+
+    // job role filter
+    if ($request->has('job_role') && $request->job_role != null) {
+        $query->where('role_id', $request->job_role);
+    }
+
+    // Salary filter
+    if ($request->has('price_min') && $request->price_min != null) {
+        $query->where('min_salary', '>=', $request->price_min);
+    }
+    if ($request->has('price_max') && $request->price_max != null) {
+        $query->where('max_salary', '<=', $request->price_max);
+    }
+
+    // tags filter
+    if ($request->has('tag') && $request->tag != null) {
+        $tag = TagTranslation::where('name', $request->tag)->first();
+        if ($tag) {
+            $query->whereHas('tags', function ($q) use ($tag) {
+                $q->where('job_tag.tag_id', $tag->tag_id);
             });
         }
-
-        // job role filter
-        if ($request->has('job_role') && $request->job_role != null) {
-            $query->where('role_id', $request->job_role);
-        }
-
-        // Salary filter
-        if ($request->has('price_min') && $request->price_min != null) {
-            $query->where('min_salary', '>=', $request->price_min);
-        }
-        if ($request->has('price_max') && $request->price_max != null) {
-            $query->where('max_salary', '<=', $request->price_max);
-        }
-
-        // tags filter
-        if ($request->has('tag') && $request->tag != null) {
-            $tag = TagTranslation::where('name', $request->tag)->first();
-
-            if ($tag) {
-                $query->whereHas('tags', function ($q) use ($tag) {
-                    $q->where('job_tag.tag_id', $tag->tag_id);
-                });
-            }
-        }
-
-        if (isset($request->state_id)) {
-            $query->where('state_id', $request->state_id);
-        }
-
-        // id filter for load more
-        if ($request->id) {
-            $query->where('id', '<', $request->id);
-        }
-
-        // location
-        $final_address = '';
-        if ($request->has('location') && $request->location != null) {
-            $adress = $request->location;
-            if ($adress) {
-                $adress_array = explode(' ', $adress);
-                if ($adress_array) {
-                    $last_two = array_splice($adress_array, 0, 2);
-                }
-                $final_address = Str::slug(implode(' ', $last_two));
-                $query->Where('country', 'LIKE', '%'.$request->location.'%')
-                    ->orWhere('address', 'LIKE', '%'.$final_address.'%');
-            }
-        }
-        // lat Long
-        if ($request->has('lat') && $request->has('long') && $request->lat != null && $request->long != null) {
-            session()->forget('selected_country');
-            // $query->Where('address', $final_address ? $final_address : '')->orWhere('country', $request->location ? $request->location : '');
-        }
-
-        // country
-        // $selected_country = session()->get('selected_country');
-
-        // if ($selected_country && $selected_country != null) {
-        //     $country = selected_country()->name;
-        //     $query->where('country', 'LIKE', "%$country%");
-        // } else {
-        //     $setting = loadSetting();
-        //     if ($setting->app_country_type == 'single_base') {
-        //         if ($setting->app_country) {
-        //             $country = Country::where('id', $setting->app_country)->first();
-        //             if ($country) {
-        //                 $query->where('country', 'LIKE', "%$country->name%");
-        //             }
-        //         }
-        //     }
-        // }
-
-        // Sort by ads
-        if ($request->has('sort_by') && $request->sort_by != null) {
-            switch ($request->sort_by) {
-                case 'latest':
-                    $query->latest('id');
-                    break;
-                case 'featured':
-                    $query->where('featured', 1)->latest();
-                    break;
-            }
-        }
-
-        // Experience filter
-        if ($request->has('experience') && $request->experience != null) {
-            $experience_id = Experience::where('name', $request->experience)->value('id');
-            $query->where('experience_id', $experience_id);
-        }
-
-        // Education filter
-        if ($request->has('education') && $request->education != null) {
-            $education_id = Education::where('name', $request->education)->value('id');
-            $query->where('education_id', $education_id);
-        }
-
-        // Work type filter
-        if ($request->has('is_remote') && $request->is_remote != null) {
-            $query->where('is_remote', 1);
-        }
-
-        // Job type filter
-        if ($request->has('job_type') && $request->job_type != null) {
-            $job_type_id = JobType::where('name', $request->job_type)->value('id');
-            $query->where('job_type_id', $job_type_id);
-        }
-
-        // SKill filter
-        if ($request->has('skills') && $request->skills != null) {
-            $skills = SkillTranslation::where('name', $request->skills)->first();
-
-            if ($skills) {
-                $query->whereHas('skills', function ($q) use ($skills) {
-                    $q->where('job_skills.skill_id', $skills->skill_id);
-                });
-            }
-        }
-        return $query;
     }
+
+    // state_id filter
+    if ($request->has('state_id') && $request->state_id != null) {
+        $query->where('state_id', $request->state_id);
+    }
+
+    // id filter for load more
+    if ($request->id) {
+        $query->where('id', '<', $request->id);
+    }
+
+    // location
+    $final_address = '';
+    if ($request->has('location') && $request->location != null) {
+        $address = $request->location;
+        if ($address) {
+            $address_array = explode(' ', $address);
+            if ($address_array) {
+                $last_two = array_splice($address_array, 0, 2);
+            }
+            $final_address = Str::slug(implode(' ', $last_two));
+            $query->Where('country', 'LIKE', '%'.$request->location.'%')
+                  ->orWhere('address', 'LIKE', '%'.$final_address.'%');
+        }
+    }
+
+    // lat Long
+    if ($request->has('lat') && $request->has('long') && $request->lat != null && $request->long != null) {
+        session()->forget('selected_country');
+    }
+
+    // Sort by ads
+    if ($request->has('sort_by') && $request->sort_by != null) {
+        switch ($request->sort_by) {
+            case 'latest':
+                $query->latest('id');
+                break;
+            case 'featured':
+                $query->where('featured', 1)->latest();
+                break;
+        }
+    }
+
+    // Experience filter
+    if ($request->has('experience') && $request->experience != null) {
+        $experience_id = Experience::where('name', $request->experience)->value('id');
+        $query->where('experience_id', $experience_id);
+    }
+
+    // Education filter
+    if ($request->has('education') && $request->education != null) {
+        $education_id = Education::where('name', $request->education)->value('id');
+        $query->where('education_id', $education_id);
+    }
+
+    // Work type filter
+    if ($request->has('is_remote') && $request->is_remote != null) {
+        $query->where('is_remote', 1);
+    }
+
+    // Job type filter
+    if ($request->has('job_type') && $request->job_type != null) {
+        $job_type_id = JobType::where('name', $request->job_type)->value('id');
+        $query->where('job_type_id', $job_type_id);
+    }
+
+    // Skill filter
+    if ($request->has('skills') && $request->skills != null) {
+        $skills = SkillTranslation::where('name', $request->skills)->first();
+        if ($skills) {
+            $query->whereHas('skills', function ($q) use ($skills) {
+                $q->where('job_skills.skill_id', $skills->skill_id);
+            });
+        }
+    }
+
+    return $query;
+}
+
 
     private function getJobsCategory($request, $slug)
     {
