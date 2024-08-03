@@ -66,12 +66,31 @@ class JobListService
     public function loadMore($request)
     {
         if ($request->page == 1) {
+            
             $query = $this->filterJobs($request);
-            $query->where('id', '<', $request->id);
+                    // Retrieve all jobs
+            $jobs = $query->latest()->get();
 
-            $jobs = $query->take(18)->latest()->get();
+            // Find the index of the job with the specified ID
+            $jobId = $request->input('id');
+            $index = $jobs->search(function ($job) use ($jobId) {
+                return $job->id == $jobId;
+            });
 
-            return $jobs;
+
+            // Check if the job is found
+            if ($index + 1 == count($jobs)) {
+            
+                $jobs = [];
+                return 0;
+            }
+
+        $jobs = $query->skip($index)  // Skip all jobs before the specified job
+                    ->take(18)         // Take the next 18 jobs
+                    ->latest()         // Order by latest if needed
+                    ->get();
+
+    return $jobs;
         } else {
             if (config('templatecookie.default_job_provider') == 'indeed') {
                 $newJob = $this->indeedJobs($this->getIndeedJobs($request, 18, $request->page));
