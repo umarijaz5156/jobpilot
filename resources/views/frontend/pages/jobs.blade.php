@@ -287,13 +287,15 @@
             let searchParams = new URLSearchParams(queryString);
             let existingKeyword = searchParams.get('keyword');
             let existingLocation = searchParams.get('location');
+            let stateId = searchParams.get('state_id');
 
             // Convert null values to empty strings if they are null
             existingKeyword = existingKeyword === null ? '' : existingKeyword;
             existingLocation = existingLocation === null ? '' : existingLocation;
+            stateId = stateId === null ? '0' : stateId;
 
             // Construct the updated query string with all parameters
-            let updatedQueryString = `?page=${page}&id=${id}&keyword=${existingKeyword}&location=${existingLocation}`;
+            let updatedQueryString = `?page=${page}&id=${id}&keyword=${existingKeyword}&location=${existingLocation}&state_id=${stateId}`;
 
             let newUrl = `${urlWithoutQueryString.replace('/jobs', '/loadmore')}${updatedQueryString}`;
 

@@ -326,6 +326,7 @@ trait JobAble
                     ->active();
             }
 
+          
     // company search
     if ($request->has('company') && $request->company != null) {
         $company = $request->company;
@@ -334,36 +335,10 @@ trait JobAble
         });
     }
 
-    // Keyword search
-    if ($request->has('keyword') && $request->keyword != null) {
-        $keyword = $request->get('keyword');
-        if (is_array($keyword)) {
-            $keyword = $keyword[0];
-        }
-
-        // Get jobs where title matches the keyword
-        $query->where('title', 'LIKE', "%$keyword%");
-
-        // Get users where name matches the keyword
-        $users = User::where('name', 'LIKE', "%$keyword%")->with('company.jobs')->get();
-
-        // Collect all jobs from the user search
-        $userJobs = collect();
-        foreach ($users as $user) {
-            if ($user->company) {
-                $userJobs = $userJobs->merge($user->company->jobs);
-            }
-        }
-
-        // Merge the jobs from user search with the current query results
-        $query = $query->orWhereHas('company.user', function ($q) use ($keyword) {
-            $q->where('name', 'LIKE', "%$keyword%");
-        });
-
-        if ($userJobs->isNotEmpty()) {
-            $query = $query->orWhereIn('id', $userJobs->pluck('id'));
-        }
+    if ($request->has('state_id') && $request->state_id != null) {
+        $query->where('state_id', $request->state_id);
     }
+  
 
     // Category filter
     if ($request->has('category') && $request->category != null) {
@@ -396,10 +371,7 @@ trait JobAble
         }
     }
 
-    // state_id filter
-    if ($request->has('state_id') && $request->state_id != null) {
-        $query->where('state_id', $request->state_id);
-    }
+
 
     // id filter for load more
     if ($request->id) {
@@ -470,6 +442,49 @@ trait JobAble
             });
         }
     }
+
+        // state_id filter
+      // Keyword search
+      if ($request->has('keyword') && $request->keyword != null) {
+        $keyword = $request->get('keyword');
+        if (is_array($keyword)) {
+            $keyword = $keyword[0];
+        }
+
+     
+        // Get jobs where title matches the keyword
+        $query->where('title', 'LIKE', "%$keyword%");
+
+       
+        // Get users where name matches the keyword
+        $users = User::where('name', 'LIKE', "%$keyword%")->with('company.jobs')->get();
+
+        // Collect all jobs from the user search
+        $userJobs = collect();
+        foreach ($users as $user) {
+            if ($user->company) {
+                $filteredJobs = $user->company->jobs->filter(function ($job) use ($request) {
+                    if ($request->has('state_id') && $request->state_id != null) {
+                        return $job->state_id == $request->state_id;
+                    }
+                });
+                $userJobs = $userJobs->merge($filteredJobs);
+            }
+        }
+
+        
+
+        // Merge the jobs from user search with the current query results
+        // $query = $query->orWhereHas('company.user', function ($q) use ($keyword) {
+        //     $q->where('name', 'LIKE', "%$keyword%");
+        // });
+
+
+
+        if ($userJobs->isNotEmpty()) {
+            $query = $query->orWhereIn('id', $userJobs->pluck('id'));
+        }
+    } 
 
     return $query;
 }
