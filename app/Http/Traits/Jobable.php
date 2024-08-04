@@ -1079,12 +1079,12 @@ trait JobAble
                             $new_tag->translateOrNew($language->code)->name = $tag;
                         }
                         $new_tag->save();
-
+ 
                         array_push($tagsArray, $new_tag->id);
                     } else {
                         array_push($tagsArray, $tag);
                     } 
-                    
+
                 }
             }
 
