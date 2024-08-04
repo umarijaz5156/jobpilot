@@ -1083,7 +1083,8 @@ trait JobAble
                         array_push($tagsArray, $new_tag->id);
                     } else {
                         array_push($tagsArray, $tag);
-                    }
+                    } 
+                    
                 }
             }
 
