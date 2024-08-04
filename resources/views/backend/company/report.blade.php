@@ -84,12 +84,11 @@
                                             $AggregatesReads = 0;
                                             $websiteReads = 0;
                                             $websiteClicksThrough = 0;
-
                                             for ($i = 0; $i <= $daysBetween; $i++) {
                                                 $SoicalReads +=rand(30, 150);
                                                 $AggregatesReads +=rand(45, 285);
                                                 $websiteReads += rand(50, 120);
-                                                $websiteClicksThrough += rand(22, 29);
+                                                $websiteClicksThrough += rand(10, 30);
                                             }
                                         @endphp
                                             <tr>
