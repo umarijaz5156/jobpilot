@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services\EssAPI;
+namespace App\Services\API\EssAPI;
 
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Env;
+use Illuminate\Support\Str;
 
 class EssApiService
 {
@@ -29,7 +29,8 @@ class EssApiService
                 $response = $this->client->request($method, $endpoint, [
                     'headers' => [
                         'Authorization' => 'Bearer ' . $token,
-                        'Ocp-Apim-Subscription-Key' => Env::get('OCP_APIM_SUBSCRIPTION_KEY')
+                        'Ocp-Apim-Subscription-Key' => env('OCP_APIM_SUBSCRIPTION_KEY'),
+                        'employment.gov.au-UniqueRequestMessageId' => Str::uuid()->toString()
                     ],
                     'json' => $data,
                 ]);
@@ -87,13 +88,13 @@ class EssApiService
     protected function fetchNewToken($apiIdentifier)
     {
         try {
-            $response = $this->client->post(Env::get('OAUTH2_TOKEN_ENDPOINT'), [
+            $response = $this->client->post(env('OAUTH2_TOKEN_ENDPOINT'), [
                 'form_params' => [
-                    'resource' => Env::get('WEB_API_RESOURCE_IDENTIFIER'),
-                    'client_id' => Env::get('CLIENT_ID'),
-                    'client_assertion_type' => Env::get('CLIENT_ASSERTION_TYPE'),
-                    'client_assertion' => Env::get('CLIENT_ASSERTION'),
-                    'grant_type' => Env::get('GRANT_TYPE'),
+                    'resource' => env('WEB_API_RESOURCE_IDENTIFIER'),
+                    'client_id' => env('CLIENT_ID'),
+                    'client_assertion_type' => env('CLIENT_ASSERTION_TYPE'),
+                    'client_assertion' => env('CLIENT_ASSERTION'),
+                    'grant_type' => env('GRANT_TYPE'),
                 ],
             ]);
 

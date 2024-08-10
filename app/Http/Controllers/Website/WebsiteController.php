@@ -49,16 +49,103 @@ use Modules\Plan\Entities\Plan;
 use Modules\Testimonial\Entities\Testimonial;
 use Srmklive\PayPal\Services\PayPal;
 use Stevebauman\Location\Facades\Location;
+use App\Services\API\EssAPI\EssApiService;
 
 class WebsiteController extends Controller
 {
     use CandidateAble, HasCountryBasedJobs, JobAble, ResetCvViewsHistoryTrait;
 
     public $setting;
+    public $essApiService;
 
-    public function __construct()
+    public function __construct(EssApiService $essApiService)
     {
         $this->setting = loadSetting(); // see helpers.php
+        $this->essApiService = $essApiService;
+    }
+    public function getAllBoundaries()
+    {
+        try {
+            $response = $this->essApiService->callApi('https://essapi.ecsn.gov.au/Live/Geospatial/api/v1/public/Geospatial/AllBoundaries', 'GET');
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to retrieve boundaries.'], 500);
+        }
+    }
+
+    public function createVacancy()
+    {
+        try {
+            $data = [
+                "Vacancy" => [
+                    "VacancyId" => 0,
+                    "VacancyStatusCode" => "O",
+                    "VacancyTitle" => "CLERK",
+                    "VacancyDescription" => "Prasad TESTFIX TEST DESCRIPTION",
+                    "PositionLimitCount" => 10,
+                    "PositionAvailableCount" => 10,
+                    "PositionFilledCount" => 0,
+                    "ExpiryDate" => "2024-08-16T00:00:00+11:00",
+                    "EmployerId" => 0,
+                    "EmployerContactId" => null,
+                    "UserDefinedIdentifier" => "",
+                    "HoursDescription" => null,
+                    "RegionCode" => "4ACQ",
+                    "AreaDisplayCode" => "",
+                    "WorkTypeCode" => "P",
+                    "TenureCode" => "P",
+                    "ApplicationStyleCode" => "PSD",
+                    "OccupationCategoryCode" => "542112",
+                    "PlacementTypeCode" => "N",
+                    "ClientTypeCode" => "98",
+                    "IndgenousJobFlag" => true,
+                    "JobJeopardyFlag" => false,
+                    "AnticipateStartDate" => null,
+                    "NetDisplayType" => "E",
+                    "ContractTypeCode" => null,
+                    "OrganisationCode" => "YYEC",
+                    "SiteCode" => "QG38",
+                    "VacancyType" => "H",
+                    "VacancySourceCode" => null,
+                    "SalaryDescription" => "SLNS",
+                    "OpenStatusDate" => "2024-08-16T00:00:00+11:00",
+                    "InactiveStatusDate" => null,
+                    "SourceVacancyId" => null,
+                    "SourceEmployerId" => null,
+                    "WebUrl" => null,
+                ],
+                "VacancyAgent" => [
+                    "AgentName" => "test test",
+                    "ContactName" => "test test",
+                    "EmailAddress" => "test@Test.com.au",
+                    "FaxNumber" => null,
+                    "MobileNumber" => "0400400400",
+                    "OptimisticConcurrencyCheckValue" => null,
+                    "PhoneNumber" => "0260006000",
+                    "VacancyAgentId" => 0,
+                    "VacancyId" => 0,
+                ],
+                "VacancyAddress" => [
+                    "VacancyId" => 0,
+                    "VacancyAddressId" => 0,
+                    "AddressLine1" => "14 MORT STREET",
+                    "AddressLine2" => null,
+                    "AddressLine3" => null,
+                    "Suburb" => "BRADDON",
+                    "StateCode" => "ACT",
+                    "PostCode" => "2612",
+                ],
+                "VacancyLicence" => [],
+                "VacancySpecialGroup" => [],
+            ];
+
+            $response = $this->essApiService->callApi('https://essapi.ecsn.gov.au/Live/Vacancy/api/v1/public/vacancies', 'POST', $data);
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     /**
