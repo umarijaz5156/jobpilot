@@ -82,9 +82,10 @@ trait JobAble
     protected function getJobs($request)
     {
         $filteredJobsQuery = $this->filterJobs($request)->latest();
+
         $featured_jobs = $this->filterJobs($request)->latest()->where('featured', 1)->take(18)->get();
         $jobs = $filteredJobsQuery->paginate(18)->withQueryString();
-    
+
         return [
             'total_jobs' => count($filteredJobsQuery->get()),
             'jobs' => $jobs,
@@ -101,7 +102,7 @@ trait JobAble
             'popularTags' => $this->popularTags(),
         ];
     }
-    
+
 
 
     protected function moreJobs($request)
@@ -163,7 +164,7 @@ trait JobAble
     //         $user = User::where('name', 'LIKE', "%$keyword%")->with('company.jobs')->get();
     //     }
 
-      
+
 
     //     // Category filter
     //     if ($request->has('category') && $request->category != null) {
@@ -326,7 +327,7 @@ trait JobAble
                     ->active();
             }
 
-          
+
     // company search
     if ($request->has('company') && $request->company != null) {
         $company = $request->company;
@@ -338,7 +339,7 @@ trait JobAble
     if ($request->has('state_id') && $request->state_id != null) {
         $query->where('state_id', $request->state_id);
     }
-  
+
 
     // Category filter
     if ($request->has('category') && $request->category != null) {
@@ -442,37 +443,43 @@ trait JobAble
             });
         }
     }
-
         // state_id filter
       // Keyword search
       if ($request->has('keyword') && $request->keyword != null) {
         $keyword = $request->get('keyword');
+
         if (is_array($keyword)) {
             $keyword = $keyword[0];
         }
 
-     
+
+
+
         // Get jobs where title matches the keyword
         $query->where('title', 'LIKE', "%$keyword%");
 
-       
         // Get users where name matches the keyword
         $users = User::where('name', 'LIKE', "%$keyword%")->with('company.jobs')->get();
+
 
         // Collect all jobs from the user search
         $userJobs = collect();
         foreach ($users as $user) {
+
             if ($user->company) {
                 $filteredJobs = $user->company->jobs->filter(function ($job) use ($request) {
+
                     if ($request->has('state_id') && $request->state_id != null) {
                         return $job->state_id == $request->state_id;
+                    }else{
+                        return $job;
                     }
+
                 });
                 $userJobs = $userJobs->merge($filteredJobs);
             }
         }
 
-        
 
         // Merge the jobs from user search with the current query results
         // $query = $query->orWhereHas('company.user', function ($q) use ($keyword) {
@@ -484,7 +491,7 @@ trait JobAble
         if ($userJobs->isNotEmpty()) {
             $query = $query->orWhereIn('id', $userJobs->pluck('id'));
         }
-    } 
+    }
 
     return $query;
 }
@@ -538,7 +545,7 @@ trait JobAble
         if ($id == null) {
             abort(404);
         } else {
-           
+
             $category_id = $id->id;
             $query->where(function ($q) use ($category_id) {
                 $q->where('category_id', $category_id)
@@ -548,7 +555,7 @@ trait JobAble
             });
         }
 
-      
+
 
         // job role filter
         if ($request->has('job_role') && $request->job_role != null) {
@@ -594,14 +601,14 @@ trait JobAble
                 ->orWhere('country', $request->location ? $request->location : '');
         }
 
-       
+
         // country
         // $selected_country = session()->get('selected_country');
         // if ($selected_country && $selected_country != null) {
         //     $country = selected_country()->name;
         //     $query->where('country', 'LIKE', "%$country%");
         // } else {
-           
+
 
         //     $setting = loadSetting();
         //     if ($setting->app_country_type == 'single_base') {
@@ -613,7 +620,7 @@ trait JobAble
         //         }
         //     }
         // }
-    
+
 
         // Sort by ads
         if ($request->has('sort_by') && $request->sort_by != null) {
@@ -650,7 +657,7 @@ trait JobAble
             $query->where('job_type_id', $job_type_id);
         }
 
-       
+
         $jobs = $query->latest()->paginate(20)->withQueryString();
         $featured_jobs = $query->latest()->where('featured', 1)->take(20)->get();
 
@@ -1079,11 +1086,11 @@ trait JobAble
                             $new_tag->translateOrNew($language->code)->name = $tag;
                         }
                         $new_tag->save();
- 
+
                         array_push($tagsArray, $new_tag->id);
                     } else {
                         array_push($tagsArray, $tag);
-                    } 
+                    }
 
                 }
             }
