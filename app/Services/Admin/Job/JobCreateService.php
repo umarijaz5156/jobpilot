@@ -91,7 +91,7 @@ class JobCreateService
         // location insert
         updateMap($jobCreated);
         $jobCreated->selectedCategories()->sync($request->categories);
-      
+
         if ($request->ispost_waterland === 'true') {
             $this->sendJobToSecondWebsite($jobCreated, $request->categories);
         }
@@ -101,8 +101,8 @@ class JobCreateService
         if ($request->ispost_planningjobs === 'true') {
             $this->sendJobToPlanningJobs($jobCreated, $request->categories);
         }
-        
-        
+
+
         return $jobCreated;
     }
 
@@ -110,11 +110,11 @@ class JobCreateService
     {
         $client = new Client();
         $categoryId = $categories[0] ?? 3;
-         $websiteUrl = env('WEBSITE_URL');  
+         $websiteUrl = env('WEBSITE_URL');
 
          $companyData = Company::findOrfail($job->company_id);
-        
-         
+
+
         try {
             $response = $client->post($websiteUrl, [
                 'json' => [
@@ -145,6 +145,19 @@ class JobCreateService
                     'highlight_until' => $job->highlight_until,
                     'is_remote' => $job->is_remote,
                     'status' => 'active',
+
+                     // Location-related fields using $job properties
+                     'address' => $job->address,
+                     'neighborhood' => $job->neighborhood ?? '',
+                     'locality' => $job->locality ?? '',
+                     'place' => $job->place ?? '',
+                     'district' => $job->district ?? '',
+                     'postcode' => $job->postcode ?? '',
+                     'region' => $job->region ?? '',
+                     'country' => $job->country ?? '',
+                     'long' => $job->long ?? '',
+                     'lat' => $job->lat ?? '',
+                     'exact_location' => $job->exact_location ?? '',
                 ]
             ]);
 
@@ -159,11 +172,11 @@ class JobCreateService
     {
         $client = new Client();
         $categoryId = $categories[0] ?? 3;
-         $websiteUrl = env('WEBSITE_URL_JOB_EngineeringJobsHub');  
+         $websiteUrl = env('WEBSITE_URL_JOB_EngineeringJobsHub');
 
          $companyData = Company::findOrfail($job->company_id);
-        
-         
+
+
         try {
             $response = $client->post($websiteUrl, [
                 'json' => [
@@ -194,6 +207,19 @@ class JobCreateService
                     'highlight_until' => $job->highlight_until,
                     'is_remote' => $job->is_remote,
                     'status' => 'active',
+
+                     // Location-related fields using $job properties
+                     'address' => $job->address,
+                     'neighborhood' => $job->neighborhood ?? '',
+                     'locality' => $job->locality ?? '',
+                     'place' => $job->place ?? '',
+                     'district' => $job->district ?? '',
+                     'postcode' => $job->postcode ?? '',
+                     'region' => $job->region ?? '',
+                     'country' => $job->country ?? '',
+                     'long' => $job->long ?? '',
+                     'lat' => $job->lat ?? '',
+                     'exact_location' => $job->exact_location ?? '',
                 ]
             ]);
 
@@ -208,11 +234,11 @@ class JobCreateService
     {
         $client = new Client();
         $categoryId = $categories[0] ?? 3;
-         $websiteUrl = env('WEBSITE_URL_JOB_PlanningJob');  
+         $websiteUrl = env('WEBSITE_URL_JOB_PlanningJob');
 
          $companyData = Company::findOrfail($job->company_id);
-        
-         
+
+
         try {
             $response = $client->post($websiteUrl, [
                 'json' => [
@@ -243,6 +269,19 @@ class JobCreateService
                     'highlight_until' => $job->highlight_until,
                     'is_remote' => $job->is_remote,
                     'status' => 'active',
+
+                     // Location-related fields using $job properties
+                     'address' => $job->address,
+                     'neighborhood' => $job->neighborhood ?? '',
+                     'locality' => $job->locality ?? '',
+                     'place' => $job->place ?? '',
+                     'district' => $job->district ?? '',
+                     'postcode' => $job->postcode ?? '',
+                     'region' => $job->region ?? '',
+                     'country' => $job->country ?? '',
+                     'long' => $job->long ?? '',
+                     'lat' => $job->lat ?? '',
+                     'exact_location' => $job->exact_location ?? '',
                 ]
             ]);
 
