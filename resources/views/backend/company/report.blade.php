@@ -21,7 +21,7 @@
             <a href="{{ route('company.report', $company->id) }}"
                 class="btn ll-btn ll-border-none">
                 {{__('Rfresh')}}
-    </a>
+     </a>
         </div>
         
         <style>

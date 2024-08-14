@@ -9,6 +9,7 @@ use App\Http\Traits\JobAble;
 use App\Models\Benefit;
 use App\Models\Candidate;
 use App\Models\cms;
+use App\Models\Company;
 use App\Models\CompanyBookmarkCategory;
 use App\Models\CompanyQuestion;
 use App\Models\Earning;
@@ -37,12 +38,14 @@ use App\Services\Website\Company\CompanyPromoteJobService;
 use App\Services\Website\Company\CompanySettingUpdateService;
 use App\Services\Website\Company\CompanyStoreService;
 use App\Services\Website\Company\CompanyUpdateService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Modules\Currency\Entities\Currency;
 use Modules\Location\Entities\Country;
+use Modules\Plan\Entities\Plan;
 use PDF;
 
 class CompanyController extends Controller
@@ -61,43 +64,77 @@ class CompanyController extends Controller
      *
      * @return Response
      */
-    public function dashboard()
+    public function dashboard(Request $request)
     {
-        try {
-            $data['userplan'] = UserPlan::with('plan')
-                ->companyData()
-                ->firstOrFail();
-            $data['openJobCount'] = auth()
-                ->user()
-                ->company->jobs()
-                ->active()
-                ->count();
-            $data['pendingJobCount'] = auth()
-                ->user()
-                ->company->jobs()
-                ->pending()
-                ->count();
+       
+        // try {
+            // $data['userplan'] = UserPlan::with('plan')
+            //     ->companyData()
+            //     ->firstOrFail();
+                  
+            // $data['openJobCount'] = auth()
+            //     ->user()
+            //     ->company->jobs()
+            //     ->active()
+            //     ->count();
+            // $data['pendingJobCount'] = auth()
+            //     ->user()
+            //     ->company->jobs()
+            //     ->pending()
+            //     ->count();
 
-            // Recent 4 Jobs
-            $data['recentJobs'] = auth()
-                ->user()
-                ->company->jobs()
-                ->latest()
-                ->take(4)
-                ->with('company.user', 'job_type')
-                ->withCount('appliedJobs')
-                ->get();
-            $data['savedCandidates'] = auth()
-                ->user()
-                ->company->bookmarkCandidates()
-                ->count();
+            // // Recent 4 Jobs
+            // $data['recentJobs'] = auth()
+            //     ->user()
+            //     ->company->jobs()
+            //     ->latest()
+            //     ->take(4)
+            //     ->with('company.user', 'job_type')
+            //     ->withCount('appliedJobs')
+            //     ->get();
+            // $data['savedCandidates'] = auth()
+            //     ->user()
+            //     ->company->bookmarkCandidates()
+            //     ->count();
+            $user = Auth::user();
+            
+            $startDate = $request->query('start_date');
+            $endDate = $request->query('end_date');
+    
+                // Convert the dates from DD/MM/YYYY to YYYY-MM-DD
+            if ($startDate) {
+                $startDate = Carbon::createFromFormat('d/m/Y', $startDate)->format('Y-m-d');
+            }
+            if ($endDate) {
+                $endDate = Carbon::createFromFormat('d/m/Y', $endDate)->format('Y-m-d');
+            }
+            $company = Company::with([
+                'jobs' => function ($query) use ($startDate, $endDate) {
+                    $query->with('category', 'role', 'job_type', 'salary_type')
+                        ->ongoingFirst(); // Use the updated scope here
+            
+                    if ($startDate && $endDate) {
+                        $query->where(function ($q) use ($startDate, $endDate) {
+                            $q->whereBetween('created_at', [$startDate, $endDate])
+                            ->orWhereBetween('deadline', [$startDate, $endDate])
+                            ->orWhere(function ($q) use ($startDate) {
+                                $q->where('status', 'active')
+                                    ->where('created_at', '<', $startDate);
+                            });
+                        });
+                    }
+                },
+                'user.socialInfo',
+                'user.contactInfo'
+            ])->findOrFail($user->company->id);
 
-            return view('frontend.pages.company.dashboard', $data);
-        } catch (\Exception $e) {
-            flashError('An error occurred: '.$e->getMessage());
 
-            return back();
-        }
+            return view('frontend.pages.company.dashboard', compact('company', 'startDate', 'endDate'));
+        // } catch (\Exception $e) {
+        //     flashError('An error occurred: '.$e->getMessage());
+
+        //     return back();
+        // }
     }
 
     /**

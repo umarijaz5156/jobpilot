@@ -30,25 +30,26 @@ class HasPlanMiddleware
 
             $user = Auth::user();
             $company = $user->company;
-            $plan = $company->userPlan;
-            if (! $plan) {
+            // $plan = $company->userPlan;
+           
+            // if (! $plan) {
 
-                // check company have any pending order
-                $check_pending_plan = $this->checkPendingPlan($company);
+            //     // check company have any pending order
+            //     $check_pending_plan = $this->checkPendingPlan($company);
 
-                $have_any_session = session()->get('success');
-                if ($have_any_session) {
-                    flashSuccess($have_any_session);
-                } elseif ($check_pending_plan) {
-                    flashWarning(__('your_purchased_plan_order_has_pending._please_wait_until_the_order_is_approved'));
-                } else {
-                    flashWarning(__('you_dont_have_a_chosen_plan_please_choose_a_plan_to_continue'));
-                }
+            //     $have_any_session = session()->get('success');
+            //     if ($have_any_session) {
+            //         flashSuccess($have_any_session);
+            //     } elseif ($check_pending_plan) {
+            //         flashWarning(__('your_purchased_plan_order_has_pending._please_wait_until_the_order_is_approved'));
+            //     } else {
+            //         flashWarning(__('you_dont_have_a_chosen_plan_please_choose_a_plan_to_continue'));
+            //     }
 
-                return redirect()->route('website.plan');
-            } else {
+            //     return redirect()->route('website.plan');
+            // } else {
                 return $next($request);
-            }
+            // }
         }
 
         return $next($request);

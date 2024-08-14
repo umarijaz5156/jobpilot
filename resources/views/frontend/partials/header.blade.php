@@ -627,14 +627,14 @@
                             @auth('user')
                                 <ul class="list-unstyled tw-gap-6 tw-flex tw-items-center tw-justify-between">
 
-                                    @if (auth()->user()->role == 'company')
+                                    {{-- @if (auth()->user()->role == 'company')
                                         <x-website.company.notifications-component />
                                     @endif
                                     @if (auth()->user()->role == 'candidate')
                                         <x-website.candidate.notifications-component />
-                                    @endif
+                                    @endif --}}
                                     
-                                    <x-website.company.message-component />
+                                    {{-- <x-website.company.message-component /> --}}
 
                                     <div class="dropdown dropstart">
                                         <a href="javascript:void(0)" class="candidate-profile position-relative"
@@ -701,13 +701,13 @@
                                                     {{ __('my_jobs') }}
                                                 </a>
                                             </li>
-                                            <li>
+                                            {{-- <li>
                                                 <a class="dropdown-item {{ request()->routeIs('company.plan') ? 'active' : '' }}"
                                                     href="{{ route('company.plan') }}">
                                                     <i class="ph-notebook"></i>
                                                     {{ __('plans_billing') }}
                                                 </a>
-                                            </li>
+                                            </li> --}}
                                             <li>
                                                 <a class="dropdown-item {{ request()->routeIs('company.setting') ? 'active' : '' }}"
                                                     href="{{ route('company.setting') }}">
@@ -729,7 +729,7 @@
                                         </ul>
                                         @endcandidate
                                     </div>
-                                    @if (!request()->is('email/verify'))
+                                    {{-- @if (!request()->is('email/verify'))
                                         @company
                                             <li class="tw-hidden sm:tw-block">
 
@@ -740,7 +740,7 @@
                                                 </a>
                                             </li>
                                         @endcompany
-                                    @endif
+                                    @endif --}}
                                     @if (request()->is('email/verify'))
                                         <li>
                                             <a href="{{ route('logout') }}"
@@ -763,11 +763,11 @@
                                         <a href="{{ route('login') }}"
                                             class="btn btn-outline-light">{{ __('sign_in') }}</a>
                                     </li> --}}
-                                    <li class="d-none d-sm-block">
+                                    {{-- <li class="d-none d-sm-block">
                                         <a href="{{ route('website.plan') }}"
                                             class="btn btn-light">{{ __('post_job') }}
                                         </a>
-                                    </li>
+                                    </li> --}}
                                 </ul>
                             @endguest
                         </div>
