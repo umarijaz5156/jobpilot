@@ -6,10 +6,10 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
     <div class="dashboard-wrapper">
-        <div class="container">
+        <div class="p-3">
             <div class="row">
                 <x-website.company.sidebar />
-                <div class="col-lg-9">
+                <div class="col-lg-10">
                     <div class="dashboard-right" style="padding-right: 0px;padding-left:0px">
                         <div class="dashboard-right-header">
                             <div class="left-text">
@@ -141,20 +141,28 @@
                                                         <tbody>
                                                             @foreach ($company->jobs as $job)
                                                             @php
-                                                                $createdAt = \Carbon\Carbon::parse($job->created_at);
+                                                              $createdAt = \Carbon\Carbon::parse($job->created_at);
                                                                 $today = \Carbon\Carbon::now();
                                                                 $daysBetween = $createdAt->diffInDays($today);
-                    
+
                                                                 $SoicalReads = 0;
                                                                 $AggregatesReads = 0;
                                                                 $websiteReads = 0;
                                                                 $websiteClicksThrough = 0;
+
                                                                 for ($i = 0; $i <= $daysBetween; $i++) {
-                                                                    $SoicalReads +=rand(30, 150);
-                                                                    $AggregatesReads +=rand(45, 285);
+                                                                    $SoicalReads += rand(30, 150);
+                                                                    $AggregatesReads += rand(45, 285);
                                                                     $websiteReads += rand(50, 120);
-                                                                    $websiteClicksThrough += rand(10, 30);
+                                                                    
+                                                                    // Introducing a decrease in clicks through over time
+                                                                    $clicksToday = max(10, rand(10, 30) - (int)($i * 0.5));
+                                                                    $websiteClicksThrough += $clicksToday;
                                                                 }
+
+
+                                                                $websiteClicksThrough = max(0, $websiteClicksThrough + rand(-20, 10)); // Ensure it doesn't go below 0
+
                                                             @endphp
                                                                 <tr>
                                                                     <td tabindex="0">

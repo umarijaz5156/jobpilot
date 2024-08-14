@@ -687,20 +687,20 @@
                                         </ul>
                                     @else
                                         <ul class="dropdown-menu custom-border" aria-labelledby="dropdownMenuButton1">
-                                            <li>
+                                            {{-- <li>
                                                 <a class="dropdown-item {{ request()->routeIs('company.dashboard') ? 'active' : '' }}"
                                                     href="{{ route('company.dashboard') }}">
                                                     <i class="ph-stack"></i>
                                                     {{ __('dashboard') }}
                                                 </a>
-                                            </li>
-                                            <li>
+                                            </li> --}}
+                                            {{-- <li>
                                                 <a class="dropdown-item {{ request()->routeIs('company.myjob') ? 'active' : '' }}"
                                                     href="{{ route('company.myjob') }}">
                                                     <i class="ph-suitcase-simple"></i>
                                                     {{ __('my_jobs') }}
                                                 </a>
-                                            </li>
+                                            </li> --}}
                                             {{-- <li>
                                                 <a class="dropdown-item {{ request()->routeIs('company.plan') ? 'active' : '' }}"
                                                     href="{{ route('company.plan') }}">
@@ -708,13 +708,13 @@
                                                     {{ __('plans_billing') }}
                                                 </a>
                                             </li> --}}
-                                            <li>
+                                            {{-- <li>
                                                 <a class="dropdown-item {{ request()->routeIs('company.setting') ? 'active' : '' }}"
                                                     href="{{ route('company.setting') }}">
                                                     <i class="ph-gear"></i>
                                                     {{ __('settings') }}
                                                 </a>
-                                            </li>
+                                            </li> --}}
                                             <li>
                                                 <a class="dropdown-item" href="{{ route('logout') }}"
                                                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

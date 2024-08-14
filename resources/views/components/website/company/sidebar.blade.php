@@ -1,4 +1,4 @@
-<div class="col-lg-3">
+<div class="col-lg-2">
     <div class="d-sidebar">
         <div class="tw-flex tw-justify-between tw-items-center tw-mb-3">
             <h3 class="tw-mb-3">@lang('employer_dashboard')</h3>
@@ -44,7 +44,7 @@
                     </span>
                 </a>
             </li>
-            <li>
+            {{-- <li>
                 <a href="{{ route('company.myjob') }}" class="{{ linkActive('company.myjob') }}">
                     <span class="button-content-wrapper tw-items-center">
                         <span class="button-icon align-icon-left tw-flex tw-items-center">
@@ -55,7 +55,7 @@
                         </span>
                     </span>
                 </a>
-            </li>
+            </li> --}}
             @if (!$setting->edited_job_auto_approved)
                 <li>
                     <a href="{{ route('company.pending.edited.jobs') }}"
