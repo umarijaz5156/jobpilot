@@ -65,8 +65,9 @@ class JobListService
 
     public function loadMore($request)
     {
+        
         if ($request->page == 1) {
-            
+
             $query = $this->filterJobs($request);
                     // Retrieve all jobs
             $jobs = $query->latest()->get();
@@ -80,7 +81,7 @@ class JobListService
 
             // Check if the job is found
             if ($index + 1 == count($jobs)) {
-            
+
                 $jobs = [];
                 return 0;
             }

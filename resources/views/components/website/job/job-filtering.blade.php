@@ -132,7 +132,8 @@
                                         'SA (South Australia)',
                                         'ACT (Australian Capital Territory)',
                                         'NZ (New Zealand)',
-                                         'WA (Western Australia)'
+                                         'WA (Western Australia)',
+                                         'New Zealand'
                                     ];
                                 @endphp
                                 @foreach($orderedStates as $stateName)
@@ -141,7 +142,7 @@
                                     @endif
                                 @endforeach
                             </select>
-                            
+
                            </div>
                         @endif
 

@@ -19,9 +19,16 @@
     {{-- Custome css and js  --}}
     {!! $setting->header_css !!}
     {!! $setting->header_script !!}
+
+    <meta name="google-site-verification" content="nF-F6HDHc2xcISJrHi_3ZolCO0q9AkuvRSYdarxLvBs" />
 </head>
 
 <body dir="{{ langDirection() }}">
+    <style>
+        .pwa-install-btn{
+            display: none;
+        }
+        </style>
     <input type="hidden" value="{{ current_country_code() }}" id="current_country_code">
     <input type="hidden" id="auth_user" value="{{ auth()->check() ? 1 : 0 }}">
     <input type="hidden" id="auth_user_id" value="{{ auth()->check() ? auth()->id() : 0 }}">

@@ -16,9 +16,9 @@ class CompanyProfileCompletion
     public function handle(Request $request, Closure $next)
     {
         // Please note here complete = 1 means company has completed his profile
-        if (! currentCompany()->profile_completion) {
-            return redirect(route('company.account-progress'));
-        }
+        // if (! currentCompany()->profile_completion) {
+        //     return redirect(route('company.account-progress'));
+        // }
 
         return $next($request);
     }

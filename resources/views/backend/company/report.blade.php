@@ -8,8 +8,8 @@
 
     <div class="container-fluid">
         <div class="mb-3 d-flex justify-content-end align-items-center">
-               
-                
+
+
             <input type="text" id="dateRange" class="form-control mr-2" placeholder="Select Date Range">
             <button id="filterButton" class="btn btn-primary mr-2">Filter</button>
             <button id='pdf' class="btn btn-primary c-btn c-btn--info">PDF</button>
@@ -17,13 +17,13 @@
                 <span id="buttonText">Send Email</span>
                 <span id="buttonSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
             </button>
-            
+
             <a href="{{ route('company.report', $company->id) }}"
                 class="btn ll-btn ll-border-none">
                 {{__('Rfresh')}}
-    </a>
+     </a>
         </div>
-        
+
         <style>
             .d-flex {
                 display: flex;
@@ -41,9 +41,9 @@
                 width: auto;
             }
         </style>
-        
-            
-        
+
+
+
         @php
             $totalJobs  = $company->jobs->count();
 
@@ -70,7 +70,7 @@
                                             <th>{{ __('status') }}</th>
                                             {{-- <th>{{ __('Post Date') }}</th> --}}
                                             <th>{{ __('Closing Date') }}</th>
-                                
+
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -123,11 +123,14 @@
 
 
                                                 <td tabindex="0">
-                                                    <p>{{ ucfirst($job->status) }}</p>
+                                                    @if(strtotime($job->deadline) < strtotime(now()))
+                                                    <p>Expired</p>
+                                                @else
+                                                    <p>Active</p>
+                                                @endif
+                                                    {{-- <p>{{ ucfirst($job->status) }}</p> --}}
                                                 </td>
-                                                {{-- <td tabindex="0">
-                                                    {{ date('j F, Y', strtotime($job->created_at)) }}
-                                                </td> --}}
+
                                                 <td style="text-align:end" tabindex="0">
                                                     @if($job->ongoing == 1)
                                                     On-going
@@ -136,11 +139,11 @@
 
                                                     @endif
                                                 </td>
-                                              
-                                                
-                                              
-                                                   
-                                               
+
+
+
+
+
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -159,10 +162,10 @@
         </div>
     </div>
 
-  
 
-    
-    
+
+
+
 @endsection
 
 @section('style')
@@ -282,7 +285,7 @@
         var dates = dateRange.split(' - ');
         var startDate = dates[0];
         var endDate = dates[1];
-        
+
         var url = new URL(window.location.href);
         url.searchParams.set('start_date', startDate);
         url.searchParams.set('end_date', endDate);

@@ -1,4 +1,4 @@
-<div class="col-lg-3">
+<div class="col-lg-2">
     <div class="d-sidebar">
         <div class="tw-flex tw-justify-between tw-items-center tw-mb-3">
             <h3 class="tw-mb-3">@lang('employer_dashboard')</h3>
@@ -44,7 +44,7 @@
                     </span>
                 </a>
             </li>
-            <li>
+            {{-- <li>
                 <a href="{{ route('company.myjob') }}" class="{{ linkActive('company.myjob') }}">
                     <span class="button-content-wrapper tw-items-center">
                         <span class="button-icon align-icon-left tw-flex tw-items-center">
@@ -55,7 +55,7 @@
                         </span>
                     </span>
                 </a>
-            </li>
+            </li> --}}
             @if (!$setting->edited_job_auto_approved)
                 <li>
                     <a href="{{ route('company.pending.edited.jobs') }}"
@@ -71,7 +71,7 @@
                     </a>
                 </li>
             @endif
-            <li>
+            {{-- <li>
                 <a href="{{ route('company.job.create') }}" class="{{ linkActive('company.job.create') }}">
                     <span class="button-content-wrapper tw-items-center">
                         <span class="button-icon align-icon-left tw-flex tw-items-center">
@@ -82,8 +82,8 @@
                         </span>
                     </span>
                 </a>
-            </li>
-            <li>
+            </li> --}}
+            {{-- <li>
                 <a href="{{ route('company.bookmark') }}"
                     class="{{ request()->routeIs('company.bookmark') || request()->routeIs('company.bookmark.category.index') ? 'active' : '' }} ">
                     <span class="button-content-wrapper tw-items-center">
@@ -95,8 +95,8 @@
                         </span>
                     </span>
                 </a>
-            </li>
-            <li>
+            </li> --}}
+            {{-- <li>
                 <a href="{{ route('company.questions.manage') }}"
                     class="{{ linkActive('company.questions.manage') }}">
                     <span class="button-content-wrapper tw-items-center">
@@ -108,8 +108,8 @@
                         </span>
                     </span>
                 </a>
-            </li>
-            <li>
+            </li> --}}
+            {{-- <li>
                 <a href="{{ route('company.plan') }}" class="{{ linkActive('company.plan') }}">
                     <span class="button-content-wrapper tw-items-center">
                         <span class="button-icon align-icon-left tw-flex tw-items-center">
@@ -120,8 +120,8 @@
                         </span>
                     </span>
                 </a>
-            </li>
-            <li>
+            </li> --}}
+            {{-- <li>
                 <a href="{{ route('company.messages') }}" class="{{ linkActive('company.messages') }}">
                     <span class="button-content-wrapper tw-items-center">
                         <span class="button-icon align-icon-left tw-flex tw-items-center">
@@ -132,8 +132,8 @@
                         </span>
                     </span>
                 </a>
-            </li>
-            <li>
+            </li> --}}
+            {{-- <li>
                 <a href="{{ route('company.verify.documents.index') }}" class="{{ linkActive('company.verify.documents.index') }}">
                     <span class="button-content-wrapper tw-items-center">
                         <span class="button-icon align-icon-left tw-flex tw-items-center">
@@ -144,8 +144,8 @@
                         </span>
                     </span>
                 </a>
-            </li>
-            <li>
+            </li> --}}
+            {{-- <li>
                 <a href="{{ route('company.setting') }}" class="{{ linkActive('company.setting') }}">
                     <span class="button-content-wrapper tw-items-center">
                         <span class="button-icon align-icon-left tw-flex tw-items-center">
@@ -156,7 +156,7 @@
                         </span>
                     </span>
                 </a>
-            </li>
+            </li> --}}
             <li>
                 <a href="{{ route('logout') }}"
                     onclick="event.preventDefault();

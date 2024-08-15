@@ -13,10 +13,10 @@ use GuzzleHttp\Client;
 
 class JobController extends Controller
 {
-    
+
     public function storeViaApi(Request $request)
     {
-       
+
         $companyData = User::where('email',$request->company_email)->first();
         $company_id = $companyData->company->id;
         $company_name = $companyData->name;
@@ -49,6 +49,18 @@ class JobController extends Controller
             'highlight_until' => $request->highlight_until,
             'is_remote' => $request->is_remote ?? 0,
             'status' => 'active',
+
+            'address' => $request->address ?? '',
+            'neighborhood' => $request->neighborhood ?? '',
+            'locality' => $request->locality ?? '',
+            'place' => $request->place ?? '',
+            'district' => $request->district ?? '',
+            'postcode' => $request->postcode ?? '',
+            'region' => $request->region ?? '',
+            'country' => $request->country ?? '',
+            'long' => $request->long ?? '',
+            'lat' => $request->lat ?? '',
+            'exact_location' => $request->exact_location ?? '',
 
         ]);
 
@@ -89,12 +101,12 @@ class JobController extends Controller
           $path = 'uploads/images/company';
           $logo_url = createAvatar($name, $path, $setDimension);
       }
-    
+
               // insert banner
               if ($request->image) {
 
                   $path = 'uploads/images/company';
-      
+
                   $banner_url = uploadImage($request->image, $path, [1920, 312]);
               } else {
                   $setDimension = [1920, 312];
@@ -152,7 +164,7 @@ class JobController extends Controller
 
     function updateMap($company,$location)
     {
-        
+
         $location = $location;
 
         if ($location) {
@@ -187,7 +199,7 @@ class JobController extends Controller
         return true;
     }
 
-    
+
 
 
     // Waterland jobs post selected
@@ -200,13 +212,13 @@ class JobController extends Controller
 
 
            $client = new Client();
-           $websiteUrl = env('WEBSITE_URL'); 
-       
+           $websiteUrl = env('WEBSITE_URL');
+
            $companyData = Company::findOrFail($job->company_id);
            $categories = $job->selectedCategories()->pluck('category_id')->toArray();
            $categoryId = $categories[0] ?? 3;
-           
-         
+
+
                $response = $client->post($websiteUrl, [
                    'json' => [
                        'title' => $job->title,
@@ -236,11 +248,23 @@ class JobController extends Controller
                        'highlight_until' => $job->highlight_until,
                        'is_remote' => $job->is_remote,
                        'status' => 'active',
+
+                       'address' => $request->address ?? '',
+                       'neighborhood' => $request->neighborhood ?? '',
+                       'locality' => $request->locality ?? '',
+                       'place' => $request->place ?? '',
+                       'district' => $request->district ?? '',
+                       'postcode' => $request->postcode ?? '',
+                       'region' => $request->region ?? '',
+                       'country' => $request->country ?? '',
+                       'long' => $request->long ?? '',
+                       'lat' => $request->lat ?? '',
+                       'exact_location' => $request->exact_location ?? '',
                    ]
                ]);
-       
+
             //    return json_decode($response->getBody(), true);
-          
+
         }
 
         return true;
@@ -256,13 +280,13 @@ class JobController extends Controller
 
 
            $client = new Client();
-           $websiteUrl = env('WEBSITE_URL_JOB_EngineeringJobsHub'); 
-       
+           $websiteUrl = env('WEBSITE_URL_JOB_EngineeringJobsHub');
+
            $companyData = Company::findOrFail($job->company_id);
            $categories = $job->selectedCategories()->pluck('category_id')->toArray();
            $categoryId = $categories[0] ?? 3;
-           
-         
+
+
                $response = $client->post($websiteUrl, [
                    'json' => [
                        'title' => $job->title,
@@ -292,11 +316,23 @@ class JobController extends Controller
                        'highlight_until' => $job->highlight_until,
                        'is_remote' => $job->is_remote,
                        'status' => 'active',
+
+                       'address' => $request->address ?? '',
+                       'neighborhood' => $request->neighborhood ?? '',
+                       'locality' => $request->locality ?? '',
+                       'place' => $request->place ?? '',
+                       'district' => $request->district ?? '',
+                       'postcode' => $request->postcode ?? '',
+                       'region' => $request->region ?? '',
+                       'country' => $request->country ?? '',
+                       'long' => $request->long ?? '',
+                       'lat' => $request->lat ?? '',
+                       'exact_location' => $request->exact_location ?? '',
                    ]
                ]);
-       
+
             //    return json_decode($response->getBody(), true);
-          
+
         }
 
         return true;
@@ -312,13 +348,13 @@ class JobController extends Controller
 
 
            $client = new Client();
-           $websiteUrl = env('WEBSITE_URL_JOB_PlanningJob'); 
-       
+           $websiteUrl = env('WEBSITE_URL_JOB_PlanningJob');
+
            $companyData = Company::findOrFail($job->company_id);
            $categories = $job->selectedCategories()->pluck('category_id')->toArray();
            $categoryId = $categories[0] ?? 3;
-           
-         
+
+
                $response = $client->post($websiteUrl, [
                    'json' => [
                        'title' => $job->title,
@@ -348,14 +384,26 @@ class JobController extends Controller
                        'highlight_until' => $job->highlight_until,
                        'is_remote' => $job->is_remote,
                        'status' => 'active',
+
+                       'address' => $request->address ?? '',
+                       'neighborhood' => $request->neighborhood ?? '',
+                       'locality' => $request->locality ?? '',
+                       'place' => $request->place ?? '',
+                       'district' => $request->district ?? '',
+                       'postcode' => $request->postcode ?? '',
+                       'region' => $request->region ?? '',
+                       'country' => $request->country ?? '',
+                       'long' => $request->long ?? '',
+                       'lat' => $request->lat ?? '',
+                       'exact_location' => $request->exact_location ?? '',
                    ]
                ]);
-       
+
             //    return json_decode($response->getBody(), true);
-          
+
         }
 
         return true;
     }
-  
+
 }

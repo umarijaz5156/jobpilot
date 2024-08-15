@@ -3,23 +3,241 @@
 @section('title', __('dashboard'))
 
 @section('main')
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
     <div class="dashboard-wrapper">
-        <div class="container">
+        <div class="p-3">
             <div class="row">
                 <x-website.company.sidebar />
-                <div class="col-lg-9">
-                    <div class="dashboard-right tw-ps-0 lg:tw-ps-5">
+                <div class="col-lg-10">
+                    <div class="dashboard-right" style="padding-right: 0px;padding-left:0px">
                         <div class="dashboard-right-header">
                             <div class="left-text">
                                 <h5>{{ __('hello') }}, {{ ucfirst(auth()->user()->name) }}</h5>
-                                <p class="m-0">{{ __('here_is_your_daily_activities_career_opportunities') }}
+                                <p class="m-0">{{ __('Here are your jobs releated report') }}
                                 </p>
                             </div>
                             <span class="sidebar-open-nav">
                                 <i class="ph-list"></i>
                             </span>
                         </div>
-                        <div class="row">
+                        <div class="">
+                            <div class="mb-3 d-flex justify-content-end align-items-center">
+
+                                <input style="width: 40%" type="text" id="dateRange" class="form-control mr-2" placeholder="Select Date Range">
+                                <button id="filterButton" class="btn-sm btn-primary mr-2">Filter</button>
+                                <button id='pdf' class="btn-sm btn-primary c-btn c-btn--info">PDF</button>
+                                <button style="margin-left:10px" id="sendEmailButton" class="btn-sm btn-primary ml-2  c-btn c-btn--info">
+                                    <span id="buttonText">Send Email</span>
+                                    <span id="buttonSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                                </button>
+
+                                <a href="{{ route('company.dashboard') }}"
+                                    class="btn btn-sm ll-btn ll-border-none">
+                                    {{__('Refresh')}}
+                                </a>
+                            </div>
+
+                            <style>
+                               .d-flex {
+                                    display: flex;
+                                }
+
+                                .justify-content-end {
+                                    justify-content: flex-end;
+                                }
+
+                                .align-items-center {
+                                    align-items: center;
+                                }
+
+                                .mr-2 {
+                                    margin-right: 0.5rem;
+                                }
+
+                                .form-control {
+                                    width: auto;
+                                }
+
+                                .table-responsive {
+                                    overflow-x: auto;
+                                    -webkit-overflow-scrolling: touch; /* Smooth scrolling on touch devices */
+                                }
+
+
+                                .card-header h3 {
+                                    margin: 0; /* Remove margin */
+                                    padding: 0.5rem; /* Add padding for better spacing */
+                                }
+
+                                .card-title {
+                                    font-size: 1.25rem; /* Adjust font size */
+                                    line-height: 1.5; /* Adjust line height */
+                                }
+
+                                .card-body {
+                                    padding: 0; /* Reduce padding if needed */
+                                }
+
+                                table.ll-table {
+                                    width: 100%; /* Ensure the table takes full width */
+                                    table-layout: auto; /* Adjust table layout */
+                                    margin-bottom: 1rem; /* Add margin at the bottom */
+                                }
+
+                                table.ll-table th, table.ll-table td {
+                                    padding: 0.75rem; /* Adjust padding for better spacing */
+                                    vertical-align: middle; /* Vertical align text in the middle */
+                                    border-top: 1px solid #dee2e6; /* Adjust border color */
+                                    font-size: .75rem;
+                                }
+
+                                .table-responsive::-webkit-scrollbar {
+                                    height: 6px; /* Adjust the height for horizontal scrollbar */
+                                }
+
+                                .table-responsive::-webkit-scrollbar-thumb {
+                                    background-color: #888; /* Color of the scrollbar thumb */
+                                    border-radius: 10px; /* Rounded edges for the scrollbar thumb */
+                                }
+
+                                .table-responsive::-webkit-scrollbar-track {
+                                    background-color: #f1f1f1; /* Background of the scrollbar track */
+                                }
+
+                            </style>
+
+
+
+                            @php
+                                $totalJobs  = $company->jobs->count();
+
+                            @endphp
+                            <div class="row">
+                                <div   class="col-12">
+                                    <div class="card ">
+                                        <div class="card-header">
+                                            <b style="font-size: 14px" class="card-title line-height-36">{{ $company->user->name . ' Report' }}</b>
+                                        </div>
+                                        <div class=" table-responsive p-2">
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    @if ($company->jobs->count() > 0)
+
+                                                    <table id="my-table" class="ll-table table table-hover text-nowrap">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>{{ __('Title') }}</th>
+                                                                <th>{{ __('Social Media Clicks Through') }}</th>
+                                                                <th>{{ __('Aggregates  Clicks Through') }}</th>
+                                                                <th>{{ __('Website Reads') }}</th>
+                                                                <th>{{ __('Website Clicks Through') }}</th>
+                                                                <th>{{ __('status') }}</th>
+                                                                {{-- <th>{{ __('Post Date') }}</th> --}}
+                                                                <th>{{ __('Closing Date') }}</th>
+
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach ($company->jobs as $job)
+                                                            @php
+                                                              $createdAt = \Carbon\Carbon::parse($job->created_at);
+                                                                $today = \Carbon\Carbon::now();
+                                                                $daysBetween = $createdAt->diffInDays($today);
+
+                                                                $SoicalReads = 0;
+                                                                $AggregatesReads = 0;
+                                                                $websiteReads = 0;
+                                                                $websiteClicksThrough = 0;
+
+                                                                for ($i = 0; $i <= $daysBetween; $i++) {
+                                                                    $SoicalReads += rand(30, 150);
+                                                                    $AggregatesReads += rand(45, 285);
+                                                                    $websiteReads += rand(50, 120);
+
+                                                                    // Introducing a decrease in clicks through over time
+                                                                    $clicksToday = max(10, rand(10, 30) - (int)($i * 0.5));
+                                                                    $websiteClicksThrough += $clicksToday;
+                                                                }
+
+
+                                                                $websiteClicksThrough = max(0, $websiteClicksThrough + rand(-20, 10)); // Ensure it doesn't go below 0
+
+                                                            @endphp
+                                                                <tr>
+                                                                    <td tabindex="0">
+                                                                        <a href="{{ route('website.job.details', $job->slug) }}"  class="company">
+                                                                            <div  >
+                                                                                <p class="m-auto">{{ $job->title }}</p>
+                                                                            </div>
+                                                                        </a>
+                                                                    </td>
+                                                                    <td tabindex="0">
+                                                                        <div class="text-center" >
+                                                                           {{ $SoicalReads }}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td tabindex="0">
+                                                                        <div class="text-center" >
+                                                                           {{ $AggregatesReads }}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td tabindex="0">
+                                                                        <div class="text-center" >
+                                                                           {{ $websiteReads }}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td tabindex="0">
+                                                                        <div class="text-center">
+                                                                           {{  $websiteClicksThrough }}
+                                                                        </div>
+                                                                    </td>
+
+
+
+                                                                    <td tabindex="0">
+                                                                        @if(strtotime($job->deadline) < strtotime(now()))
+                                                                        <p>Expired</p>
+                                                                    @else
+                                                                        <p>Active</p>
+                                                                    @endif
+
+                                                                </td>
+                                                                    {{-- <td tabindex="0">
+                                                                        {{ date('j F, Y', strtotime($job->created_at)) }}
+                                                                    </td> --}}
+                                                                    <td style="text-align:end" tabindex="0">
+                                                                        @if($job->ongoing == 1)
+                                                                        On-going
+                                                                        @else
+                                                                        {{ date('j F, Y', strtotime($job->deadline)) }}
+
+                                                                        @endif
+                                                                    </td>
+
+
+
+
+
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+
+                                                    @else
+                                                    <div class="text-center">
+                                                        <p>Jobs not found</p>
+                                                    </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                      {{--  <div class="row">
                             <div class="col-xl-4 col-lg-6 col-md-6">
                                 <div class="single-feature-box">
                                     <div class="single-feature-data">
@@ -59,7 +277,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                         <div class="row">
                             <div class="col-12">
                                 <div class="tw-p-6 tw-rounded-lg ll-gray-border">
                                     <div class="row tw-space-y-3">
@@ -319,7 +537,7 @@
                                     @endif
                                 </tbody>
                             </table>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>
@@ -329,3 +547,237 @@
         </div>
     </div>
 @endsection
+
+@section('style')
+<style>
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 35px;
+            height: 19px;
+        }
+
+        /* Hide default HTML checkbox */
+        .switch input {
+            display: none;
+        }
+
+        /* The slider */
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 15px;
+            width: 15px;
+            left: 3px;
+            bottom: 2px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input.success:checked+.slider {
+            background-color: #28a745;
+        }
+
+        input:checked+.slider:before {
+            -webkit-transform: translateX(15px);
+            -ms-transform: translateX(15px);
+            transform: translateX(15px);
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+</style>
+    <!-- >=>Leaflet Map<=< -->
+    <x-map.leaflet.map_links />
+
+    @include('map::links')
+@endsection
+
+@section('script')
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.3/jspdf.plugin.autotable.min.js"></script>
+
+
+
+{{-- date oicker --}}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+
+<script>
+   $(function() {
+    $('#dateRange').daterangepicker({
+        opens: 'right',
+        autoUpdateInput: false,
+        locale: {
+            cancelLabel: 'Clear',
+            format: 'DD/MM/YYYY' // Update format here
+        },
+        ranges: {
+            'Today': [moment(), moment()],
+            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            'This Month': [moment().startOf('month'), moment().endOf('month')],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'Last 1 Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+            'Last 2 Months': [moment().subtract(2, 'months').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+            'Last 3 Months': [moment().subtract(3, 'months').startOf('month'), moment().endOf('month')],
+            'Last 6 Months': [moment().subtract(6, 'months').startOf('month'), moment().endOf('month')],
+            'Current Year': [moment().startOf('year'), moment()],
+            'Last 12 Months': [moment().subtract(12, 'months').startOf('month'), moment().endOf('month')]
+        }
+
+    }, function(start, end, label) {
+        $('#dateRange').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY')); // Update format here
+    });
+
+    $('#dateRange').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY')); // Update format here
+    });
+
+    $('#dateRange').on('cancel.daterangepicker', function(ev, picker) {
+        $(this).val('');
+    });
+
+    $('#filterButton').on('click', function() {
+        var dateRange = $('#dateRange').val();
+        if (!dateRange) return;
+
+        var dates = dateRange.split(' - ');
+        var startDate = dates[0];
+        var endDate = dates[1];
+
+        var url = new URL(window.location.href);
+        url.searchParams.set('start_date', startDate);
+        url.searchParams.set('end_date', endDate);
+        window.location.href = url.toString();
+    });
+});
+
+</script>
+
+<script>
+   // Initialize jsPDF instance with custom page size and orientation
+var doc = new jsPDF({
+    orientation: 'landscape', // Set orientation to landscape
+    unit: 'px', // Use pixels as units
+    format: [1100, 800] // Set custom page size width and height in pixels
+});
+
+// Function to convert date from YYYY-MM-DD to DD/MM/YYYY
+function formatDate(dateString) {
+    var date = new Date(dateString);
+    var day = ('0' + date.getDate()).slice(-2);
+    var month = ('0' + (date.getMonth() + 1)).slice(-2);
+    var year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
+var startDate = '{{ $startDate }}' ? formatDate('{{ $startDate }}') : null;
+var endDate = '{{ $endDate }}' ? formatDate('{{ $endDate }}') : null;
+var totalJobs = '{{ $totalJobs }}'; // Get the total number of jobs from Laravel
+
+// Add the heading and date range
+var title = '{{ $company->user->name }}';
+
+doc.text(title, 20, 30); // Add the title at position (20, 30)
+if (startDate && endDate) {
+    var dateRange = startDate + ' - ' + endDate;
+    doc.text('Date Range: ' + dateRange, 20, 65); // Add the date range at position (20, 50)
+}
+doc.text('Total Jobs: ' + totalJobs, 20, 50); // Add the total number of jobs at position (20, 70)
+
+// Your additional PDF generation code here...
+
+    // Add autotable plugin functionality
+    doc.autoTable({
+        html: '#my-table', // Use the table with id 'my-table'
+        ignoreColumns: '.ignore', // Specify columns to ignore if needed
+        startY: 70, // Start the table after the heading
+        headStyles: {
+            fillColor: [41, 128, 185], // Header background color (optional)
+            textColor: 255, // Header text color (optional)
+        },
+        bodyStyles: {
+            textColor: 0, // Body text color (optional)
+        },
+        columnStyles: {
+            0: { fontStyle: 'bold' }, // Make the first column bold (optional)
+        },
+        margin: { top: 10, left: 10, right: 10 }, // Set margin top, left, and right
+        didParseCell: function(data) {
+            if (data.row.index > 0 && data.column.index === 0) {
+                // Adjust height for multi-line content in the first column
+                var cellHeight = doc.getTextDimensions(data.cell.text, { maxWidth: data.cell.width }).h;
+                data.cell.height = cellHeight + doc.internal.getLineHeight() * 2; // Increase line height for better spacing
+            }
+        },
+        filename: '{{ $company->user->name }}_Report.pdf', // Set the filename for the PDF download
+    });
+
+    // Optionally, add a button to trigger the PDF download
+    $('#pdf').on('click', function() {
+        doc.save('{{ $company->user->name }}_Report.pdf');
+    });
+
+
+
+
+      // Send Email Button Click Handler
+    // Send Email Button Click Handler
+$('#sendEmailButton').on('click', function() {
+    // Show loading spinner
+    $('#buttonText').hide();
+    $('#buttonSpinner').show();
+
+    var startDate = '{{ $startDate }}';
+    var endDate = '{{ $endDate }}';
+
+    $.ajax({
+        url: '{{ route('send.email') }}',
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        data: {
+            userId: '{{ $company->id }}',
+            startDate: startDate,
+            endDate: endDate
+        },
+        success: function(response) {
+            alert('Email sent successfully!');
+        },
+        error: function(xhr) {
+            alert('Failed to send email.');
+        },
+        complete: function() {
+            // Hide loading spinner
+            $('#buttonSpinner').hide();
+            $('#buttonText').show();
+        }
+    });
+});
+
+</script>
+@endsection
+

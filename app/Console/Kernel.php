@@ -26,10 +26,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('reset:db')->everyMinute();
-        $schedule->command('reset:db')->everyThirtyMinutes();
+        // $schedule->command('reset:db')->everyThirtyMinutes();
         $schedule->command('jobs:updatestatus')
             ->dailyAt('13:00')->runInBackground();
-        $schedule->command('update:exchange-rates')->daily();
+        // $schedule->command('update:exchange-rates')->daily();
     }
 
     /**

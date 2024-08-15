@@ -43,7 +43,7 @@
                             @endphp
 
                             @if ($map == 'google-map')
-                    
+
                                 <div class="flex-grow-1 fromGroup has-icon banner-select no-border">
                                     <input type="text" id="searchInput" placeholder="{{ __('enter_location') }}"
                                         name="location" value="{{ $oldLocation }}" class="text-gray-900">
@@ -74,7 +74,8 @@
                                             'SA (South Australia)',
                                             'ACT (Australian Capital Territory)',
                                             'NZ (New Zealand)',
-                                             'WA (Western Australia)'
+                                             'WA (Western Australia)',
+                                             'New Zealand'
                                         ];
                                     @endphp
                                     @foreach($orderedStates as $stateName)
@@ -83,8 +84,8 @@
                                         @endif
                                     @endforeach
                                 </select>
-                                
-                                
+
+
                                 <div class="icon-badge">
                                     <x-svg.location-icon stroke="{{ $setting->frontend_primary_color }}" width="24" height="24" />
                                 </div>
@@ -96,13 +97,13 @@
                                 <input type="text" id="leaflet_search" placeholder="{{ __('enter_location') }}"
                                        name="location" value="{{ $oldLocation }}" autocomplete="off"
                                        class="text-gray-900">
-                                
+
                                 <div class="icon-badge">
                                     <x-svg.location-icon stroke="{{ $setting->frontend_primary_color }}" width="24" height="24" />
                                 </div>
-                               
+
                             </div> --}}
-                        
+
                             @endif
                             <div class="flex-grow-0">
                                 <button type="submit"
@@ -167,7 +168,7 @@
         </div>
     </section>
 
-        
+
     <!-- top companaies -->
     @if ($top_companies && count($top_companies) > 0)
         @if (!auth('user')->check() || (auth('user')->check() && authUser()->role == 'candidate'))
@@ -309,7 +310,7 @@
                                     </div>
                                     <div class="tw-flex tw-items-center tw-gap-2">
                                         {{-- <span>
-                                          
+
                                         </span> --}}
                                         <div class="iconbox-content">
                                             <div class="tw-mb-1 tw-inline-flex">
@@ -359,7 +360,7 @@
             <div class="container">
                 <div class="row tw-items-center">
                     <div class="col-lg-6">
-                        <img class="tw-rounded-lg" src="{{ asset('home_page.WEBP') }}"
+                        <img class="tw-rounded-lg" src="{{ asset('home_page.webp') }}"
                             alt="jobBox">
                     </div>
                     <div class="col-lg-6">
@@ -465,7 +466,7 @@
             </div>
             <div class="rt-spacer-100 rt-spacer-md-50"></div>
         </section>
-    
+
         <!-- google adsense area -->
         @if (advertisement_status('home_page_ad'))
             @if (advertisementCode('home_page_fat_ad_after_workingprocess_section'))
@@ -523,7 +524,7 @@
     $cms = App\Models\Cms::first('home_page_banner_image');
     $bannerImage = $cms->home_page_banner_image ?? 'frontend/assets/images/hero-bg-3.jpeg';
 @endphp
-  
+
 @endsection
 
 @section('css')
