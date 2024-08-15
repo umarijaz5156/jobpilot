@@ -82,7 +82,6 @@ trait JobAble
     protected function getJobs($request)
     {
         $filteredJobsQuery = $this->filterJobs($request)->latest();
-
         $featured_jobs = $this->filterJobs($request)->latest()->where('featured', 1)->take(18)->get();
         $jobs = $filteredJobsQuery->paginate(18)->withQueryString();
 
@@ -309,6 +308,7 @@ trait JobAble
                             $q->where('candidate_id', currentCandidate() ? currentCandidate()->id : '');
                         },
                     ])
+                    ->where('deadline', '>=', now())
                     ->active()
                     ->withoutEdited();
             } else {
@@ -323,6 +323,7 @@ trait JobAble
                             $q->where('candidate_id', '');
                         },
                     ])
+
                     ->withoutEdited()
                     ->active();
             }
@@ -336,7 +337,7 @@ trait JobAble
         });
     }
 
-    if ($request->has('state_id') && $request->state_id != null) {
+    if ($request->has('state_id') && $request->state_id != null && $request->state_id != 0) {
         $query->where('state_id', $request->state_id);
     }
 
@@ -492,6 +493,7 @@ trait JobAble
             $query = $query->orWhereIn('id', $userJobs->pluck('id'));
         }
     }
+    $query->where('deadline', '>=', now());
 
     return $query;
 }

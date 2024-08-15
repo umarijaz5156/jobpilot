@@ -5,3 +5,8 @@
 @endif
 @include('backend.layouts.partials.preloader')
 <input type="hidden" value="{{ current_country_code() }}" id="current_country_code">
+<style>
+    .pwa-install-btn{
+        display: none;
+    }
+    </style>

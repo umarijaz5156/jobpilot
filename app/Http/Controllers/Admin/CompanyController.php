@@ -74,7 +74,7 @@ class CompanyController extends Controller
             'jobs' => function ($query) use ($startDate, $endDate) {
                 $query->with('category', 'role', 'job_type', 'salary_type')
                     ->ongoingFirst(); // Use the updated scope here
-        
+
                 if ($startDate && $endDate) {
                     $query->where(function ($q) use ($startDate, $endDate) {
                         $q->whereBetween('created_at', [$startDate, $endDate])
@@ -89,10 +89,10 @@ class CompanyController extends Controller
             'user.socialInfo',
             'user.contactInfo'
         ])->findOrFail($id);
-        
+
         return view('backend.company.report', compact('company', 'startDate', 'endDate'));
     }
-    
+
     public function sendEmail(Request $request)
     {
         $startDate = $request->input('startDate');
@@ -103,7 +103,7 @@ class CompanyController extends Controller
             'jobs' => function ($query) use ($startDate, $endDate) {
                 $query->with('category', 'role', 'job_type', 'salary_type')
                       ->ongoingFirst(); // Use the updated scope here
-        
+
                 if ($startDate && $endDate) {
                     $query->where(function ($q) use ($startDate, $endDate) {
                         $q->whereBetween('created_at', [$startDate, $endDate])
@@ -130,7 +130,7 @@ class CompanyController extends Controller
             'endDate' => $endDate,
             'totalJobs' => $totalJobs,
         ])->setPaper('a3', 'landscape')->output(); // Set paper size to A3 and orientation to landscape
-    
+
 
         // Send the email
         Mail::to($user->user->email)->send(new UserPdfMail($user, $pdf));
@@ -138,7 +138,7 @@ class CompanyController extends Controller
         return response()->json(['message' => 'Email sent successfully!']);
     }
 
-    
+
 
     public function updateFeaturedC(Request $request)
     {
@@ -454,23 +454,23 @@ class CompanyController extends Controller
 
 
     public function UplaodVideo(){
-        
+
         $filePath = public_path('company_video.xlsx');
 
         // Convert the Excel file to an array
         $dataArray = Excel::toArray([], $filePath);
-    
+
         // The first sheet is typically at index 0
         $dataArray = $dataArray[0];
-    
+
         // Remove the header row
         array_shift($dataArray);
-    
+
         // Filter out rows where both columns are null
         $filteredData = array_filter($dataArray, function($row) {
             return !(is_null($row[0]) && is_null($row[1]));
         });
-    
+
         // Remove the width="930" and height="466" attributes from the iframe tags and ensure space between <iframe and src
         $cleanedData = array_map(function($row) {
             $row[1] = preg_replace('/\s*width="930"\s*/', '', $row[1]);
@@ -478,13 +478,13 @@ class CompanyController extends Controller
             $row[1] = preg_replace('/<iframe(?!\s)/', '<iframe ', $row[1]); // Add space after <iframe if missing
             return $row;
         }, $filteredData);
-    
+
         // dd($cleanedData);
 
         // foreach ($cleanedData as $data) {
         //     $userName = $data[0];
         //     $videoUrl = $data[1];
-    
+
         //     $user = User::where('name', $userName)->first();
         //     if ($user) {
         //         $company = Company::where('user_id', $user->id)->first();
@@ -494,7 +494,7 @@ class CompanyController extends Controller
         //         }
         //     }
         // }
-        
+
         dd('Company video URLs updated successfully.');
 
     }
@@ -508,16 +508,16 @@ class CompanyController extends Controller
 
          // Read the header
          $header = fgetcsv($file);
- 
+
          // Initialize an array to store the parsed data
          $dataArray = [];
- 
+
          // Loop through the file and parse each row
          while ($row = fgetcsv($file)) {
              $data = array_combine($header, $row);
              $dataArray[] = $data;
          }
- 
+
          fclose($file);
 
 
@@ -537,7 +537,7 @@ class CompanyController extends Controller
                 'name' => $name,
                 'username' => $username,
                 'email' => $data['email'],
-                'password' => bcrypt($data['email']), 
+                'password' => bcrypt($data['email']),
                 'role' => 'company',
             ]);
 
@@ -554,7 +554,7 @@ class CompanyController extends Controller
             $company->company()->update([
                 'industry_type_id' => 10,
                 'organization_type_id' => $organization_type_id,
-                'team_size_id' => null, 
+                'team_size_id' => null,
                 'establishment_date' => null,
                 'logo' => $logo_url,
                 'banner' => $banner_url,
@@ -591,14 +591,14 @@ class CompanyController extends Controller
                 if (!File::isDirectory(public_path($path))) {
                     File::makeDirectory(public_path($path), 0777, true, true);
                 }
-    
+
                 file_put_contents(public_path("$path/$imageName"), $response->body());
                 return "$path/$imageName";
             }
         } catch (\Exception $e) {
             $this->error("Failed to fetch image from $url: " . $e->getMessage());
         }
-    
+
         return null;
     }
 }
