@@ -19,6 +19,8 @@
     {{-- Custome css and js  --}}
     {!! $setting->header_css !!}
     {!! $setting->header_script !!}
+
+    <meta name="google-site-verification" content="nF-F6HDHc2xcISJrHi_3ZolCO0q9AkuvRSYdarxLvBs" />
 </head>
 
 <body dir="{{ langDirection() }}">
