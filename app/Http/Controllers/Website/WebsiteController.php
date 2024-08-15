@@ -66,7 +66,7 @@ class WebsiteController extends Controller
     public function getAllBoundaries()
     {
         try {
-            $response = $this->essApiService->callApi('https://essapi.ecsn.gov.au/Live/Geospatial/api/v1/public/Geospatial/AllBoundaries', 'GET');
+            $response = $this->essApiService->callApi('Live/Geospatial/api/v1/public/Geospatial/AllBoundaries', 'GET');
 
             return response()->json($response);
         } catch (\Exception $e) {
@@ -140,7 +140,7 @@ class WebsiteController extends Controller
                 "VacancySpecialGroup" => [],
             ];
 
-            $response = $this->essApiService->callApi('https://essapi.ecsn.gov.au/Live/Vacancy/api/v1/public/vacancies', 'POST', $data);
+            $response = $this->essApiService->callApi('Live/Vacancy/api/v1/public/vacancies', 'POST', $data);
 
             return response()->json($response);
         } catch (\Exception $e) {

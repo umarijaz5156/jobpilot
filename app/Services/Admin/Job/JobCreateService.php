@@ -7,7 +7,7 @@ use App\Models\Company;
 use App\Models\Job;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
-
+use App\Services\API\EssAPI\EssApiService;
 
 class JobCreateService
 {
@@ -100,6 +100,9 @@ class JobCreateService
         }
         if ($request->ispost_planningjobs === 'true') {
             $this->sendJobToPlanningJobs($jobCreated, $request->categories);
+        }
+        if ($request->ispost_govjobs === 'true') {
+            $this->sendJobToGovJobs($jobCreated, $request->categories);
         }
         
         
@@ -249,6 +252,89 @@ class JobCreateService
             return json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             \Log::error('Error sending job to second website: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    protected function sendJobToGovJobs($job, $categories)
+    {
+        $categoryId = $categories[0] ?? 3;
+        $companyData = Company::findOrFail($job->company_id);
+
+        $data = [
+            "Vacancy" => [
+                "VacancyId" => 0,
+                "VacancyStatusCode" => "O",
+                "VacancyTitle" => $job->title,
+                "VacancyDescription" => $job->description,
+                "PositionLimitCount" => $job->vacancies,
+                "PositionAvailableCount" => $job->vacancies,
+                "PositionFilledCount" => 0,
+                "ExpiryDate" => Carbon::parse($job->deadline)->format('Y-m-d\TH:i:sO'),
+                "EmployerId" => 0,
+                "EmployerContactId" => null,
+                "UserDefinedIdentifier" => "",
+                "HoursDescription" => null,
+                "RegionCode" => "4ACQ",
+                "AreaDisplayCode" => "",
+                "WorkTypeCode" => "P",
+                "TenureCode" => "P",
+                "ApplicationStyleCode" => "PSD",
+                "OccupationCategoryCode" => "542112",
+                "PlacementTypeCode" => "N",
+                "ClientTypeCode" => "98",
+                "IndgenousJobFlag" => true,
+                "JobJeopardyFlag" => false,
+                "AnticipateStartDate" => null,
+                "NetDisplayType" => "E",
+                "ContractTypeCode" => null,
+                "OrganisationCode" => "YYEC",
+                "SiteCode" => "QG38",
+                "VacancyType" => "H",
+                "VacancySourceCode" => null,
+                "SalaryDescription" => "SLNS",
+                "OpenStatusDate" => Carbon::now()->format('Y-m-d\TH:i:sO'),
+                "InactiveStatusDate" => null,
+                "SourceVacancyId" => null,
+                "SourceEmployerId" => null,
+                "WebUrl" => null,
+            ],
+            "VacancyAgent" => [
+                "AgentName" => $companyData->user->name,
+                "ContactName" => $companyData->user->name,
+                "EmailAddress" => $companyData->user->email,
+                "FaxNumber" => null,
+                "MobileNumber" => $companyData->user->mobile ?? "0000000000",
+                "OptimisticConcurrencyCheckValue" => null,
+                "PhoneNumber" => $companyData->user->phone ?? "0000000000",
+                "VacancyAgentId" => 0,
+                "VacancyId" => 0,
+            ],
+            "VacancyAddress" => [
+                "VacancyId" => 0,
+                "VacancyAddressId" => 0,
+                "AddressLine1" => $companyData->address,
+                "AddressLine2" => null,
+                "AddressLine3" => null,
+                "Suburb" => $companyData->suburb ?? 'BRADDON',
+                "StateCode" => $companyData->state_code ?? "ACT",
+                "PostCode" => $companyData->post_code ?? "2612",
+            ],
+            "VacancyLicence" => [],
+            "VacancySpecialGroup" => [],
+        ];
+
+        try {
+            $response = (new EssapiService())->callApi('Live/Vacancy/api/v1/public/vacancies', 'POST', $data);
+            \Log::info('Success posting job to GovJobs: ');
+            \Log::info($response);
+            $vacancyId = $response['Data']['Vacancy']['VacancyId'];
+            $job->essapi_job_id = $vacancyId;
+            $job->save();
+            // dd($vacancyId, $response);
+            return $response;
+        } catch (\Exception $e) {
+            \Log::error('Error sending job to GovJobs: ' . $e->getMessage());
             return null;
         }
     }

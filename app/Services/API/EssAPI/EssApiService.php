@@ -19,18 +19,76 @@ class EssApiService
         $this->client = new Client();
     }
 
+    // public function callApi($endpoint, $method = 'GET', $data = [], $apiIdentifier = 'default')
+    // {
+    //     $retries = 0;
+    //     $baseUrl = rtrim(env('ESS_API_BASE_URL'), '/');
+    //     $fullUrl = $baseUrl . '/' . ltrim($endpoint, '/');
+
+    //     while ($retries < self::RETRY_COUNT) {
+    //         try {
+    //             $token = $this->getToken($apiIdentifier);
+    //             $response = $this->client->request($method, $fullUrl, [
+    //                 'headers' => [
+    //                     'Authorization' => 'Bearer ' . $token,
+    //                     'Ocp-Apim-Subscription-Key' => env('ESS_API_OCP_APIM_SUBSCRIPTION_KEY'),
+    //                     'employment.gov.au-UniqueRequestMessageId' => Str::uuid()->toString()
+    //                 ],
+    //                 'json' => $data,
+    //             ]);
+
+    //             $statusCode = $response->getStatusCode();
+    //             $content = json_decode($response->getBody(), true);
+    //             // dd($data, $content);
+    //             if ($statusCode >= 400) {
+    //                 Log::error('API Error:', [
+    //                     'endpoint' => $fullUrl,
+    //                     'status_code' => $statusCode,
+    //                     'response' => $content
+    //                 ]);
+    //                 throw new \Exception('API Error');
+    //             }
+
+    //             return $content;
+    //         } catch (\GuzzleHttp\Exception\ClientException $e) {
+    //             dd($e->getMessage());
+    //             if ($e->getCode() === 401) {
+    //                 $retries++;
+    //                 $this->refreshToken($apiIdentifier);
+    //                 continue;
+    //             }
+
+    //             Log::error('API Call Failed:', [
+    //                 'endpoint' => $fullUrl,
+    //                 'exception' => $e->getMessage()
+    //             ]);
+    //             throw $e;
+    //         } catch (\Exception $e) {
+    //             Log::error('API Call Failed:', [
+    //                 'endpoint' => $fullUrl,
+    //                 'exception' => $e->getMessage()
+    //             ]);
+    //             throw $e;
+    //         }
+    //     }
+
+    //     throw new \Exception('Max retry limit reached');
+    // }
+
     public function callApi($endpoint, $method = 'GET', $data = [], $apiIdentifier = 'default')
     {
         $retries = 0;
+        $baseUrl = rtrim(env('ESS_API_BASE_URL'), '/');
+        $fullUrl = $baseUrl . '/' . ltrim($endpoint, '/');
 
         while ($retries < self::RETRY_COUNT) {
             try {
                 $token = $this->getToken($apiIdentifier);
-                $response = $this->client->request($method, $endpoint, [
+                $response = $this->client->request($method, $fullUrl, [
                     'headers' => [
                         'Authorization' => 'Bearer ' . $token,
-                        'Ocp-Apim-Subscription-Key' => env('OCP_APIM_SUBSCRIPTION_KEY'),
-                        'employment.gov.au-UniqueRequestMessageId' => Str::uuid()->toString()
+                        'Ocp-Apim-Subscription-Key' => env('ESS_API_OCP_APIM_SUBSCRIPTION_KEY'),
+                        'employment.gov.au-UniqueRequestMessageId' => Str::uuid()->toString(),
                     ],
                     'json' => $data,
                 ]);
@@ -40,30 +98,40 @@ class EssApiService
 
                 if ($statusCode >= 400) {
                     Log::error('API Error:', [
-                        'endpoint' => $endpoint,
+                        'endpoint' => $fullUrl,
                         'status_code' => $statusCode,
-                        'response' => $content
+                        'response' => $content,
                     ]);
                     throw new \Exception('API Error');
                 }
 
                 return $content;
             } catch (\GuzzleHttp\Exception\ClientException $e) {
-                if ($e->getCode() === 401) {
+                $response = $e->getResponse();
+                $statusCode = $response ? $response->getStatusCode() : null;
+                $responseBody = $response ? $response->getBody()->getContents() : null;
+
+                Log::error('API Client Exception:', [
+                    'endpoint' => $fullUrl,
+                    'status_code' => $statusCode,
+                    'response' => $responseBody,
+                    'exception' => $e->getMessage(),
+                ]);
+
+                if ($statusCode === 401) {
+
+                    dd('dfrf');
                     $retries++;
                     $this->refreshToken($apiIdentifier);
                     continue;
                 }
 
-                Log::error('API Call Failed:', [
-                    'endpoint' => $endpoint,
-                    'exception' => $e->getMessage()
-                ]);
+                dd($e->getMessage(), $responseBody); // This will give you more context
                 throw $e;
             } catch (\Exception $e) {
                 Log::error('API Call Failed:', [
-                    'endpoint' => $endpoint,
-                    'exception' => $e->getMessage()
+                    'endpoint' => $fullUrl,
+                    'exception' => $e->getMessage(),
                 ]);
                 throw $e;
             }
@@ -88,13 +156,13 @@ class EssApiService
     protected function fetchNewToken($apiIdentifier)
     {
         try {
-            $response = $this->client->post(env('OAUTH2_TOKEN_ENDPOINT'), [
+            $response = $this->client->post(env('ESS_API_OAUTH2_TOKEN_ENDPOINT'), [
                 'form_params' => [
-                    'resource' => env('WEB_API_RESOURCE_IDENTIFIER'),
-                    'client_id' => env('CLIENT_ID'),
-                    'client_assertion_type' => env('CLIENT_ASSERTION_TYPE'),
-                    'client_assertion' => env('CLIENT_ASSERTION'),
-                    'grant_type' => env('GRANT_TYPE'),
+                    'resource' => env('ESS_API_WEB_API_RESOURCE_IDENTIFIER'),
+                    'client_id' => env('ESS_API_CLIENT_ID'),
+                    'client_assertion_type' => env('ESS_API_CLIENT_ASSERTION_TYPE'),
+                    'client_assertion' => env('ESS_API_CLIENT_ASSERTION'),
+                    'grant_type' => env('ESS_API_GRANT_TYPE'),
                 ],
             ]);
 
