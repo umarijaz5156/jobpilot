@@ -332,3 +332,6 @@ Route::get('/jobs/engineeringjobshub', [JobController::class, 'Engineeringjobshu
 
 // planningjobs
 Route::get('/jobs/planningjobs', [JobController::class, 'planningjobsSelectedJobs'])->name('jobs.planningjobs');
+
+// care site
+Route::get('/jobs/carejobs', [JobController::class, 'CarejobsSelectedJobs'])->name('jobs.carejobs');

@@ -218,50 +218,56 @@ class JobController extends Controller
            $categories = $job->selectedCategories()->pluck('category_id')->toArray();
            $categoryId = $categories[0] ?? 3;
 
+           try {
+            $response = $client->post($websiteUrl, [
+                'json' => [
+                    'title' => $job->title,
+                    'company_email' => $companyData->user->email,
+                    'company_name' => $job->company_name,
+                    'category_id' => $categoryId,
+                    'categories' => $categories,
+                    'state_id' => $job->state_id,
+                    'role_id' => $job->role_id,
+                    'salary_mode' => $job->salary_mode,
+                    'custom_salary' => $job->custom_salary,
+                    'min_salary' => $job->min_salary,
+                    'max_salary' => $job->max_salary,
+                    'salary_type' => $job->salary_type_id,
+                    'deadline' => $job->deadline,
+                    'education' => $job->education_id,
+                    'experience' => $job->experience_id,
+                    'job_type' => $job->job_type_id,
+                    'vacancies' => $job->vacancies,
+                    'apply_on' => $job->apply_on,
+                    'apply_email' => $job->apply_email,
+                    'apply_url' => $job->apply_url,
+                    'description' => $job->description,
+                    'featured' => $job->featured,
+                    'highlight' => $job->highlight,
+                    'featured_until' => $job->featured_until,
+                    'highlight_until' => $job->highlight_until,
+                    'is_remote' => $job->is_remote,
+                    'status' => 'active',
 
-               $response = $client->post($websiteUrl, [
-                   'json' => [
-                       'title' => $job->title,
-                       'company_email' => $companyData->user->email,
-                       'company_name' => $job->company_name,
-                       'category_id' => $categoryId,
-                       'categories' => $categories,
-                       'state_id' => $job->state_id,
-                       'role_id' => $job->role_id,
-                       'salary_mode' => $job->salary_mode,
-                       'custom_salary' => $job->custom_salary,
-                       'min_salary' => $job->min_salary,
-                       'max_salary' => $job->max_salary,
-                       'salary_type' => $job->salary_type_id,
-                       'deadline' => $job->deadline,
-                       'education' => $job->education_id,
-                       'experience' => $job->experience_id,
-                       'job_type' => $job->job_type_id,
-                       'vacancies' => $job->vacancies,
-                       'apply_on' => $job->apply_on,
-                       'apply_email' => $job->apply_email,
-                       'apply_url' => $job->apply_url,
-                       'description' => $job->description,
-                       'featured' => $job->featured,
-                       'highlight' => $job->highlight,
-                       'featured_until' => $job->featured_until,
-                       'highlight_until' => $job->highlight_until,
-                       'is_remote' => $job->is_remote,
-                       'status' => 'active',
+                     // Location-related fields using $job properties
+                     'address' => $job->address,
+                     'neighborhood' => $job->neighborhood ?? '',
+                     'locality' => $job->locality ?? '',
+                     'place' => $job->place ?? '',
+                     'district' => $job->district ?? '',
+                     'postcode' => $job->postcode ?? '',
+                     'region' => $job->region ?? '',
+                     'country' => $job->country ?? '',
+                     'long' => $job->long ?? '',
+                     'lat' => $job->lat ?? '',
+                     'exact_location' => $job->exact_location ?? '',
+                ]
+            ]);
 
-                       'address' => $request->address ?? '',
-                       'neighborhood' => $request->neighborhood ?? '',
-                       'locality' => $request->locality ?? '',
-                       'place' => $request->place ?? '',
-                       'district' => $request->district ?? '',
-                       'postcode' => $request->postcode ?? '',
-                       'region' => $request->region ?? '',
-                       'country' => $request->country ?? '',
-                       'long' => $request->long ?? '',
-                       'lat' => $request->lat ?? '',
-                       'exact_location' => $request->exact_location ?? '',
-                   ]
-               ]);
+            // return json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+
+        }
 
             //    return json_decode($response->getBody(), true);
 
@@ -287,49 +293,56 @@ class JobController extends Controller
            $categoryId = $categories[0] ?? 3;
 
 
-               $response = $client->post($websiteUrl, [
-                   'json' => [
-                       'title' => $job->title,
-                       'company_email' => $companyData->user->email,
-                       'company_name' => $job->company_name,
-                       'category_id' => $categoryId,
-                       'categories' => $categories,
-                       'state_id' => $job->state_id,
-                       'role_id' => $job->role_id,
-                       'salary_mode' => $job->salary_mode,
-                       'custom_salary' => $job->custom_salary,
-                       'min_salary' => $job->min_salary,
-                       'max_salary' => $job->max_salary,
-                       'salary_type' => $job->salary_type_id,
-                       'deadline' => $job->deadline,
-                       'education' => $job->education_id,
-                       'experience' => $job->experience_id,
-                       'job_type' => $job->job_type_id,
-                       'vacancies' => $job->vacancies,
-                       'apply_on' => $job->apply_on,
-                       'apply_email' => $job->apply_email,
-                       'apply_url' => $job->apply_url,
-                       'description' => $job->description,
-                       'featured' => $job->featured,
-                       'highlight' => $job->highlight,
-                       'featured_until' => $job->featured_until,
-                       'highlight_until' => $job->highlight_until,
-                       'is_remote' => $job->is_remote,
-                       'status' => 'active',
+           try {
+            $response = $client->post($websiteUrl, [
+                'json' => [
+                    'title' => $job->title,
+                    'company_email' => $companyData->user->email,
+                    'company_name' => $job->company_name,
+                    'category_id' => $categoryId,
+                    'categories' => $categories,
+                    'state_id' => $job->state_id,
+                    'role_id' => $job->role_id,
+                    'salary_mode' => $job->salary_mode,
+                    'custom_salary' => $job->custom_salary,
+                    'min_salary' => $job->min_salary,
+                    'max_salary' => $job->max_salary,
+                    'salary_type' => $job->salary_type_id,
+                    'deadline' => $job->deadline,
+                    'education' => $job->education_id,
+                    'experience' => $job->experience_id,
+                    'job_type' => $job->job_type_id,
+                    'vacancies' => $job->vacancies,
+                    'apply_on' => $job->apply_on,
+                    'apply_email' => $job->apply_email,
+                    'apply_url' => $job->apply_url,
+                    'description' => $job->description,
+                    'featured' => $job->featured,
+                    'highlight' => $job->highlight,
+                    'featured_until' => $job->featured_until,
+                    'highlight_until' => $job->highlight_until,
+                    'is_remote' => $job->is_remote,
+                    'status' => 'active',
 
-                       'address' => $request->address ?? '',
-                       'neighborhood' => $request->neighborhood ?? '',
-                       'locality' => $request->locality ?? '',
-                       'place' => $request->place ?? '',
-                       'district' => $request->district ?? '',
-                       'postcode' => $request->postcode ?? '',
-                       'region' => $request->region ?? '',
-                       'country' => $request->country ?? '',
-                       'long' => $request->long ?? '',
-                       'lat' => $request->lat ?? '',
-                       'exact_location' => $request->exact_location ?? '',
-                   ]
-               ]);
+                     // Location-related fields using $job properties
+                     'address' => $job->address,
+                     'neighborhood' => $job->neighborhood ?? '',
+                     'locality' => $job->locality ?? '',
+                     'place' => $job->place ?? '',
+                     'district' => $job->district ?? '',
+                     'postcode' => $job->postcode ?? '',
+                     'region' => $job->region ?? '',
+                     'country' => $job->country ?? '',
+                     'long' => $job->long ?? '',
+                     'lat' => $job->lat ?? '',
+                     'exact_location' => $job->exact_location ?? '',
+                ]
+            ]);
+
+            // return json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+
+        }
 
             //    return json_decode($response->getBody(), true);
 
@@ -355,49 +368,56 @@ class JobController extends Controller
            $categoryId = $categories[0] ?? 3;
 
 
-               $response = $client->post($websiteUrl, [
-                   'json' => [
-                       'title' => $job->title,
-                       'company_email' => $companyData->user->email,
-                       'company_name' => $job->company_name,
-                       'category_id' => $categoryId,
-                       'categories' => $categories,
-                       'state_id' => $job->state_id,
-                       'role_id' => $job->role_id,
-                       'salary_mode' => $job->salary_mode,
-                       'custom_salary' => $job->custom_salary,
-                       'min_salary' => $job->min_salary,
-                       'max_salary' => $job->max_salary,
-                       'salary_type' => $job->salary_type_id,
-                       'deadline' => $job->deadline,
-                       'education' => $job->education_id,
-                       'experience' => $job->experience_id,
-                       'job_type' => $job->job_type_id,
-                       'vacancies' => $job->vacancies,
-                       'apply_on' => $job->apply_on,
-                       'apply_email' => $job->apply_email,
-                       'apply_url' => $job->apply_url,
-                       'description' => $job->description,
-                       'featured' => $job->featured,
-                       'highlight' => $job->highlight,
-                       'featured_until' => $job->featured_until,
-                       'highlight_until' => $job->highlight_until,
-                       'is_remote' => $job->is_remote,
-                       'status' => 'active',
+           try {
+            $response = $client->post($websiteUrl, [
+                'json' => [
+                    'title' => $job->title,
+                    'company_email' => $companyData->user->email,
+                    'company_name' => $job->company_name,
+                    'category_id' => $categoryId,
+                    'categories' => $categories,
+                    'state_id' => $job->state_id,
+                    'role_id' => $job->role_id,
+                    'salary_mode' => $job->salary_mode,
+                    'custom_salary' => $job->custom_salary,
+                    'min_salary' => $job->min_salary,
+                    'max_salary' => $job->max_salary,
+                    'salary_type' => $job->salary_type_id,
+                    'deadline' => $job->deadline,
+                    'education' => $job->education_id,
+                    'experience' => $job->experience_id,
+                    'job_type' => $job->job_type_id,
+                    'vacancies' => $job->vacancies,
+                    'apply_on' => $job->apply_on,
+                    'apply_email' => $job->apply_email,
+                    'apply_url' => $job->apply_url,
+                    'description' => $job->description,
+                    'featured' => $job->featured,
+                    'highlight' => $job->highlight,
+                    'featured_until' => $job->featured_until,
+                    'highlight_until' => $job->highlight_until,
+                    'is_remote' => $job->is_remote,
+                    'status' => 'active',
 
-                       'address' => $request->address ?? '',
-                       'neighborhood' => $request->neighborhood ?? '',
-                       'locality' => $request->locality ?? '',
-                       'place' => $request->place ?? '',
-                       'district' => $request->district ?? '',
-                       'postcode' => $request->postcode ?? '',
-                       'region' => $request->region ?? '',
-                       'country' => $request->country ?? '',
-                       'long' => $request->long ?? '',
-                       'lat' => $request->lat ?? '',
-                       'exact_location' => $request->exact_location ?? '',
-                   ]
-               ]);
+                     // Location-related fields using $job properties
+                     'address' => $job->address,
+                     'neighborhood' => $job->neighborhood ?? '',
+                     'locality' => $job->locality ?? '',
+                     'place' => $job->place ?? '',
+                     'district' => $job->district ?? '',
+                     'postcode' => $job->postcode ?? '',
+                     'region' => $job->region ?? '',
+                     'country' => $job->country ?? '',
+                     'long' => $job->long ?? '',
+                     'lat' => $job->lat ?? '',
+                     'exact_location' => $job->exact_location ?? '',
+                ]
+            ]);
+
+            // return json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+
+        }
 
             //    return json_decode($response->getBody(), true);
 
@@ -405,5 +425,83 @@ class JobController extends Controller
 
         return true;
     }
+
+
+    // CarejobsSelectedJobs
+    public function CarejobsSelectedJobs(Request $request){
+
+
+        foreach ($request->ids as $jobId) {
+
+           $job = Job::where('id',$jobId)->first();
+
+
+           $client = new Client();
+           $websiteUrl = env('WEBSITE_URL_JOB_CareJobs');
+
+           $companyData = Company::findOrFail($job->company_id);
+           $categories = $job->selectedCategories()->pluck('category_id')->toArray();
+           $categoryId = $categories[0] ?? 3;
+
+               try {
+                $response = $client->post($websiteUrl, [
+                    'json' => [
+                        'title' => $job->title,
+                        'company_email' => $companyData->user->email,
+                        'company_name' => $job->company_name,
+                        'category_id' => $categoryId,
+                        'categories' => $categories,
+                        'state_id' => $job->state_id,
+                        'role_id' => $job->role_id,
+                        'salary_mode' => $job->salary_mode,
+                        'custom_salary' => $job->custom_salary,
+                        'min_salary' => $job->min_salary,
+                        'max_salary' => $job->max_salary,
+                        'salary_type' => $job->salary_type_id,
+                        'deadline' => $job->deadline,
+                        'education' => $job->education_id,
+                        'experience' => $job->experience_id,
+                        'job_type' => $job->job_type_id,
+                        'vacancies' => $job->vacancies,
+                        'apply_on' => $job->apply_on,
+                        'apply_email' => $job->apply_email,
+                        'apply_url' => $job->apply_url,
+                        'description' => $job->description,
+                        'featured' => $job->featured,
+                        'highlight' => $job->highlight,
+                        'featured_until' => $job->featured_until,
+                        'highlight_until' => $job->highlight_until,
+                        'is_remote' => $job->is_remote,
+                        'status' => 'active',
+
+                         // Location-related fields using $job properties
+                         'address' => $job->address,
+                         'neighborhood' => $job->neighborhood ?? '',
+                         'locality' => $job->locality ?? '',
+                         'place' => $job->place ?? '',
+                         'district' => $job->district ?? '',
+                         'postcode' => $job->postcode ?? '',
+                         'region' => $job->region ?? '',
+                         'country' => $job->country ?? '',
+                         'long' => $job->long ?? '',
+                         'lat' => $job->lat ?? '',
+                         'exact_location' => $job->exact_location ?? '',
+                    ]
+                ]);
+
+                // return json_decode($response->getBody(), true);
+            } catch (\Exception $e) {
+
+            }
+
+
+            //    return json_decode($response->getBody(), true);
+
+        }
+
+        return true;
+    }
+
+
 
 }
