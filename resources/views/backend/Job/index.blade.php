@@ -147,7 +147,11 @@
                                 <span id="button-text-2">{{ __('Planning Jobs') }}</span>
                                 <span id="button-loader-2" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                             </button>
-                            
+                            <button id="carejobs" class="btn btn-primary ml-3">
+                                <span id="button-text-2">{{ __('Care Worker Jobs') }}</span>
+                                <span id="button-loader-2" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            </button>
+
                         </div>
                     </div>
                     <div class="row">
@@ -156,6 +160,7 @@
                             <table class="ll-table table table-hover text-nowrap">
                                 <thead>
                                     <tr>
+                                        <th width="5%">{{ __('id') }}</th>
                                         <th width="5%">{{ __('job') }}</th>
                                         <th width="10%">{{ __('category') }}/{{ __('role') }}</th>
                                         <th width="10%">{{ __('salary') }}</th>
@@ -538,7 +543,7 @@
                     });
                 });
 
-                 
+
                    // engineeringjobshub
                 $('#engineeringjobshub').click(function() {
                         var $button = $(this);
@@ -579,11 +584,11 @@
                         }
                     });
                  });
-                 
+
                 });
 
                 // planning jobs
-                
+
                 $('#planningjobs').click(function() {
                         var $button = $(this);
                         var $buttonText = $button.find('#button-text-2');
@@ -623,8 +628,52 @@
                         }
                     });
                  });
-                 
-               
+
+
+                //  carejobs
+
+                 $('#carejobs').click(function() {
+                        var $button = $(this);
+                        var $buttonText = $button.find('#button-text-2');
+                        var $buttonLoader = $button.find('#button-loader-2');
+
+                        // Show the loader and hide the text
+                        $buttonText.addClass('d-none');
+                        $buttonLoader.removeClass('d-none');
+
+                        var selectedJobsE = [];
+                    $('.job-checkbox:checked').each(function() {
+                        selectedJobsE.push($(this).val());
+                    });
+
+                    function showSuccessMessage(message) {
+                        toastr.success(message);
+                    }
+                    // AJAX request to delete selected jobs
+                    $.ajax({
+                        url: '{{ route('jobs.carejobs') }}',
+                        data: {
+                            ids: selectedJobsE
+                        },
+                        success: function(response) {
+
+                            showSuccessMessage('Job Posted on the Care Worker jobs Site successfully');
+                             // Hide the loader and show the text again
+                             $buttonLoader.addClass('d-none');
+                            $buttonText.removeClass('d-none');
+                            setTimeout(function() {
+                                window.location.reload()
+
+                        }, 2000);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error(error);
+                        }
+                    });
+                 });
+
+
+
 
         });
     </script>

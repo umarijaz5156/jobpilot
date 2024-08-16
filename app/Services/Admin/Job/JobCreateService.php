@@ -101,7 +101,10 @@ class JobCreateService
         if ($request->ispost_planningjobs === 'true') {
             $this->sendJobToPlanningJobs($jobCreated, $request->categories);
         }
-      
+        if ($request->ispost_carejobs === 'true') {
+            $this->sendJobToCareWorkerJobs($jobCreated, $request->categories);
+        }
+
         if ($request->ispost_govjobs === 'true') {
             $this->sendJobToGovJobs($jobCreated, $request->categories);
         }
@@ -294,6 +297,70 @@ class JobCreateService
             return null;
         }
     }
+
+    protected function sendJobToCareWorkerJobs($job,$categories)
+    {
+        $client = new Client();
+        $categoryId = $categories[0] ?? 3;
+         $websiteUrl = env('WEBSITE_URL_JOB_CareJobs');
+
+         $companyData = Company::findOrfail($job->company_id);
+
+
+        try {
+            $response = $client->post($websiteUrl, [
+                'json' => [
+                    'title' => $job->title,
+                    'company_email' => $companyData->user->email,
+                    'company_name' => $job->company_name,
+                    'category_id' => $categoryId,
+                    'categories' => $categories,
+                    'state_id' => $job->state_id,
+                    'role_id' => $job->role_id,
+                    'salary_mode' => $job->salary_mode,
+                    'custom_salary' => $job->custom_salary,
+                    'min_salary' => $job->min_salary,
+                    'max_salary' => $job->max_salary,
+                    'salary_type' => $job->salary_type_id,
+                    'deadline' => $job->deadline,
+                    'education' => $job->education_id,
+                    'experience' => $job->experience_id,
+                    'job_type' => $job->job_type_id,
+                    'vacancies' => $job->vacancies,
+                    'apply_on' => $job->apply_on,
+                    'apply_email' => $job->apply_email,
+                    'apply_url' => $job->apply_url,
+                    'description' => $job->description,
+                    'featured' => $job->featured,
+                    'highlight' => $job->highlight,
+                    'featured_until' => $job->featured_until,
+                    'highlight_until' => $job->highlight_until,
+                    'is_remote' => $job->is_remote,
+                    'status' => 'active',
+
+                     // Location-related fields using $job properties
+                     'address' => $job->address,
+                     'neighborhood' => $job->neighborhood ?? '',
+                     'locality' => $job->locality ?? '',
+                     'place' => $job->place ?? '',
+                     'district' => $job->district ?? '',
+                     'postcode' => $job->postcode ?? '',
+                     'region' => $job->region ?? '',
+                     'country' => $job->country ?? '',
+                     'long' => $job->long ?? '',
+                     'lat' => $job->lat ?? '',
+                     'exact_location' => $job->exact_location ?? '',
+                ]
+            ]);
+
+            return json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            \Log::error('Error sending job to second website: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+
 
     protected function sendJobToGovJobs($job, $categories)
     {
