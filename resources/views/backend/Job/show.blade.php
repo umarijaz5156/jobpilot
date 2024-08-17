@@ -13,6 +13,11 @@
                     <div class="ll-card-header d-flex justify-content-between align-items-center">
                         <h3 class="ll-card-title line-height-36">{{ $job->title }}</h3>
                         <div>
+                            @if ($essApiJobDetails)
+                                <a href="#" class="px-1" data-toggle="modal" data-target="#apiJobDetailsModal">
+                                    <x-svg.eye-icon />
+                                </a>
+                            @endif
                             <a href="{{ route('job.edit', $job->id) }}">
                                 <x-svg.table-edit />
                             </a>
@@ -237,6 +242,157 @@
             </div>
         </div>
     </div>
+    <!-- API Job Details Modal -->
+    <div class="modal fade" id="apiJobDetailsModal" tabindex="-1" role="dialog"
+        aria-labelledby="apiJobDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="apiJobDetailsModalLabel">{{ __('API Job Details') }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @if ($essApiJobDetails)
+                        <dl class="row">
+                            <dt class="col-sm-4">{{ __('Vacancy ID:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['VacancyId'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Shared Flag:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['SharedFlag'] ? __('Yes') : __('No') }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Resend Flag:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['ResendFlag'] ? __('Yes') : __('No') }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Email Address:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['EmailAddress'] ?? '-' }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Vacancy Status Code:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['VacancyStatusCode'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Vacancy Title:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['VacancyTitle'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Vacancy Description:') }}</dt>
+                            <dd class="col-sm-8 description-text">
+                                    {{ $essApiJobDetails['VacancyDescription'] }}
+                            </dd>
+
+                            <dt class="col-sm-4">{{ __('Position Limit Count:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['PositionLimitCount'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Position Available Count:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['PositionAvailableCount'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Position Filled Count:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['PositionFilledCount'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Expiry Date:') }}</dt>
+                            <dd class="col-sm-8">{{ date('D, d M Y', strtotime($essApiJobDetails['ExpiryDate'])) }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Employer ID:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['EmployerId'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Employer Template ID:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['EmployerTemplateId'] ?? '-' }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Broker Employer ID:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['BrokerEmployerId'] ?? '-' }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Employer Contact ID:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['EmployerContactId'] ?? '-' }}</dd>
+
+                            <dt class="col-sm-4">{{ __('User Defined Identifier:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['UserDefinedIdentifier'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Hours Description:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['HoursDescription'] ?? '-' }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Region Code:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['RegionCode'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Area Display Code:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['AreaDisplayCode'] ?? '-' }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Work Type Code:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['WorkTypeCode'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Tenure Code:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['TenureCode'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Application Style Code:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['ApplicationStyleCode'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Occupation Category Code:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['OccupationCategoryCode'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Placement Type Code:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['PlacementTypeCode'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Client Type Code:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['ClientTypeCode'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Indigenous Job Flag:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['IndgenousJobFlag'] ? __('Yes') : __('No') }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Job Jeopardy Flag:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['JobJeopardyFlag'] ? __('Yes') : __('No') }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Anticipated Start Date:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['AnticipateStartDate'] ? date('D, d M Y', strtotime($essApiJobDetails['AnticipateStartDate'])) : '-' }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Net Display Type:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['NetDisplayType'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Contract Type Code:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['ContractTypeCode'] ?? '-' }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Created On:') }}</dt>
+                            <dd class="col-sm-8">{{ date('D, d M Y H:i:s', strtotime($essApiJobDetails['CreatedOn'])) }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Created By:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['CreatedBy'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Updated On:') }}</dt>
+                            <dd class="col-sm-8">{{ date('D, d M Y H:i:s', strtotime($essApiJobDetails['UpdatedOn'])) }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Updated By:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['UpdatedBy'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Organisation Code:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['OrganisationCode'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Site Code:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['SiteCode'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Vacancy Type:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['VacancyType'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Vacancy Source Code:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['VacancySourceCode'] ?? '-' }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Salary Description:') }}</dt>
+                            <dd class="col-sm-8">{{ $essApiJobDetails['SalaryDescription'] }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Open Status Date:') }}</dt>
+                            <dd class="col-sm-8">{{ date('D, d M Y', strtotime($essApiJobDetails['OpenStatusDate'])) }}</dd>
+
+                            <dt class="col-sm-4">{{ __('Inactive Status Date:') }}</dt>
+                            <dd class="col-sm-8">{{ date('D, d M Y', strtotime($essApiJobDetails['InactiveStatusDate'])) }}</dd>
+                        </dl>
+                    @else
+                        <p>{{ __('No details available from the API.') }}</p>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End of API Job Details Modal -->
+
 @endsection
 
 @section('style')
@@ -324,6 +480,9 @@
             border-radius: 50%;
             margin-right: 8px;
             background-color: red;
+        }
+        .description-text {
+            word-wrap: break-word;
         }
     </style>
     <!-- >=>Leaflet Map<=< -->
