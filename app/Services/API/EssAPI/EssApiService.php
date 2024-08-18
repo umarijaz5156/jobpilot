@@ -119,14 +119,12 @@ class EssApiService
                 ]);
 
                 if ($statusCode === 401) {
-
-                    dd('dfrf');
                     $retries++;
                     $this->refreshToken($apiIdentifier);
                     continue;
                 }
 
-                dd($e->getMessage(), $responseBody); // This will give you more context
+                // dd($e->getMessage(), $data, $responseBody); // This will give you more context
                 throw $e;
             } catch (\Exception $e) {
                 Log::error('API Call Failed:', [

@@ -276,7 +276,7 @@
 
                             <dt class="col-sm-4">{{ __('Vacancy Description:') }}</dt>
                             <dd class="col-sm-8 description-text">
-                                    {{ $essApiJobDetails['VacancyDescription'] }}
+                                    {!! $essApiJobDetails['VacancyDescription'] !!}
                             </dd>
 
                             <dt class="col-sm-4">{{ __('Position Limit Count:') }}</dt>
