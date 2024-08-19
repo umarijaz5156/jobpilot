@@ -5,6 +5,8 @@ namespace App\Services\Admin\Job;
 use App\Http\Traits\JobAble;
 use App\Models\Job;
 use Carbon\Carbon;
+use App\Services\API\EssAPI\EssApiService;
+use App\Models\Company;
 
 class JobUpdateService
 {
@@ -90,6 +92,64 @@ class JobUpdateService
         updateMap($job);
         $job->selectedCategories()->sync($request->categories);
 
+        // Check if this is a government job and update it
+        if ($job->essapi_job_id) {
+            $this->sendUpdatedJobToGov($job);
+        }
+
         return $job;
     }
+
+    /**
+     * Send the updated job to the government API
+     *
+     * @param Job $job
+     */
+    protected function sendUpdatedJobToGov($job)
+    {
+        $companyData = Company::findOrFail($job->company_id);
+
+        $data = [
+            "VacancyId" => $job->essapi_job_id,
+            "OrganisationCode" => "YYEC",
+            "SiteCode" => "QG38",
+            "EmployerId" => $companyData->employer_id,
+            "EmployerContactId" => $companyData->employer_contact_id,
+            "VacancyTitle" => $job->title,
+            "OccupationCategoryCode" => "542112",
+            "VacancyDescription" => $job->description,
+            "PositionLimitCount" => $job->vacancies,
+            "WorkTypeCode" => "P",
+            "TenureCode" => "P",
+            "ApplicationStyleCode" => "PSD",
+            "ClientTypeCode" => "98",
+            "PlacementTypeCode" => "N",
+            "HoursDescription" => $job->hours_description,
+            "IndgenousJobFlag" => true,
+            "JobJeopardyFlag" => false,
+            "SalaryDescription" => "SLNS",
+            "ContractTypeCode" => null,
+            "RegionCode" => "4ACQ",
+            "ExpiryDate" => Carbon::parse($job->deadline)->format('Y-m-d\TH:i:sO'),
+            "UpdatedBy" => auth()->user()->username,
+            "UpdatedOn" => Carbon::now()->format('Y-m-d\TH:i:sO'),
+            "VacancyType" => "H",
+            "CreatedOn" => $job->created_at->format('Y-m-d\TH:i:sO'),
+            "CreatedBy" => $job->created_by,
+        ];
+
+        try {
+            $response = (new EssapiService())->callApi('Live/Vacancy/api/v1/public/vacancies', 'PUT', $data);
+            // dd($response);
+            \Log::info('Success updating job on GovJobs: ');
+            \Log::info($response);
+
+            return $response;
+        } catch (\Exception $e) {
+            \Log::error('Error updating job on GovJobs: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+
 }

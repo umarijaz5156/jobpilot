@@ -364,15 +364,24 @@ class JobCreateService
 
     protected function sendJobToGovJobs($job, $categories)
     {
-        $categoryId = $categories[0] ?? 3;
         $companyData = Company::findOrFail($job->company_id);
+
+        $characterLimit = env('ESS_API_JOB_DESCRIPTION_CHAR_LIMIT', 50);
+        $description = strip_tags($job->description); // Remove HTML tags
+        $descriptionWords = explode(' ', $description);
+        if (count($descriptionWords) > $characterLimit) {
+            $description = implode(' ', array_slice($descriptionWords, 0, $characterLimit)) . '...';
+        }
+
+        $seeMoreLink = "<a href='" . url('/job/' . $job->slug) . "'>See More</a>";
+        $description .= ' ' . $seeMoreLink;
 
         $data = [
             "Vacancy" => [
                 "VacancyId" => 0,
                 "VacancyStatusCode" => "O",
                 "VacancyTitle" => $job->title,
-                "VacancyDescription" => $job->description,
+                "VacancyDescription" => $description,
                 "PositionLimitCount" => $job->vacancies,
                 "PositionAvailableCount" => $job->vacancies,
                 "PositionFilledCount" => 0,

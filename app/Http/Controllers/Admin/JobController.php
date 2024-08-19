@@ -34,14 +34,18 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Modules\Location\Entities\Country;
+use App\Services\API\EssAPI\EssApiService;
 
 class JobController extends Controller
 {
     use JobAble;
 
-    public function __construct()
+    public $essApiService;
+
+    public function __construct(EssApiService $essApiService)
     {
         $this->middleware('access_limitation')->only(['destroy', 'clone']);
+        $this->essApiService = $essApiService;
     }
 
     /**
@@ -177,7 +181,18 @@ class JobController extends Controller
         try {
             abort_if(!userCan('job.view'), 403);
 
-            return view('backend.Job.show', compact('job'));
+            $essApiJobDetails = null;
+            if ($job->essapi_job_id) {
+                $endpoint = 'Live/Vacancy/api/v1/public/vacancies/' . $job->essapi_job_id;
+                $apiResponse = $this->essApiService->callApi($endpoint, 'GET');
+
+                if (isset($apiResponse['Code']) && $apiResponse['Code'] === 200) {
+                    $essApiJobDetails = $apiResponse['Data'];
+                } else {
+                    flashError('Failed to retrieve vacancy data from the API.');
+                }
+            }
+            return view('backend.Job.show', compact('job', 'essApiJobDetails'));
         } catch (\Exception $e) {
             flashError('An error occurred: ' . $e->getMessage());
 
