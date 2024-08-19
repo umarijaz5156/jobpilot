@@ -38,6 +38,12 @@
                                        <b> Create company to the Planning Jobs  site</b>
                                     </label>
                                 </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="CareCompany" name="CareJobsCompany">
+                                    <label class="form-check-label font-bold" for="CareCompany">
+                                       <b> Create company to the Care Worker job  site</b>
+                                    </label>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <x-forms.label name="employer_name" :required="true" />
@@ -58,7 +64,7 @@
                                 <x-forms.label name="password" />
                                 <x-forms.input type="password" name="password" placeholder="password" />
                             </div>
-                           
+
                         </div>
                     </div>
                     <div class="card">

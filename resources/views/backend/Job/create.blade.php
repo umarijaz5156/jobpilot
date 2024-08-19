@@ -121,7 +121,7 @@
 
                                         </div> --}}
                                     </div>
-                                   
+
                                     <div class="row form-group">
                                         <div class="col-md-12">
                                             <label for="category_id">
@@ -187,7 +187,7 @@
                                                 </span>
                                             @enderror
                                         </div>
-                                        
+
                                     </div>
                                 </div>
                             </div>
@@ -271,12 +271,12 @@
                                         </small>
                                     </div>
                                 </div>
-                                
-                           
 
-             
 
-                           
+
+
+
+
 
                                 <div class="card-body">
                                     <x-website.map.map-warning />
@@ -297,7 +297,7 @@
                                     @error('location')
                                         <span class="ml-3 text-md text-danger">{{ $message }}</span>
                                     @enderror
-                                    
+
                                 </div>
                                 @php
                                     $location = session()->get('location');
@@ -730,6 +730,15 @@
                                     <div class="col-sm-12 form-group">
                                         <div class="form-check">
                                             <div class="d-inline">
+                                                <input type="hidden" name="ispost_carejobs" value="false">
+                                                <input value="true" name="ispost_carejobs" type="checkbox" class="form-check-input" id="">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Care Worker Jobs  site?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
                                                 <input type="hidden" name="ispost_govjobs" value="false">
                                                 <input value="true" name="ispost_govjobs" type="checkbox" class="form-check-input" id="">
                                                 <label class="form-check-label mr-5" for="">{{ __('Post job at Gov Jobs Hub site?') }}</label>
@@ -739,7 +748,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="section pt-3">
                             <button type="submit" class="btn btn-block bg-success">
                                 <i class="fas fa-plus mr-1"></i>
@@ -905,11 +914,11 @@
     var deadlineInput = document.getElementById('deadline');
     var currentDate = new Date();
     var sixMonthsFromNow = new Date(currentDate.setMonth(currentDate.getMonth() + 6));
-    
+
     var day = ('0' + sixMonthsFromNow.getDate()).slice(-2);
     var month = ('0' + (sixMonthsFromNow.getMonth() + 1)).slice(-2);
     var year = sixMonthsFromNow.getFullYear();
-    
+
     var formattedDate = `${month}/${day}/${year}`;
     deadlineInput.value = formattedDate;
 });
