@@ -109,15 +109,25 @@ class JobUpdateService
     {
         $companyData = Company::findOrFail($job->company_id);
 
+        $characterLimit = env('ESS_API_JOB_DESCRIPTION_CHAR_LIMIT', 50);
+        $description = strip_tags($job->description);
+        $descriptionWords = explode(' ', $description);
+        if (count($descriptionWords) > $characterLimit) {
+            $description = implode(' ', array_slice($descriptionWords, 0, $characterLimit)) . '...';
+        }
+
+        $seeMoreLink = "<a href='" . url('/job/' . $job->slug) . "'>See More</a>";
+        $description .= ' ' . $seeMoreLink;
+
         $data = [
             "VacancyId" => $job->essapi_job_id,
             "OrganisationCode" => "YYEC",
             "SiteCode" => "QG38",
-            "EmployerId" => $companyData->employer_id,
+            "EmployerId" => env('ESS_API_JOB_EMPLOYER_ID', 0),
             "EmployerContactId" => $companyData->employer_contact_id,
             "VacancyTitle" => $job->title,
             "OccupationCategoryCode" => "542112",
-            "VacancyDescription" => $job->description,
+            "VacancyDescription" => $description,
             "PositionLimitCount" => $job->vacancies,
             "WorkTypeCode" => "P",
             "TenureCode" => "P",
@@ -139,7 +149,17 @@ class JobUpdateService
         ];
 
         try {
-            $response = (new EssapiService())->callApi('Live/Vacancy/api/v1/public/vacancies', 'PUT', $data);
+            $response = (new EssapiService())->callApi('Live/Vacancy/api/v1/public/vacancies/' . $job->essapi_job_id, 'GET');
+            if (isset($response['Code']) && $response['Code'] === 200) {
+                $OptimisticConcurrencyCheckValue = $response['Data']['OptimisticConcurrencyCheckValue'];
+            } else {
+                flashError('Failed to retrieve vacancy data from the API.');
+            }
+            $response = null;
+            $headers = [
+                'If-Match' => $OptimisticConcurrencyCheckValue
+            ];
+            $response = (new EssapiService())->callApi('Live/Vacancy/api/v1/public/vacancies', 'PUT', $data, $headers);
             // dd($response);
             \Log::info('Success updating job on GovJobs: ');
             \Log::info($response);
@@ -150,6 +170,5 @@ class JobUpdateService
             return null;
         }
     }
-
 
 }

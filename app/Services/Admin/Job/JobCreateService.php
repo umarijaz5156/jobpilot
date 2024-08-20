@@ -300,7 +300,7 @@ class JobCreateService
         $companyData = Company::findOrFail($job->company_id);
 
         $characterLimit = env('ESS_API_JOB_DESCRIPTION_CHAR_LIMIT', 50);
-        $description = strip_tags($job->description); // Remove HTML tags
+        $description = strip_tags($job->description);
         $descriptionWords = explode(' ', $description);
         if (count($descriptionWords) > $characterLimit) {
             $description = implode(' ', array_slice($descriptionWords, 0, $characterLimit)) . '...';
@@ -319,7 +319,7 @@ class JobCreateService
                 "PositionAvailableCount" => $job->vacancies,
                 "PositionFilledCount" => 0,
                 "ExpiryDate" => Carbon::parse($job->deadline)->format('Y-m-d\TH:i:sO'),
-                "EmployerId" => 0,
+                "EmployerId" => env('ESS_API_JOB_EMPLOYER_ID', 0),
                 "EmployerContactId" => null,
                 "UserDefinedIdentifier" => "",
                 "HoursDescription" => null,

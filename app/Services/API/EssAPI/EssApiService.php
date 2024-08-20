@@ -75,7 +75,7 @@ class EssApiService
     //     throw new \Exception('Max retry limit reached');
     // }
 
-    public function callApi($endpoint, $method = 'GET', $data = [], $apiIdentifier = 'default')
+    public function callApi($endpoint, $method = 'GET', $data = [], $extraHeaders = [], $apiIdentifier = 'default')
     {
         $retries = 0;
         $baseUrl = rtrim(env('ESS_API_BASE_URL'), '/');
@@ -84,12 +84,18 @@ class EssApiService
         while ($retries < self::RETRY_COUNT) {
             try {
                 $token = $this->getToken($apiIdentifier);
+                $defaultHeaders = [
+                    'Accept' => 'application/json',
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . $token,
+                    'Ocp-Apim-Subscription-Key' => env('ESS_API_OCP_APIM_SUBSCRIPTION_KEY'),
+                    'employment.gov.au-UniqueRequestMessageId' => Str::uuid()->toString(),
+                ];
+
+                $headers = array_merge($defaultHeaders, $extraHeaders);
+
                 $response = $this->client->request($method, $fullUrl, [
-                    'headers' => [
-                        'Authorization' => 'Bearer ' . $token,
-                        'Ocp-Apim-Subscription-Key' => env('ESS_API_OCP_APIM_SUBSCRIPTION_KEY'),
-                        'employment.gov.au-UniqueRequestMessageId' => Str::uuid()->toString(),
-                    ],
+                    'headers' => $headers,
                     'json' => $data,
                 ]);
 
@@ -106,15 +112,42 @@ class EssApiService
                 }
 
                 return $content;
-            } catch (\GuzzleHttp\Exception\ClientException $e) {
-                $response = $e->getResponse();
+            } catch (\GuzzleHttp\Exception\ServerException $e) {
+                $request = $e->getRequest();
+                $response = $e->hasResponse() ? $e->getResponse() : null;
+
                 $statusCode = $response ? $response->getStatusCode() : null;
                 $responseBody = $response ? $response->getBody()->getContents() : null;
+                $requestHeaders = $request ? $request->getHeaders() : [];
+                $requestBody = $request ? (string) $request->getBody() : '';
 
-                Log::error('API Client Exception:', [
+                Log::error('API Request Exception:', [
                     'endpoint' => $fullUrl,
                     'status_code' => $statusCode,
                     'response' => $responseBody,
+                    'request_headers' => $requestHeaders,
+                    'request_body' => $requestBody,
+                    'exception' => $e->getMessage(),
+                ]);
+
+                dd($e->getMessage(), $statusCode, $responseBody, $requestHeaders, $requestBody);
+
+                throw $e;
+            } catch (\GuzzleHttp\Exception\ClientException $e) {
+                $request = $e->getRequest();
+                $response = $e->hasResponse() ? $e->getResponse() : null;
+
+                $statusCode = $response ? $response->getStatusCode() : null;
+                $responseBody = $response ? $response->getBody()->getContents() : null;
+                $requestHeaders = $request ? $request->getHeaders() : [];
+                $requestBody = $request ? (string) $request->getBody() : '';
+
+                Log::error('API Request Exception:', [
+                    'endpoint' => $fullUrl,
+                    'status_code' => $statusCode,
+                    'response' => $responseBody,
+                    'request_headers' => $requestHeaders,
+                    'request_body' => $requestBody,
                     'exception' => $e->getMessage(),
                 ]);
 
@@ -123,14 +156,16 @@ class EssApiService
                     $this->refreshToken($apiIdentifier);
                     continue;
                 }
+                
+                dd($e->getMessage(), $statusCode, $responseBody, $requestHeaders, $requestBody);
 
-                // dd($e->getMessage(), $data, $responseBody); // This will give you more context
                 throw $e;
             } catch (\Exception $e) {
                 Log::error('API Call Failed:', [
                     'endpoint' => $fullUrl,
                     'exception' => $e->getMessage(),
                 ]);
+                dd($e);
                 throw $e;
             }
         }
