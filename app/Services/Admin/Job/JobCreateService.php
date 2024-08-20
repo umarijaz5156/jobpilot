@@ -109,6 +109,13 @@ class JobCreateService
             $this->sendJobToGovJobs($jobCreated, $request->categories);
         }
 
+
+        if ($request->ispost_facebook === 'true') {
+            $this->sendJobToFacebook($jobCreated);
+        }
+
+
+
         return $jobCreated;
     }
 
@@ -452,5 +459,73 @@ class JobCreateService
             \Log::error('Error sending job to GovJobs: ' . $e->getMessage());
             return null;
         }
+    }
+
+
+    protected function sendJobToFacebook($job){
+
+        $characterLimit = env('ESS_API_JOB_DESCRIPTION_CHAR_LIMIT', 50);
+        $description = strip_tags($job->description); // Remove HTML tags
+
+        // Split the description into words
+        $descriptionWords = explode(' ', $description);
+
+        // Truncate the description if it exceeds the character limit
+        if (count($descriptionWords) > $characterLimit) {
+            $description = implode(' ', array_slice($descriptionWords, 0, $characterLimit)) . '...';
+        }
+
+        // Generate the "see more" link
+        $seeMoreLink = url('/job/' . $job->slug);
+
+        // Append the "Click here to see more details" text to the description
+        // $description .= " Click blow button to see more details";
+        $description .= " Click here to see more details: " . $seeMoreLink;
+        $message = $description;
+
+        $accessToken = $this->getLongLivedToken();
+
+        $url = "https://graph.facebook.com/v20.0/103121261078671/feed";
+
+
+        // Initialize cURL session
+        $ch = curl_init();
+
+        // Set the URL and other options
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+            'message' => $message,
+            'access_token' => $accessToken,
+            // 'link' => $link
+        ]));
+
+        // Execute cURL request
+        $response = curl_exec($ch);
+        curl_close($ch);
+    }
+
+
+    public function getLongLivedToken()
+    {
+        $appId = env('FACEBOOK_APP_ID');
+        $appSecret = env('FACEBOOK_APP_SECRET');
+        $shortLivedToken = env('FACEBOOK_ACCESS_TOKEN');
+
+        $client = new \GuzzleHttp\Client();
+        $response = $client->get('https://graph.facebook.com/v20.0/oauth/access_token', [
+            'query' => [
+                'grant_type' => 'fb_exchange_token',
+                'client_id' => $appId,
+                'client_secret' => $appSecret,
+                'fb_exchange_token' => $shortLivedToken,
+            ],
+        ]);
+
+        $responseBody = json_decode($response->getBody(), true);
+        $longLivedToken = $responseBody['access_token'];
+
+        return $longLivedToken;
     }
 }
