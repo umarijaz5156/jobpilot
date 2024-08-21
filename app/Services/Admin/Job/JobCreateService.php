@@ -475,15 +475,19 @@ class JobCreateService
             $description = implode(' ', array_slice($descriptionWords, 0, $characterLimit)) . '...';
         }
 
-        // Generate the "See more" link
+        $logoUrl = url('storage/' . $job->company->logo);
         $seeMoreLink = url('/job/' . $job->slug);
 
         // Format the message
         $message = $job->title . "\n\n"; // Job title on the first line
         $message .= $description . "\n\n"; // Truncated description
-        $message .= "**See more**: "; // Bold "See more" and add link
+        $message .= "Click here to see more: " . $seeMoreLink; // Add the link
 
         $accessToken = $this->getLongLivedToken();
+
+        // Upload the image to Facebook
+        $imageId = $this->uploadImageToFacebook($accessToken, $logoUrl);
+
         $url = "https://graph.facebook.com/v20.0/103121261078671/feed";
 
         // Initialize cURL session
@@ -496,13 +500,45 @@ class JobCreateService
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
             'message' => $message,
             'access_token' => $accessToken,
-            'link' => $seeMoreLink // Include the link in the API call
+            'object_attachment' => $imageId // Attach the image
         ]));
 
         // Execute cURL request
         $response = curl_exec($ch);
         curl_close($ch);
+
+        // Log or process the response if needed
+        // dd($response);
     }
+
+    protected function uploadImageToFacebook($accessToken, $logoUrl)
+    {
+        $url = "https://graph.facebook.com/v20.0/103121261078671/photos";
+
+        // Initialize cURL session
+        $ch = curl_init();
+
+        // $logoUrl = "https://councildirect.com.au/uploads/images/company/1719924427_6683f6cb67d78.jpeg";
+        // Set the URL and other options
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+            'url' => $logoUrl,
+            'access_token' => $accessToken,
+            'published' => false // Set to false to get the image ID without posting
+        ]));
+
+        // Execute cURL request
+        $response = curl_exec($ch);
+
+        curl_close($ch);
+
+        $responseData = json_decode($response, true);
+
+        return $responseData['id'] ?? null;
+    }
+
 
 
 
