@@ -514,7 +514,7 @@ class JobCreateService
     protected function uploadImageToFacebook($accessToken, $logoUrl)
     {
         $url = "https://graph.facebook.com/v20.0/103121261078671/photos";
-
+$logoUrl = "https://fastly.picsum.photos/id/101/200/200.jpg?hmac=8aiHS9K78DvBexQ7ZROLuLizDR22o8CcjRMUhHbZU6g";
         // Initialize cURL session
         $ch = curl_init();
 
