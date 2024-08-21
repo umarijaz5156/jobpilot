@@ -475,7 +475,7 @@ class JobCreateService
             $description = implode(' ', array_slice($descriptionWords, 0, $characterLimit)) . '...';
         }
 
-        $logoUrl = url('storage/' . $job->company->logo);
+        $logoUrl = url($job->company->logo);
         $seeMoreLink = url('/job/' . $job->slug);
 
         // Format the message
@@ -486,57 +486,82 @@ class JobCreateService
         $accessToken = $this->getLongLivedToken();
 
         // Upload the image to Facebook
-        $imageId = $this->uploadImageToFacebook($accessToken, $logoUrl);
+        // $imageId = $this->uploadImageToFacebook($accessToken, $logoUrl);
 
         $url = "https://graph.facebook.com/v20.0/103121261078671/feed";
 
-        // Initialize cURL session
-        $ch = curl_init();
+        $response = $this->uploadImageToFacebook($accessToken, $logoUrl, $message);
 
-        // Set the URL and other options
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
-            'message' => $message,
-            'access_token' => $accessToken,
-            'object_attachment' => $imageId // Attach the image
-        ]));
 
-        // Execute cURL request
-        $response = curl_exec($ch);
-        curl_close($ch);
+        // // Initialize cURL session
+        // $ch = curl_init();
+
+        // // Set the URL and other options
+        // curl_setopt($ch, CURLOPT_URL, $url);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // curl_setopt($ch, CURLOPT_POST, true);
+        // curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+        //     'message' => $message,
+        //     'access_token' => $accessToken,
+        //     'object_attachment' => $imageId // Attach the image
+        // ]));
+
+        // // Execute cURL request
+        // $response = curl_exec($ch);
+        // curl_close($ch);
 
         // Log or process the response if needed
-        // dd($response);
     }
 
-    protected function uploadImageToFacebook($accessToken, $logoUrl)
+    protected function uploadImageToFacebook($accessToken, $imageUrl, $message)
     {
+
         $url = "https://graph.facebook.com/v20.0/103121261078671/photos";
-$logoUrl = "https://fastly.picsum.photos/id/101/200/200.jpg?hmac=8aiHS9K78DvBexQ7ZROLuLizDR22o8CcjRMUhHbZU6g";
         // Initialize cURL session
         $ch = curl_init();
 
-        // $logoUrl = "https://councildirect.com.au/uploads/images/company/1719924427_6683f6cb67d78.jpeg";
         // Set the URL and other options
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
-            'url' => $logoUrl,
+        curl_setopt($ch, CURLOPT_POSTFIELDS, [
+            'url' => $imageUrl,
+            'caption' => $message, // Add the message as a caption
             'access_token' => $accessToken,
-            'published' => false // Set to false to get the image ID without posting
-        ]));
+            'published' => true // Post immediately
+        ]);
 
         // Execute cURL request
         $response = curl_exec($ch);
 
         curl_close($ch);
 
-        $responseData = json_decode($response, true);
+        return json_decode($response, true);
 
-        return $responseData['id'] ?? null;
+    //     $url = "https://graph.facebook.com/v20.0/103121261078671/photos";
+    // $logoUrl = "https://fastly.picsum.photos/id/101/200/200.jpg?hmac=8aiHS9K78DvBexQ7ZROLuLizDR22o8CcjRMUhHbZU6g";
+    //     // Initialize cURL session
+    //     $ch = curl_init();
+
+    //     // $logoUrl = "https://councildirect.com.au/uploads/images/company/1719924427_6683f6cb67d78.jpeg";
+    //     // Set the URL and other options
+    //     curl_setopt($ch, CURLOPT_URL, $url);
+    //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    //     curl_setopt($ch, CURLOPT_POST, true);
+    //     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+    //         'url' => $logoUrl,
+    //         'access_token' => $accessToken,
+    //         // 'published' => false // Set to false to get the image ID without posting
+    //     ]));
+
+    //     // Execute cURL request
+    //     $response = curl_exec($ch);
+
+    //     curl_close($ch);
+
+    //     $responseData = json_decode($response, true);
+
+    //     return $responseData['id'] ?? null;
     }
 
 
