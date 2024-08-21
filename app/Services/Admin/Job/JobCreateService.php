@@ -485,42 +485,22 @@ class JobCreateService
 
         $accessToken = $this->getLongLivedToken();
 
-        // Upload the image to Facebook
-        // $imageId = $this->uploadImageToFacebook($accessToken, $logoUrl);
-
         $url = "https://graph.facebook.com/v20.0/103121261078671/feed";
 
-        $response = $this->uploadImageToFacebook($accessToken, $logoUrl, $message);
 
+        if ($logoUrl) {
+            $response = $this->uploadImageToFacebook($accessToken, $logoUrl, $message);
+        } else {
+            $response = $this->postTextToFacebook($accessToken, $message);
+        }
 
-        // // Initialize cURL session
-        // $ch = curl_init();
-
-        // // Set the URL and other options
-        // curl_setopt($ch, CURLOPT_URL, $url);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        // curl_setopt($ch, CURLOPT_POST, true);
-        // curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
-        //     'message' => $message,
-        //     'access_token' => $accessToken,
-        //     'object_attachment' => $imageId // Attach the image
-        // ]));
-
-        // // Execute cURL request
-        // $response = curl_exec($ch);
-        // curl_close($ch);
-
-        // Log or process the response if needed
     }
 
     protected function uploadImageToFacebook($accessToken, $imageUrl, $message)
     {
 
         $url = "https://graph.facebook.com/v20.0/103121261078671/photos";
-        // Initialize cURL session
         $ch = curl_init();
-
-        // Set the URL and other options
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
@@ -530,6 +510,23 @@ class JobCreateService
             'access_token' => $accessToken,
             'published' => true // Post immediately
         ]);
+        $response = curl_exec($ch);
+
+        curl_close($ch);
+        return json_decode($response, true);
+    }
+    protected function postTextToFacebook($accessToken, $message)
+    {
+        $url = "https://graph.facebook.com/v20.0/103121261078671/feed";
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, [
+            'message' => $message,
+            'access_token' => $accessToken
+        ]);
 
         // Execute cURL request
         $response = curl_exec($ch);
@@ -537,31 +534,6 @@ class JobCreateService
         curl_close($ch);
 
         return json_decode($response, true);
-
-    //     $url = "https://graph.facebook.com/v20.0/103121261078671/photos";
-    // $logoUrl = "https://fastly.picsum.photos/id/101/200/200.jpg?hmac=8aiHS9K78DvBexQ7ZROLuLizDR22o8CcjRMUhHbZU6g";
-    //     // Initialize cURL session
-    //     $ch = curl_init();
-
-    //     // $logoUrl = "https://councildirect.com.au/uploads/images/company/1719924427_6683f6cb67d78.jpeg";
-    //     // Set the URL and other options
-    //     curl_setopt($ch, CURLOPT_URL, $url);
-    //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    //     curl_setopt($ch, CURLOPT_POST, true);
-    //     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
-    //         'url' => $logoUrl,
-    //         'access_token' => $accessToken,
-    //         // 'published' => false // Set to false to get the image ID without posting
-    //     ]));
-
-    //     // Execute cURL request
-    //     $response = curl_exec($ch);
-
-    //     curl_close($ch);
-
-    //     $responseData = json_decode($response, true);
-
-    //     return $responseData['id'] ?? null;
     }
 
 
