@@ -382,7 +382,7 @@ class JobCreateService
         $companyData = Company::findOrFail($job->company_id);
 
         $characterLimit = env('ESS_API_JOB_DESCRIPTION_CHAR_LIMIT', 50);
-        $description = strip_tags($job->description); // Remove HTML tags
+        $description = strip_tags($job->description);
         $descriptionWords = explode(' ', $description);
         if (count($descriptionWords) > $characterLimit) {
             $description = implode(' ', array_slice($descriptionWords, 0, $characterLimit)) . '...';
@@ -423,7 +423,7 @@ class JobCreateService
                 "PositionAvailableCount" => $job->vacancies,
                 "PositionFilledCount" => 0,
                 "ExpiryDate" => Carbon::parse($job->deadline)->format('Y-m-d\TH:i:sO'),
-                "EmployerId" => 0,
+                "EmployerId" => env('ESS_API_JOB_EMPLOYER_ID', 0),
                 "EmployerContactId" => null,
                 "UserDefinedIdentifier" => "",
                 "HoursDescription" => null,
@@ -504,7 +504,6 @@ class JobCreateService
 
     protected function sendJobToFacebook($job)
     {
-
         $characterLimit = env('ESS_API_JOB_DESCRIPTION_CHAR_LIMIT', 50);
         $description = strip_tags($job->description); // Remove HTML tags
 
@@ -516,13 +515,13 @@ class JobCreateService
             $description = implode(' ', array_slice($descriptionWords, 0, $characterLimit)) . '...';
         }
 
-        // Generate the "see more" link
+        $logoUrl = url($job->company->logo);
         $seeMoreLink = url('/job/' . $job->slug);
 
-        // Append the "Click here to see more details" text to the description
-        // $description .= " Click blow button to see more details";
-        $description .= " Click here to see more details: " . $seeMoreLink;
-        $message = $description;
+        // Format the message
+        $message = $job->title . "\n\n"; // Job title on the first line
+        $message .= $description . "\n\n"; // Truncated description
+        $message .= "Click here to see more: " . $seeMoreLink; // Add the link
 
         $accessToken = $this->getLongLivedToken();
 
@@ -534,6 +533,7 @@ class JobCreateService
         } else {
             $response = $this->postTextToFacebook($accessToken, $message);
         }
+
     }
 
     protected function uploadImageToFacebook($accessToken, $imageUrl, $message)
@@ -555,26 +555,28 @@ class JobCreateService
         curl_close($ch);
         return json_decode($response, true);
     }
-
     protected function postTextToFacebook($accessToken, $message)
     {
         $url = "https://graph.facebook.com/v20.0/103121261078671/feed";
         $ch = curl_init();
 
-        // Set the URL and other options
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+        curl_setopt($ch, CURLOPT_POSTFIELDS, [
             'message' => $message,
-            'access_token' => $accessToken,
-            // 'link' => $link
-        ]));
+            'access_token' => $accessToken
+        ]);
 
         // Execute cURL request
         $response = curl_exec($ch);
+
         curl_close($ch);
+
+        return json_decode($response, true);
     }
+
+
 
 
     protected function sendJobToLinkedIn($job)
