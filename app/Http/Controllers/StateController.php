@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SearchCountry;
+use App\Models\SearchCountry as Country;
+
+// use Modules\Location\Entities\Country;
 use App\Models\State;
 use Illuminate\Http\Request;
 
@@ -10,7 +12,14 @@ class StateController extends Controller
 {
     public function index()
     {
-        $countries = SearchCountry::all();
+        $countries = Country::all();
+
+        // $remainingCountryIds = [15];
+
+        // // Step 2: Delete all states that are not in the remaining countries
+        // State::whereNotIn('country_id', $remainingCountryIds)->delete();
+
+        // dd('ddd');
         $countryId = request('country');
         $keyword = request('keyword');
 
@@ -31,6 +40,9 @@ class StateController extends Controller
         }
         $states = $citiesQuery->paginate(10);
 
+
+
+
         return view('backend.settings.pages.location.state.index', ['countries' => $countries, 'states' => $states]);
     }
 
@@ -41,7 +53,7 @@ class StateController extends Controller
      */
     public function create()
     {
-        $countries = SearchCountry::all();
+        $countries = Country::all();
 
         return view('backend.settings.pages.location.state.create', ['countries' => $countries]);
     }
@@ -90,7 +102,7 @@ class StateController extends Controller
     public function edit($id)
     {
         $state = State::findOrFail($id);
-        $countries = SearchCountry::all();
+        $countries = Country::all();
 
         return view('backend.settings.pages.location.state.edit', compact('state', 'countries'));
     }

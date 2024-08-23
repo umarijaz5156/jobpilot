@@ -82,7 +82,7 @@
                                                     <td class="sorting_1 text-center" tabindex="0">{{ $state->name }}
                                                     </td>
                                                     <td class="sorting_1 text-center" tabindex="0">
-                                                        {{ Str::ucfirst($state->country->name) }}</td>
+                                                        {{ Str::ucfirst($state->country->name ?? '') }}</td>
                                                     @if (userCan('post.update') || userCan('post.delete'))
                                                         <td class="sorting_1 text-center" tabindex="0">
                                                             @if (userCan('post.update'))

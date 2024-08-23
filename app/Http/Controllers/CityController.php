@@ -21,6 +21,32 @@ class CityController extends Controller
 
         $citiesQuery = City::with('state');
 
+            // Update city postcodes from CSV
+        // $filePath = public_path('au_postcodes.csv');
+        // if (file_exists($filePath)) {
+        //     $csvData = array_map('str_getcsv', file($filePath));
+        //     $header = array_shift($csvData); // Remove the header row
+
+           
+        //     foreach ($csvData as $row) {
+        //         $rowData = array_combine($header, $row);
+               
+        //         City::where('name', $rowData['place_name'])
+        //             ->where(function($query) {
+        //                 $query->whereNull('postCode')->orWhere('postCode', '');
+        //             })
+        //             ->update(['postCode' => $rowData['postcode']]);
+        //     }
+        // } else {
+
+        //     dd($filePath);
+        //     // Log an error or handle the case where the file does not exist
+        //     \Log::error('CSV file not found at path: ' . $filePath);
+        // }
+
+        // dd('done');
+
+
         // Layer 1: Search by State ID
         if ($stateId) {
             $citiesQuery->where('state_id', $stateId);
@@ -64,12 +90,16 @@ class CityController extends Controller
             'state_id' => 'required',
             'lat' => 'required',
             'long' => 'required',
+            'postCode' => 'required',
+
         ]);
         $city = new City();
         $city->name = $request->input('city_name');
         $city->state_id = $request->input('state_id');
         $city->lat = $request->input('lat');
         $city->long = $request->input('long');
+        $city->postCode = $request->input('postCode');
+
         $city->save();
 
         return back()->with('success', 'City created successfully.');
@@ -114,12 +144,16 @@ class CityController extends Controller
             'state_id' => 'required',
             'lat' => 'required',
             'long' => 'required',
+            'postCode' => 'required',
+
         ]);
 
         $city->name = $request->input('city_name');
         $city->state_id = $request->input('state_id');
         $city->lat = $request->input('lat');
         $city->long = $request->input('long');
+        $city->postCode = $request->input('postCode');
+
         $city->save();
 
         return back()->with('success', 'City update successfully.');

@@ -61,7 +61,9 @@ Route::prefix('admin')->group(function () {
     });
 
 
-   
+    
+    Route::get('/cities-by-state', [AdminController::class, 'getCitiesByState'])->name('cities.byState');
+
     Route::middleware(['auth:admin'])->group(function () {
         //Dashboard Route
         Route::get('/', [AdminController::class, 'dashboard']);

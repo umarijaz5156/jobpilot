@@ -3,6 +3,7 @@
 namespace App\Services\Admin\Job;
 
 use App\Http\Traits\JobAble;
+use App\Models\City;
 use App\Models\Company;
 use App\Models\Job;
 use Carbon\Carbon;
@@ -66,8 +67,8 @@ class JobCreateService
             'highlight_until' => $highlight_days,
             'is_remote' => $request->is_remote ?? 0,
             'status' => 'active',
-            'ongoing' => $request->is_ongoing ?? 0
-
+            'ongoing' => $request->is_ongoing ?? 0,
+            'city_id' => $request->city_id,
         ]);
 
         // Benefits insert
@@ -124,13 +125,13 @@ class JobCreateService
         return $jobCreated;
     }
 
-    protected function sendJobToSecondWebsite($job,$categories)
+    protected function sendJobToSecondWebsite($job, $categories)
     {
         $client = new Client();
         $categoryId = $categories[0] ?? 3;
-         $websiteUrl = env('WEBSITE_URL');
+        $websiteUrl = env('WEBSITE_URL');
 
-         $companyData = Company::findOrfail($job->company_id);
+        $companyData = Company::findOrfail($job->company_id);
 
 
         try {
@@ -164,18 +165,18 @@ class JobCreateService
                     'is_remote' => $job->is_remote,
                     'status' => 'active',
 
-                     // Location-related fields using $job properties
-                     'address' => $job->address,
-                     'neighborhood' => $job->neighborhood ?? '',
-                     'locality' => $job->locality ?? '',
-                     'place' => $job->place ?? '',
-                     'district' => $job->district ?? '',
-                     'postcode' => $job->postcode ?? '',
-                     'region' => $job->region ?? '',
-                     'country' => $job->country ?? '',
-                     'long' => $job->long ?? '',
-                     'lat' => $job->lat ?? '',
-                     'exact_location' => $job->exact_location ?? '',
+                    // Location-related fields using $job properties
+                    'address' => $job->address,
+                    'neighborhood' => $job->neighborhood ?? '',
+                    'locality' => $job->locality ?? '',
+                    'place' => $job->place ?? '',
+                    'district' => $job->district ?? '',
+                    'postcode' => $job->postcode ?? '',
+                    'region' => $job->region ?? '',
+                    'country' => $job->country ?? '',
+                    'long' => $job->long ?? '',
+                    'lat' => $job->lat ?? '',
+                    'exact_location' => $job->exact_location ?? '',
                 ]
             ]);
 
@@ -186,13 +187,13 @@ class JobCreateService
         }
     }
 
-    protected function sendJobToEngineeringJobsHub($job,$categories)
+    protected function sendJobToEngineeringJobsHub($job, $categories)
     {
         $client = new Client();
         $categoryId = $categories[0] ?? 3;
-         $websiteUrl = env('WEBSITE_URL_JOB_EngineeringJobsHub');
+        $websiteUrl = env('WEBSITE_URL_JOB_EngineeringJobsHub');
 
-         $companyData = Company::findOrfail($job->company_id);
+        $companyData = Company::findOrfail($job->company_id);
 
 
         try {
@@ -226,18 +227,18 @@ class JobCreateService
                     'is_remote' => $job->is_remote,
                     'status' => 'active',
 
-                     // Location-related fields using $job properties
-                     'address' => $job->address,
-                     'neighborhood' => $job->neighborhood ?? '',
-                     'locality' => $job->locality ?? '',
-                     'place' => $job->place ?? '',
-                     'district' => $job->district ?? '',
-                     'postcode' => $job->postcode ?? '',
-                     'region' => $job->region ?? '',
-                     'country' => $job->country ?? '',
-                     'long' => $job->long ?? '',
-                     'lat' => $job->lat ?? '',
-                     'exact_location' => $job->exact_location ?? '',
+                    // Location-related fields using $job properties
+                    'address' => $job->address,
+                    'neighborhood' => $job->neighborhood ?? '',
+                    'locality' => $job->locality ?? '',
+                    'place' => $job->place ?? '',
+                    'district' => $job->district ?? '',
+                    'postcode' => $job->postcode ?? '',
+                    'region' => $job->region ?? '',
+                    'country' => $job->country ?? '',
+                    'long' => $job->long ?? '',
+                    'lat' => $job->lat ?? '',
+                    'exact_location' => $job->exact_location ?? '',
                 ]
             ]);
 
@@ -248,13 +249,13 @@ class JobCreateService
         }
     }
 
-    protected function sendJobToPlanningJobs($job,$categories)
+    protected function sendJobToPlanningJobs($job, $categories)
     {
         $client = new Client();
         $categoryId = $categories[0] ?? 3;
-         $websiteUrl = env('WEBSITE_URL_JOB_PlanningJob');
+        $websiteUrl = env('WEBSITE_URL_JOB_PlanningJob');
 
-         $companyData = Company::findOrfail($job->company_id);
+        $companyData = Company::findOrfail($job->company_id);
 
 
         try {
@@ -288,18 +289,18 @@ class JobCreateService
                     'is_remote' => $job->is_remote,
                     'status' => 'active',
 
-                     // Location-related fields using $job properties
-                     'address' => $job->address,
-                     'neighborhood' => $job->neighborhood ?? '',
-                     'locality' => $job->locality ?? '',
-                     'place' => $job->place ?? '',
-                     'district' => $job->district ?? '',
-                     'postcode' => $job->postcode ?? '',
-                     'region' => $job->region ?? '',
-                     'country' => $job->country ?? '',
-                     'long' => $job->long ?? '',
-                     'lat' => $job->lat ?? '',
-                     'exact_location' => $job->exact_location ?? '',
+                    // Location-related fields using $job properties
+                    'address' => $job->address,
+                    'neighborhood' => $job->neighborhood ?? '',
+                    'locality' => $job->locality ?? '',
+                    'place' => $job->place ?? '',
+                    'district' => $job->district ?? '',
+                    'postcode' => $job->postcode ?? '',
+                    'region' => $job->region ?? '',
+                    'country' => $job->country ?? '',
+                    'long' => $job->long ?? '',
+                    'lat' => $job->lat ?? '',
+                    'exact_location' => $job->exact_location ?? '',
                 ]
             ]);
 
@@ -310,13 +311,13 @@ class JobCreateService
         }
     }
 
-    protected function sendJobToCareWorkerJobs($job,$categories)
+    protected function sendJobToCareWorkerJobs($job, $categories)
     {
         $client = new Client();
         $categoryId = $categories[0] ?? 3;
-         $websiteUrl = env('WEBSITE_URL_JOB_CareJobs');
+        $websiteUrl = env('WEBSITE_URL_JOB_CareJobs');
 
-         $companyData = Company::findOrfail($job->company_id);
+        $companyData = Company::findOrfail($job->company_id);
 
 
         try {
@@ -350,18 +351,18 @@ class JobCreateService
                     'is_remote' => $job->is_remote,
                     'status' => 'active',
 
-                     // Location-related fields using $job properties
-                     'address' => $job->address,
-                     'neighborhood' => $job->neighborhood ?? '',
-                     'locality' => $job->locality ?? '',
-                     'place' => $job->place ?? '',
-                     'district' => $job->district ?? '',
-                     'postcode' => $job->postcode ?? '',
-                     'region' => $job->region ?? '',
-                     'country' => $job->country ?? '',
-                     'long' => $job->long ?? '',
-                     'lat' => $job->lat ?? '',
-                     'exact_location' => $job->exact_location ?? '',
+                    // Location-related fields using $job properties
+                    'address' => $job->address,
+                    'neighborhood' => $job->neighborhood ?? '',
+                    'locality' => $job->locality ?? '',
+                    'place' => $job->place ?? '',
+                    'district' => $job->district ?? '',
+                    'postcode' => $job->postcode ?? '',
+                    'region' => $job->region ?? '',
+                    'country' => $job->country ?? '',
+                    'long' => $job->long ?? '',
+                    'lat' => $job->lat ?? '',
+                    'exact_location' => $job->exact_location ?? '',
                 ]
             ]);
 
@@ -376,6 +377,8 @@ class JobCreateService
 
     protected function sendJobToGovJobs($job, $categories)
     {
+        
+        $selectCity = City::where('id',$job->city_id)->first();
         $companyData = Company::findOrFail($job->company_id);
 
         $characterLimit = env('ESS_API_JOB_DESCRIPTION_CHAR_LIMIT', 50);
@@ -389,38 +392,25 @@ class JobCreateService
         $description .= ' ' . $seeMoreLink;
 
 
-            // Map regions to state codes
-            $regionMapping = [
-                "South Australia" => ["city" => "Adelaide", "postcode" => "5000"],
-                "Victoria" => ["city" => "Melbourne", "postcode" => "3000"],
-                "New South Wales" => ["city" => "Sydney", "postcode" => "2000"],
-                "Queensland" => ["city" => "Brisbane", "postcode" => "4000"],
-                "Tasmania" => ["city" => "Hobart", "postcode" => "7000"],
-                "Northern Territory" => ["city" => "Darwin", "postcode" => "0800"],
-                "Western Australia" => ["city" => "Perth", "postcode" => "6000"],
-                "Australian Capital Territory" => ["city" => "Canberra", "postcode" => "2600"],
-                "New Zealand" => ["city" => "Auckland", "postcode" => "1010"], // New Zealand mapping
-            ];
+        // Determine the city and postcode based on the region
+        $region = $job->region ?? '';
+        $city = $selectCity->name;
 
-            // Determine the city and postcode based on the region
-            $region = $job->region ?? '';
-            $city = $regionMapping[$region]['city'];
+        $postcode =  $selectCity->postCode;
 
-            $postcode =  $regionMapping[$region]['postcode'];
+        $stateMapping = [
+            "New South Wales" => "NSW",
+            "Victoria" => "VIC",
+            "Queensland" => "QLD",
+            "Tasmania" => "TAS",
+            "Northern Territory" => "NT",
+            "South Australia" => "SA",
+            "Australian Capital Territory" => "ACT",
+            "Western Australia" => "WA",
+            "New Zealand" => "NZ",
+        ];
 
-            $stateMapping = [
-                "New South Wales" => "NSW",
-                "Victoria" => "VIC",
-                "Queensland" => "QLD",
-                "Tasmania" => "TAS",
-                "Northern Territory" => "NT",
-                "South Australia" => "SA",
-                "Australian Capital Territory" => "ACT",
-                "Western Australia" => "WA",
-                "New Zealand" => "NZ",
-            ];
-
-           $stateCode = $stateMapping[$region] ?? 'ACT';
+        $stateCode = $stateMapping[$region] ?? 'ACT';
 
 
         $data = [
@@ -496,13 +486,24 @@ class JobCreateService
             // dd($vacancyId, $response);
             return $response;
         } catch (\Exception $e) {
+            $request = $e->getRequest();
+            $response = $e->getResponse();
+
+            $logData = [
+                'request'  => (string) $request->getBody(),
+                'response' => (string) $response->getBody(),
+            ];
+
+    // Log or print the error details
+    dd($logData);
             \Log::error('Error sending job to GovJobs: ' . $e->getMessage());
             return null;
         }
     }
 
 
-    protected function sendJobToFacebook($job){
+    protected function sendJobToFacebook($job)
+    {
 
         $characterLimit = env('ESS_API_JOB_DESCRIPTION_CHAR_LIMIT', 50);
         $description = strip_tags($job->description); // Remove HTML tags
@@ -528,15 +529,11 @@ class JobCreateService
         $url = "https://graph.facebook.com/v20.0/103121261078671/feed";
 
 
-<<<<<<< Updated upstream
-        // Initialize cURL session
-=======
         if ($logoUrl) {
             $response = $this->uploadImageToFacebook($accessToken, $logoUrl, $message);
         } else {
             $response = $this->postTextToFacebook($accessToken, $message);
         }
-
     }
 
     protected function uploadImageToFacebook($accessToken, $imageUrl, $message)
@@ -562,7 +559,6 @@ class JobCreateService
     protected function postTextToFacebook($accessToken, $message)
     {
         $url = "https://graph.facebook.com/v20.0/103121261078671/feed";
->>>>>>> Stashed changes
         $ch = curl_init();
 
         // Set the URL and other options
@@ -581,9 +577,7 @@ class JobCreateService
     }
 
 
-<<<<<<< Updated upstream
-=======
-        protected function sendJobToLinkedIn($job)
+    protected function sendJobToLinkedIn($job)
     {
         $characterLimit = env('LINKEDIN_JOB_DESCRIPTION_CHAR_LIMIT', 1300); // LinkedIn allows longer posts
         $description = strip_tags($job->description); // Remove HTML tags
@@ -604,7 +598,7 @@ class JobCreateService
 
         $vanityName = 'council-direct';
 
-        $organizationURN = $this->getOrganizationURN($accessToken,$vanityName);
+        $organizationURN = $this->getOrganizationURN($accessToken, $vanityName);
         dd($organizationURN);
 
         // Post the job to LinkedIn
@@ -657,34 +651,33 @@ class JobCreateService
     }
 
     protected function getOrganizationURN($accessToken, $vanityName)
-        {
-            $url = "https://api.linkedin.com/v2/organizations?q=vanityName&vanityName=" . urlencode($vanityName);
+    {
+        $url = "https://api.linkedin.com/v2/organizations?q=vanityName&vanityName=" . urlencode($vanityName);
 
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                "Authorization: Bearer " . $accessToken,
-                "X-Restli-Protocol-Version: 2.0.0"
-            ]);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Authorization: Bearer " . $accessToken,
+            "X-Restli-Protocol-Version: 2.0.0"
+        ]);
 
-            $response = curl_exec($ch);
-            curl_close($ch);
+        $response = curl_exec($ch);
+        curl_close($ch);
 
-            $data = json_decode($response, true);
-            dd($data);
-            if (isset($data['elements'][0]['id'])) {
-                return $data['elements'][0]['id']; // Return the organization URN
-            }
-
-            return null; // Handle cases where the URN is not found
+        $data = json_decode($response, true);
+        dd($data);
+        if (isset($data['elements'][0]['id'])) {
+            return $data['elements'][0]['id']; // Return the organization URN
         }
 
+        return null; // Handle cases where the URN is not found
+    }
 
 
 
 
->>>>>>> Stashed changes
+
     public function getLongLivedToken()
     {
         $appId = env('FACEBOOK_APP_ID');

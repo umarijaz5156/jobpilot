@@ -41,6 +41,14 @@
                                     role="alert"><strong>{{ $message }}</strong></span> @enderror
                                 </div>
                                 <div class="form-group row">
+                                    <x-forms.label name="postCode" required="true" class="col-sm-3" />
+                                    <div class="col-sm-9">
+                                        <input class="form-control" type="number" name="postCode"  value="{{ old('postCode') }}" placeholder="Enter postCode " required> 
+                                    </div>
+                                    @error('lat') <span class="invalid-feedback"
+                                    role="alert"><strong>{{ $message }}</strong></span> @enderror
+                                </div>
+                                <div class="form-group row">
                                     <x-forms.label name="latitude" required="true" class="col-sm-3" />
                                     <div class="col-sm-9">
                                         <input class="form-control" type="text" name="lat" value="" placeholder="Enter latitude " required> 

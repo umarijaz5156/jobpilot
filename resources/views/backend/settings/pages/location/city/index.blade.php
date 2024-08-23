@@ -68,6 +68,10 @@
                                                 colspan="1"
                                                 aria-label="Rendering engine: activate to sort column ascending"
                                                 aria-sort="descending" width="20%">{{ __('state') }}</th>
+                                                <th class="sorting_desc" tabindex="0" aria-controls="example1" rowspan="1"
+                                                colspan="1"
+                                                aria-label="Rendering engine: activate to sort column ascending"
+                                                aria-sort="descending" width="20%">{{ __('post code') }}</th>
                                             @if (userCan('post.edit') || userCan('post.delete'))
                                                 <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1"
                                                     colspan="1" aria-label="CSS grade: activate to sort column ascending"
@@ -83,6 +87,8 @@
                                                     </td>
                                                     <td class="sorting_1 text-center" tabindex="0">
                                                         {{ Str::ucfirst($post->state->name) }}</td>
+                                                        <td class="sorting_1 text-center" tabindex="0">
+                                                            {{ Str::ucfirst($post->postCode) }}</td>
                                                     @if (userCan('post.update') || userCan('post.delete'))
                                                         <td class="sorting_1 text-center" tabindex="0">
                                                             @if (userCan('post.update'))

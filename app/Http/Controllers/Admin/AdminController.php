@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Candidate;
+use App\Models\City;
 use App\Models\Company;
 use App\Models\Earning;
 use App\Models\Job;
 use App\Models\User;
+use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\DB;
 use PDF;
 
@@ -153,4 +156,14 @@ class AdminController extends Controller
 
         return view('frontend.pages.invoice.preview-invoice', compact('transaction'));
     }
+
+    public function getCitiesByState(Request $request)
+    {
+        $stateId = $request->input('state_id');
+       
+        $cities = City::where('state_id', $stateId)->get(['id', 'name']);
+    
+        return response()->json(['cities' => $cities]);
+    }
+    
 }

@@ -217,6 +217,25 @@
                                     </div>
                                 </div>
 
+                                <div class="row p-3 form-group">
+                                    <div class="col-md-12">
+                                        <label for="city_id">
+                                            {{ __('City') }}
+                                            <span class="text-red font-weight-bold">*</span>
+                                        </label>
+                                        <select required name="city_id"
+                                                class="form-control select2bs4 @error('city_id') is-invalid @enderror"
+                                                id="city_id" required>
+                                            <option value=""> {{ __('Select City') }}</option>
+                                        </select>
+                                        @error('city_id')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ __($message) }}</strong>
+                                        </span>
+                                        @enderror
+                                    </div>
+                                </div>
+
                                 {{-- <div class="card-header">
                                     <div class="card-title">
                                         {{ __('location') }}
@@ -929,22 +948,48 @@
 @section('script')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-    var deadlineInput = document.getElementById('deadline');
-    var currentDate = new Date();
-    var sixMonthsFromNow = new Date(currentDate.setMonth(currentDate.getMonth() + 6));
+        var deadlineInput = document.getElementById('deadline');
+        var currentDate = new Date();
+        var sixMonthsFromNow = new Date(currentDate.setMonth(currentDate.getMonth() + 6));
 
-    var day = ('0' + sixMonthsFromNow.getDate()).slice(-2);
-    var month = ('0' + (sixMonthsFromNow.getMonth() + 1)).slice(-2);
-    var year = sixMonthsFromNow.getFullYear();
+        var day = ('0' + sixMonthsFromNow.getDate()).slice(-2);
+        var month = ('0' + (sixMonthsFromNow.getMonth() + 1)).slice(-2);
+        var year = sixMonthsFromNow.getFullYear();
 
-    var formattedDate = `${month}/${day}/${year}`;
-    deadlineInput.value = formattedDate;
-});
+        var formattedDate = `${month}/${day}/${year}`;
+        deadlineInput.value = formattedDate;
+    });
 
     $(document).ready(function() {
         $('#categories').select2({
             placeholder: 'Select Categories',
             allowClear: true
+        });
+    });
+
+    
+</script>
+<script>
+    $(document).ready(function() {
+        $('#state_id').change(function() {
+            var stateId = $(this).val();
+            if (stateId) {
+                $.ajax({
+                    url: '{{ route('cities.byState') }}',
+                    type: 'GET',
+                    data: { state_id: stateId },
+                    success: function(response) {
+                        $('#city_id').empty();
+                        $('#city_id').append('<option value=""> {{ __('Select City') }}</option>');
+                        $.each(response.cities, function(key, city) {
+                            $('#city_id').append('<option value="' + city.id + '">' + city.name + '</option>');
+                        });
+                    }
+                });
+            } else {
+                $('#city_id').empty();
+                $('#city_id').append('<option value=""> {{ __('Select City') }}</option>');
+            }
         });
     });
 </script>

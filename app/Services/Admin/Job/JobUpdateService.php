@@ -72,7 +72,9 @@ class JobUpdateService
             'highlight' => $highlight,
             'is_remote' => $request->is_remote ?? 0,
             'status' => $status,
-            'ongoing' => $request->is_ongoing ?? 0
+            'ongoing' => $request->is_ongoing ?? 0,
+            'city_id' => $request->city_id,
+
 
         ]);
 
