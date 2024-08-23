@@ -316,6 +316,18 @@
                                                     </td>
                                                 @endif
                                                 <td>
+                                                    @if ($job->essapi_job_id)
+                                                    
+                                                    <a data-toggle="tooltip" data-placement="top"
+                                                    title="{{ __('details') }}"
+                                                    href="https://www.workforceaustralia.gov.au/individuals/jobs/details/{{ $job->essapi_job_id }}"
+                                                    class="btn ll-btn ll-border-none">
+                                                    {{ __('work force AU') }}
+                                                    <x-svg.table-btn-arrow />
+
+                                                 </a>
+                                                 
+                                                @endif
                                                     <a data-toggle="tooltip" data-placement="top"
                                                         title="{{ __('details') }}"
                                                         href="{{ route('job.show', $job->id) }}"
