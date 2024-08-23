@@ -773,7 +773,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-sm-12 form-group">
+                                    {{-- <div class="col-sm-12 form-group">
                                         <div class="form-check">
                                             <div class="d-inline">
                                                 <input type="hidden" name="ispost_linkedin" value="false">
@@ -781,7 +781,7 @@
                                                 <label class="form-check-label mr-5" for="">{{ __('Post job at Linkedin page of council direct?') }}</label>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
                         </div>
