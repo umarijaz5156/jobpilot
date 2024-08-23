@@ -114,6 +114,11 @@ class JobCreateService
             $this->sendJobToFacebook($jobCreated);
         }
 
+        if ($request->ispost_linkedin === 'true') {
+            $this->sendJobToLinkedIn($jobCreated);
+        }
+
+
 
 
         return $jobCreated;
@@ -383,6 +388,41 @@ class JobCreateService
         $seeMoreLink = "<a href='" . url('/job/' . $job->slug) . "'>See More</a>";
         $description .= ' ' . $seeMoreLink;
 
+
+            // Map regions to state codes
+            $regionMapping = [
+                "South Australia" => ["city" => "Adelaide", "postcode" => "5000"],
+                "Victoria" => ["city" => "Melbourne", "postcode" => "3000"],
+                "New South Wales" => ["city" => "Sydney", "postcode" => "2000"],
+                "Queensland" => ["city" => "Brisbane", "postcode" => "4000"],
+                "Tasmania" => ["city" => "Hobart", "postcode" => "7000"],
+                "Northern Territory" => ["city" => "Darwin", "postcode" => "0800"],
+                "Western Australia" => ["city" => "Perth", "postcode" => "6000"],
+                "Australian Capital Territory" => ["city" => "Canberra", "postcode" => "2600"],
+                "New Zealand" => ["city" => "Auckland", "postcode" => "1010"], // New Zealand mapping
+            ];
+
+            // Determine the city and postcode based on the region
+            $region = $job->region ?? '';
+            $city = $regionMapping[$region]['city'];
+
+            $postcode =  $regionMapping[$region]['postcode'];
+
+            $stateMapping = [
+                "New South Wales" => "NSW",
+                "Victoria" => "VIC",
+                "Queensland" => "QLD",
+                "Tasmania" => "TAS",
+                "Northern Territory" => "NT",
+                "South Australia" => "SA",
+                "Australian Capital Territory" => "ACT",
+                "Western Australia" => "WA",
+                "New Zealand" => "NZ",
+            ];
+
+           $stateCode = $stateMapping[$region] ?? 'ACT';
+
+
         $data = [
             "Vacancy" => [
                 "VacancyId" => 0,
@@ -435,12 +475,12 @@ class JobCreateService
             "VacancyAddress" => [
                 "VacancyId" => 0,
                 "VacancyAddressId" => 0,
-                "AddressLine1" => $companyData->address,
-                "AddressLine2" => null,
-                "AddressLine3" => null,
-                "Suburb" => $companyData->suburb ?? 'BRADDON',
-                "StateCode" => $companyData->state_code ?? "ACT",
-                "PostCode" => $companyData->post_code ?? "2612",
+                "AddressLine1" => $job->exact_location,
+                "AddressLine2" => $job->address,
+                "AddressLine3" => $job->region,
+                "Suburb" => $city ?? 'BRADDON',
+                "StateCode" => $stateCode ?? "ACT",
+                "PostCode" => $postcode ?? "2612",
             ],
             "VacancyLicence" => [],
             "VacancySpecialGroup" => [],
@@ -488,7 +528,41 @@ class JobCreateService
         $url = "https://graph.facebook.com/v20.0/103121261078671/feed";
 
 
+<<<<<<< Updated upstream
         // Initialize cURL session
+=======
+        if ($logoUrl) {
+            $response = $this->uploadImageToFacebook($accessToken, $logoUrl, $message);
+        } else {
+            $response = $this->postTextToFacebook($accessToken, $message);
+        }
+
+    }
+
+    protected function uploadImageToFacebook($accessToken, $imageUrl, $message)
+    {
+
+        $url = "https://graph.facebook.com/v20.0/103121261078671/photos";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, [
+            'url' => $imageUrl,
+            'caption' => $message, // Add the message as a caption
+            'access_token' => $accessToken,
+            'published' => true // Post immediately
+        ]);
+        $response = curl_exec($ch);
+
+        curl_close($ch);
+        return json_decode($response, true);
+    }
+
+    protected function postTextToFacebook($accessToken, $message)
+    {
+        $url = "https://graph.facebook.com/v20.0/103121261078671/feed";
+>>>>>>> Stashed changes
         $ch = curl_init();
 
         // Set the URL and other options
@@ -507,6 +581,110 @@ class JobCreateService
     }
 
 
+<<<<<<< Updated upstream
+=======
+        protected function sendJobToLinkedIn($job)
+    {
+        $characterLimit = env('LINKEDIN_JOB_DESCRIPTION_CHAR_LIMIT', 1300); // LinkedIn allows longer posts
+        $description = strip_tags($job->description); // Remove HTML tags
+
+        // Truncate the description if it exceeds the character limit
+        if (strlen($description) > $characterLimit) {
+            $description = substr($description, 0, $characterLimit) . '...';
+        }
+
+        $seeMoreLink = url('/job/' . $job->slug);
+
+        // Format the message
+        $message = $job->title . "\n\n"; // Job title on the first line
+        $message .= $description . "\n\n"; // Truncated description
+        $message .= "Click here to see more: " . $seeMoreLink; // Add the link
+
+        $accessToken = $this->getLinkedInAccessToken();
+
+        $vanityName = 'council-direct';
+
+        $organizationURN = $this->getOrganizationURN($accessToken,$vanityName);
+        dd($organizationURN);
+
+        // Post the job to LinkedIn
+        $response = $this->postJobToLinkedIn($accessToken, $message, $job->company->linkedin_urn);
+
+        return $response;
+    }
+
+    protected function postJobToLinkedIn($accessToken, $message, $organizationURN)
+    {
+        $url = "https://api.linkedin.com/v2/ugcPosts";
+
+        $postData = [
+            'author' => 'urn:li:organization:' . $organizationURN, // Replace with your organization's URN
+            'lifecycleState' => 'PUBLISHED',
+            'specificContent' => [
+                'com.linkedin.ugc.ShareContent' => [
+                    'shareCommentary' => [
+                        'text' => $message
+                    ],
+                    'shareMediaCategory' => 'NONE'
+                ]
+            ],
+            'visibility' => [
+                'com.linkedin.ugc.MemberNetworkVisibility' => 'PUBLIC'
+            ]
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Authorization: Bearer " . $accessToken,
+            "Content-Type: application/json",
+            "X-Restli-Protocol-Version: 2.0.0"
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return json_decode($response, true);
+    }
+
+    protected function getLinkedInAccessToken()
+    {
+        $accesToken = env('LINKEDIN_ACCESS_TOKEN');
+        return $accesToken;
+    }
+
+    protected function getOrganizationURN($accessToken, $vanityName)
+        {
+            $url = "https://api.linkedin.com/v2/organizations?q=vanityName&vanityName=" . urlencode($vanityName);
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                "Authorization: Bearer " . $accessToken,
+                "X-Restli-Protocol-Version: 2.0.0"
+            ]);
+
+            $response = curl_exec($ch);
+            curl_close($ch);
+
+            $data = json_decode($response, true);
+            dd($data);
+            if (isset($data['elements'][0]['id'])) {
+                return $data['elements'][0]['id']; // Return the organization URN
+            }
+
+            return null; // Handle cases where the URN is not found
+        }
+
+
+
+
+
+>>>>>>> Stashed changes
     public function getLongLivedToken()
     {
         $appId = env('FACEBOOK_APP_ID');

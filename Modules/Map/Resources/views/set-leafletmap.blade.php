@@ -68,6 +68,8 @@
                     ?.town : data?.address?.village ? data?.address?.village : data?.address?.state ? data?.address
                     ?.state : data?.address?.country ? data?.address?.country : "District is not selected";
                 var place = data?.address?.city ? data?.address?.city : "";
+                var postcode = data?.address?.postcode || ''; // Extract postcode
+
 
                 // Create a form data object to store location details
                 var form = new FormData();
@@ -77,9 +79,10 @@
                 form.append('region', region);
                 form.append('district', district);
                 form.append('place', place);
+                form.append('postcode', postcode); // Add postcode
                 form.append('exact_location', district + "," + region + "," + country);
 
-                // Store location details in a session 
+                // Store location details in a session
                 setLocationSession(form);
 
                 // Displayed location information
@@ -172,6 +175,8 @@
                 ?.state ? data?.address?.state : data?.address?.country ? data?.address?.country :
                 "District is not selected";
             var place = data?.address?.city ? data?.address?.city : "";
+            var postcode = data?.address?.postcode || ''; // Extract postcode
+
 
             /// Create a form data object to store location details
             var form = new FormData();
@@ -182,9 +187,11 @@
             form.append('region', region);
             form.append('district', district);
             form.append('place', place);
+            form.append('postcode', postcode); // Add postcode
+
             form.append('exact_location', district + "," + region + "," + country);
 
-            // Store location details in a session 
+            // Store location details in a session
             setLocationSession(form);
 
             //Displayed location information
@@ -240,6 +247,8 @@
                     ?.state ? data?.address?.state : data?.address?.country ? data?.address?.country :
                     "District is not selected";
                 var place = data?.address?.city ? data?.address?.city : "";
+                var postcode = data?.address?.postcode || ''; // Extract postcode
+
                 // Create a form data object to store location details
                 var form = new FormData();
                 form.append('lat', lat);
@@ -249,6 +258,8 @@
                 form.append('region', region);
                 form.append('district', district);
                 form.append('place', place);
+                form.append('postcode', postcode); // Add postcode
+
                 form.append('exact_location', district + "," + region + "," + country);
 
                 // Store location details in a session

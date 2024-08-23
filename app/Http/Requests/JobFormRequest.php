@@ -24,6 +24,7 @@ class JobFormRequest extends FormRequest
      */
     public function rules()
     {
+        // dd(session()->get('location'));
         $min = $this->input('min_salary');
         $max = $this->input('max_salary');
 
