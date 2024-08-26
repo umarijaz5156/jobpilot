@@ -9,7 +9,7 @@ use App\Models\Job;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use App\Services\API\EssAPI\EssApiService;
-
+use GuzzleHttp\Exception\RequestException;
 class JobCreateService
 {
     use JobAble;
@@ -377,7 +377,7 @@ class JobCreateService
 
     protected function sendJobToGovJobs($job, $categories)
     {
-        
+
         $selectCity = City::where('id',$job->city_id)->first();
         $companyData = Company::findOrFail($job->company_id);
 
@@ -581,6 +581,7 @@ class JobCreateService
 
     protected function sendJobToLinkedIn($job)
     {
+
         $characterLimit = env('LINKEDIN_JOB_DESCRIPTION_CHAR_LIMIT', 1300); // LinkedIn allows longer posts
         $description = strip_tags($job->description); // Remove HTML tags
 
@@ -599,6 +600,44 @@ class JobCreateService
         $accessToken = $this->getLinkedInAccessToken();
 
         $vanityName = 'council-direct';
+
+
+        $client = new Client();
+
+        $headers = [
+            'Authorization' => "Bearer $accessToken",
+            'Content-Type' => 'application/json',
+        ];
+
+       
+        try {
+            $response = $client->request('GET', 'https://api.linkedin.com/v2/organizationalEntityAcls?q=roleAssignee', [
+                'headers' => $headers,
+            ]);
+
+            $data = json_decode($response->getBody(), true);
+            dd($data );
+            foreach ($data['elements'] as $element) {
+                if (isset($element['organizationalTarget'])) {
+                    $organizationUrn = $element['organizationalTarget'];
+                    $organizationId = str_replace('urn:li:organization:', '', $organizationUrn);
+                    echo "Organization ID: " . $organizationId . "\n";
+                }
+            }
+        } catch (RequestException $e) {
+            dd($e->getMessage());
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $statusCode = $response->getStatusCode();
+                $errorBody = $response->getBody();
+                echo "Error: Received status code $statusCode with message: $errorBody";
+            } else {
+                echo "Error: " . $e->getMessage();
+            }
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            echo "An unexpected error occurred: " . $e->getMessage();
+        }
 
         $organizationURN = $this->getOrganizationURN($accessToken, $vanityName);
         dd($organizationURN);
