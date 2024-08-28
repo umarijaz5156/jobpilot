@@ -130,7 +130,7 @@ class EssApiService
                     'exception' => $e->getMessage(),
                 ]);
 
-                dd($e->getMessage(), $statusCode, $responseBody, $requestHeaders, $requestBody);
+                // dd($e->getMessage(), $statusCode, $responseBody, $requestHeaders, $requestBody);
 
                 throw $e;
             } catch (\GuzzleHttp\Exception\ClientException $e) {
@@ -156,8 +156,8 @@ class EssApiService
                     $this->refreshToken($apiIdentifier);
                     continue;
                 }
-                
-                dd($e->getMessage(), $statusCode, $responseBody, $requestHeaders, $requestBody);
+
+                // dd($e->getMessage(), $statusCode, $responseBody, $requestHeaders, $requestBody);
 
                 throw $e;
             } catch (\Exception $e) {
@@ -165,7 +165,7 @@ class EssApiService
                     'endpoint' => $fullUrl,
                     'exception' => $e->getMessage(),
                 ]);
-                dd($e);
+                // dd($e);
                 throw $e;
             }
         }

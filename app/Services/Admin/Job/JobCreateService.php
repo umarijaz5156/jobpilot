@@ -6,6 +6,7 @@ use App\Http\Traits\JobAble;
 use App\Models\City;
 use App\Models\Company;
 use App\Models\Job;
+use App\Models\State;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use App\Services\API\EssAPI\EssApiService;
@@ -392,6 +393,7 @@ class JobCreateService
         $description .= ' ' . $seeMoreLink;
 
 
+        $state = State::findOrfail($job->state_id);
         // Determine the city and postcode based on the region
         $region = $job->region ?? '';
         $city = $selectCity->name;
@@ -401,7 +403,7 @@ class JobCreateService
         $stateMapping = [
             "New South Wales" => "NSW",
             "Victoria" => "VIC",
-            "Queensland" => "QLD",
+            "QLD (Queensland)" => "QLD",
             "Tasmania" => "TAS",
             "Northern Territory" => "NT",
             "South Australia" => "SA",
@@ -410,7 +412,9 @@ class JobCreateService
             "New Zealand" => "NZ",
         ];
 
-        $stateCode = $stateMapping[$region] ?? 'ACT';
+
+        $stateCode = $stateMapping[$state->name] ?? 'ACT';
+
 
 
         $data = [
@@ -495,7 +499,7 @@ class JobCreateService
             ];
 
     // Log or print the error details
-    dd($logData);
+            // dd($logData);/
             \Log::error('Error sending job to GovJobs: ' . $e->getMessage());
             return null;
         }
@@ -530,14 +534,17 @@ class JobCreateService
 
         if ($logoUrl) {
             $response = $this->uploadImageToFacebook($accessToken, $logoUrl, $message);
+
         } else {
             $response = $this->postTextToFacebook($accessToken, $message);
         }
+
 
     }
 
     protected function uploadImageToFacebook($accessToken, $imageUrl, $message)
     {
+
 
         $url = "https://graph.facebook.com/v20.0/103121261078671/photos";
         $ch = curl_init();
@@ -609,7 +616,7 @@ class JobCreateService
             'Content-Type' => 'application/json',
         ];
 
-       
+
         try {
             $response = $client->request('GET', 'https://api.linkedin.com/v2/organizationalEntityAcls?q=roleAssignee', [
                 'headers' => $headers,
