@@ -502,7 +502,7 @@ class JobCreateService
             $vacancyId = $response['Data']['Vacancy']['VacancyId'];
             $job->essapi_job_id = $vacancyId;
             $job->save();
-            dd($job);
+            // dd($job);
             // dd($vacancyId, $response);
             return $response;
         } catch (\Exception $e) {
