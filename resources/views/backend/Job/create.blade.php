@@ -773,6 +773,24 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_facebook_WL" value="false">
+                                                <input value="true" name="ispost_facebook_WL" type="checkbox" class="form-check-input" id="">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Facebook page of Water land?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_facebook_EH" value="false">
+                                                <input value="true" name="ispost_facebook_EH" type="checkbox" class="form-check-input" id="">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Facebook page of Engineering jobs hub?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
                                     {{-- <div class="col-sm-12 form-group">
                                         <div class="form-check">
                                             <div class="d-inline">
@@ -967,7 +985,7 @@
         });
     });
 
-    
+
 </script>
 <script>
     $(document).ready(function() {

@@ -6,11 +6,14 @@ use App\Http\Traits\JobAble;
 use App\Models\City;
 use App\Models\Company;
 use App\Models\Job;
+use App\Models\Setting;
 use App\Models\State;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use App\Services\API\EssAPI\EssApiService;
 use GuzzleHttp\Exception\RequestException;
+use Illuminate\Support\Facades\Artisan;
+
 class JobCreateService
 {
     use JobAble;
@@ -115,6 +118,18 @@ class JobCreateService
         if ($request->ispost_facebook === 'true') {
             $this->sendJobToFacebook($jobCreated);
         }
+
+
+        if ($request->ispost_facebook_WL === 'true') {
+            $this->sendJobToFacebookWL($jobCreated);
+        }
+
+
+        if ($request->ispost_facebook_EH === 'true') {
+            $this->sendJobToFacebookEH($jobCreated);
+        }
+
+
 
         if ($request->ispost_linkedin === 'true') {
             $this->sendJobToLinkedIn($jobCreated);
@@ -487,6 +502,7 @@ class JobCreateService
             $vacancyId = $response['Data']['Vacancy']['VacancyId'];
             $job->essapi_job_id = $vacancyId;
             $job->save();
+            dd($job);
             // dd($vacancyId, $response);
             return $response;
         } catch (\Exception $e) {
@@ -497,8 +513,9 @@ class JobCreateService
                 'request'  => (string) $request->getBody(),
                 'response' => (string) $response->getBody(),
             ];
+            dd($logData);
 
-    // Log or print the error details
+        // Log or print the error details
             // dd($logData);/
             \Log::error('Error sending job to GovJobs: ' . $e->getMessage());
             return null;
@@ -506,6 +523,8 @@ class JobCreateService
     }
 
 
+
+    // facebook post on council direct
     protected function sendJobToFacebook($job)
     {
         $characterLimit = env('ESS_API_JOB_DESCRIPTION_CHAR_LIMIT', 50);
@@ -529,62 +548,299 @@ class JobCreateService
 
         $accessToken = $this->getLongLivedToken();
 
-        $url = "https://graph.facebook.com/v20.0/103121261078671/feed";
 
 
         if ($logoUrl) {
-            $response = $this->uploadImageToFacebook($accessToken, $logoUrl, $message);
-
+            $url = "https://graph.facebook.com/v20.0/103121261078671/photos";
+            $response = $this->uploadImageToFacebook($accessToken, $logoUrl, $message,$url);
+            // dd($response );
         } else {
-            $response = $this->postTextToFacebook($accessToken, $message);
+            $url = "https://graph.facebook.com/v20.0/103121261078671/feed";
+            $response = $this->postTextToFacebook($accessToken, $message,$url);
+            // dd($response );
+
         }
 
 
     }
 
-    protected function uploadImageToFacebook($accessToken, $imageUrl, $message)
+    // end council direct facebook
+
+
+    // start water land facebook
+
+    protected function sendJobToFacebookWL($job)
+    {
+        $characterLimit = env('ESS_API_JOB_DESCRIPTION_CHAR_LIMIT', 50);
+        $description = strip_tags($job->description); // Remove HTML tags
+
+        // Split the description into words
+        $descriptionWords = explode(' ', $description);
+
+        // Truncate the description if it exceeds the character limit
+        if (count($descriptionWords) > $characterLimit) {
+            $description = implode(' ', array_slice($descriptionWords, 0, $characterLimit)) . '...';
+        }
+
+        $logoUrl = url($job->company->logo);
+        $seeMoreLink = url('/job/' . $job->slug);
+
+        // Format the message
+        $message = $job->title . "\n\n"; // Job title on the first line
+        $message .= $description . "\n\n"; // Truncated description
+        $message .= "Click here to see more: " . $seeMoreLink; // Add the link
+
+        $accessToken = $this->getLongLivedTokenWL();
+        if ($logoUrl) {
+            $url = "https://graph.facebook.com/v20.0/276526412210237/photos";
+            $response = $this->uploadImageToFacebook($accessToken, $logoUrl, $message,$url);
+            // dd($response );
+        } else {
+            $url = "https://graph.facebook.com/v20.0/276526412210237/feed";
+            $response = $this->postTextToFacebook($accessToken, $message,$url);
+            // dd($response );
+        }
+
+
+    }
+    // end water land facebook
+
+    // engineering jobs hub
+
+    protected function sendJobToFacebookEH($job)
+    {
+        $characterLimit = env('ESS_API_JOB_DESCRIPTION_CHAR_LIMIT', 50);
+        $description = strip_tags($job->description); // Remove HTML tags
+
+        // Split the description into words
+        $descriptionWords = explode(' ', $description);
+
+        // Truncate the description if it exceeds the character limit
+        if (count($descriptionWords) > $characterLimit) {
+            $description = implode(' ', array_slice($descriptionWords, 0, $characterLimit)) . '...';
+        }
+
+        $logoUrl = url($job->company->logo);
+        $seeMoreLink = url('/job/' . $job->slug);
+
+        // Format the message
+        $message = $job->title . "\n\n"; // Job title on the first line
+        $message .= $description . "\n\n"; // Truncated description
+        $message .= "Click here to see more: " . $seeMoreLink; // Add the link
+
+        $accessToken = $this->getLongLivedTokenEH();
+        if ($logoUrl) {
+            $url = "https://graph.facebook.com/v20.0/449251164931014/photos";
+            $response = $this->uploadImageToFacebook($accessToken, $logoUrl, $message,$url);
+            // dd($response );
+        } else {
+            $url = "https://graph.facebook.com/v20.0/449251164931014/feed";
+            $response = $this->postTextToFacebook($accessToken, $message,$url);
+            // dd($response );
+        }
+
+
+    }
+
+
+
+    // facebook api call for all
+    protected function uploadImageToFacebook($accessToken, $imageUrl, $message, $url)
     {
 
+        // $imageUrl = "https://landandwaterjobs.com.au/uploads/app/logo/VTeIziZeWfM2w63Hgfdn6qhWHdd3pALUf4K96xfk.png";
+        try {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, [
+                'url' => $imageUrl,
+                'caption' => $message, // Add the message as a caption
+                'access_token' => $accessToken,
+                'published' => true // Post immediately
+            ]);
 
-        $url = "https://graph.facebook.com/v20.0/103121261078671/photos";
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, [
-            'url' => $imageUrl,
-            'caption' => $message, // Add the message as a caption
-            'access_token' => $accessToken,
-            'published' => true // Post immediately
-        ]);
-        $response = curl_exec($ch);
 
-        curl_close($ch);
-        return json_decode($response, true);
+            $response = curl_exec($ch);
+
+            if (curl_errno($ch)) {
+                // Handle cURL error
+                $errorMessage = curl_error($ch);
+                curl_close($ch);
+                dd('cURL Error: ' . $errorMessage);
+            }
+
+            curl_close($ch);
+
+            $decodedResponse = json_decode($response, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                // Handle JSON decoding error
+                dd('JSON Error: ' . json_last_error_msg());
+            }
+
+            return $decodedResponse;
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            dd($e->getMessage());
+        }
     }
-    protected function postTextToFacebook($accessToken, $message)
+
+    protected function postTextToFacebook($accessToken, $message, $url)
     {
-        $url = "https://graph.facebook.com/v20.0/103121261078671/feed";
-        $ch = curl_init();
+        try {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, [
+                'message' => $message,
+                'access_token' => $accessToken
+            ]);
 
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, [
-            'message' => $message,
-            'access_token' => $accessToken
-        ]);
+            $response = curl_exec($ch);
 
-        // Execute cURL request
-        $response = curl_exec($ch);
+            if (curl_errno($ch)) {
+                // Handle cURL error
+                $errorMessage = curl_error($ch);
+                curl_close($ch);
+                dd('cURL Error: ' . $errorMessage);
+            }
 
-        curl_close($ch);
+            curl_close($ch);
 
-        return json_decode($response, true);
+            $decodedResponse = json_decode($response, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                // Handle JSON decoding error
+                dd('JSON Error: ' . json_last_error_msg());
+            }
+
+            return $decodedResponse;
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            dd('General Error: ' . $e->getMessage());
+        }
     }
 
 
 
+    // tokens
+
+    public function getLongLivedToken()
+    {
+
+        try {
+            $setting = Setting::first();
+
+
+            $appId = $setting->facebook_app_id;
+            $appSecret = $setting->facebook_app_secret;
+            $shortLivedToken = $setting->facebook_access_token;
+
+            $client = new \GuzzleHttp\Client();
+            $response = $client->get('https://graph.facebook.com/v20.0/oauth/access_token', [
+                'query' => [
+                    'grant_type' => 'fb_exchange_token',
+                    'client_id' => $appId,
+                    'client_secret' => $appSecret,
+                    'fb_exchange_token' => $shortLivedToken,
+                ],
+            ]);
+
+            $responseBody = json_decode($response->getBody(), true);
+            $longLivedToken = $responseBody['access_token'];
+
+            $setting->facebook_access_token  = $longLivedToken;
+            $setting->save();
+            // $this->updateEnvFile('FACEBOOK_ACCESS_TOKEN', $longLivedToken);
+
+            return $longLivedToken;
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            // Handle the request exception and display the error message
+            dd('Request Error: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            dd('General Error: ' . $e->getMessage());
+        }
+    }
+
+    public function getLongLivedTokenWL()
+    {
+
+        try {
+
+            $setting = Setting::first();
+            $appId = $setting->facebook_app_id_wl;
+            $appSecret = $setting->facebook_app_secret_wl;
+            $shortLivedToken = $setting->facebook_access_token_wl;
+
+            $client = new \GuzzleHttp\Client();
+            $response = $client->get('https://graph.facebook.com/v20.0/oauth/access_token', [
+                'query' => [
+                    'grant_type' => 'fb_exchange_token',
+                    'client_id' => $appId,
+                    'client_secret' => $appSecret,
+                    'fb_exchange_token' => $shortLivedToken,
+                ],
+            ]);
+
+            $responseBody = json_decode($response->getBody(), true);
+            $longLivedToken = $responseBody['access_token'];
+            // $this->updateEnvFile('FACEBOOK_ACCESS_TOKEN_WL', $longLivedToken);
+            $setting->facebook_access_token_wl  = $longLivedToken;
+            $setting->save();
+
+            return $longLivedToken;
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            // Handle the request exception and display the error message
+            dd('Request Error: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            dd('General Error: ' . $e->getMessage());
+        }
+    }
+
+    public function getLongLivedTokenEH()
+    {
+
+        try {
+
+            $setting = Setting::first();
+            $appId = $setting->facebook_app_id_eh;
+            $appSecret = $setting->facebook_app_secret_eh;
+            $shortLivedToken = $setting->facebook_access_token_eh;
+
+            $client = new \GuzzleHttp\Client();
+            $response = $client->get('https://graph.facebook.com/v20.0/oauth/access_token', [
+                'query' => [
+                    'grant_type' => 'fb_exchange_token',
+                    'client_id' => $appId,
+                    'client_secret' => $appSecret,
+                    'fb_exchange_token' => $shortLivedToken,
+                ],
+            ]);
+
+            $responseBody = json_decode($response->getBody(), true);
+            $longLivedToken = $responseBody['access_token'];
+            $setting->facebook_access_token_eh  = $longLivedToken;
+            $setting->save();
+
+            return $longLivedToken;
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            // Handle the request exception and display the error message
+            dd('Request Error: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            dd('General Error: ' . $e->getMessage());
+        }
+    }
+
+
+
+
+     // linkined
 
     protected function sendJobToLinkedIn($job)
     {
@@ -725,26 +981,4 @@ class JobCreateService
 
 
 
-
-    public function getLongLivedToken()
-    {
-        $appId = env('FACEBOOK_APP_ID');
-        $appSecret = env('FACEBOOK_APP_SECRET');
-        $shortLivedToken = env('FACEBOOK_ACCESS_TOKEN');
-
-        $client = new \GuzzleHttp\Client();
-        $response = $client->get('https://graph.facebook.com/v20.0/oauth/access_token', [
-            'query' => [
-                'grant_type' => 'fb_exchange_token',
-                'client_id' => $appId,
-                'client_secret' => $appSecret,
-                'fb_exchange_token' => $shortLivedToken,
-            ],
-        ]);
-
-        $responseBody = json_decode($response->getBody(), true);
-        $longLivedToken = $responseBody['access_token'];
-
-        return $longLivedToken;
-    }
 }
