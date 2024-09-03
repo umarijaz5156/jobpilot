@@ -19,6 +19,7 @@ use App\Models\JobRole;
 use App\Models\JobType;
 use App\Models\SalaryType;
 use App\Models\SearchCountry;
+use App\Models\Setting;
 use App\Models\Skill;
 use App\Models\State;
 use App\Models\Tag;
@@ -542,7 +543,7 @@ class JobController extends Controller
 
         foreach ($dataArray as $data) {
 
-         
+
 
                 $company = User::where('name', $data['company'])->first();
 
@@ -658,7 +659,7 @@ class JobController extends Controller
 
                 // Location insert
                 updateMap($jobCreated);
-            
+
         }
 
         dd('done all');

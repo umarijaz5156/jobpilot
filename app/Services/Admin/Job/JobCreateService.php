@@ -416,14 +416,14 @@ class JobCreateService
         $postcode =  $selectCity->postCode;
 
         $stateMapping = [
-            "New South Wales" => "NSW",
-            "Victoria" => "VIC",
+            "NSW (New South Wales)" => "NSW",
+            "VIC (Victoria)" => "VIC",
             "QLD (Queensland)" => "QLD",
-            "Tasmania" => "TAS",
-            "Northern Territory" => "NT",
-            "South Australia" => "SA",
+            "TAS (Tasmania)" => "TAS",
+            "NT (Northern Territory)" => "NT",
+            "SA (South Australia)" => "SA",
             "Australian Capital Territory" => "ACT",
-            "Western Australia" => "WA",
+            "WA (Western Australia)" => "WA",
             "New Zealand" => "NZ",
         ];
 
