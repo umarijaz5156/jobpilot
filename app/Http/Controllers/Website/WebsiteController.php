@@ -67,11 +67,13 @@ class WebsiteController extends Controller
 
     public function testXml()
     {
-        $jobs = Job::where('deadline', '>', now())
-        // ->where('status','active')
-        ->orderBy('created_at', 'desc')
-        // ->take(2)
-        ->get();
+        // $jobs = Job::where('deadline', '>', now())
+        // ->orderBy('created_at', 'desc')
+        // ->get();
+
+        $jobs = Job::whereDate('deadline', '>', now()->addDay()->toDateString())
+           ->orderBy('created_at', 'desc')
+           ->get();
 
         $xml = new \SimpleXMLElement('<jobs/>');
 
