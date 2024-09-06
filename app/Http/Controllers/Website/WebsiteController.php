@@ -50,6 +50,7 @@ use Modules\Testimonial\Entities\Testimonial;
 use Srmklive\PayPal\Services\PayPal;
 use Stevebauman\Location\Facades\Location;
 use App\Services\API\EssAPI\EssApiService;
+use Illuminate\Support\Facades\Response;
 
 class WebsiteController extends Controller
 {
@@ -63,6 +64,47 @@ class WebsiteController extends Controller
         $this->setting = loadSetting(); // see helpers.php
         $this->essApiService = $essApiService;
     }
+
+    public function testXml()
+    {
+        $jobs = Job::orderBy('created_at', 'desc')->take(2)->get();
+
+        $xml = new \SimpleXMLElement('<jobs/>');
+
+        foreach ($jobs as $job) {
+            $jobNode = $xml->addChild('job');
+            $jobNode->addChild('id', $job->id);
+            $jobNode->addChild('title', htmlspecialchars($job->title));
+            $jobNode->addChild('description', htmlspecialchars($job->description));
+
+            $locationNode = $jobNode->addChild('location');
+            $locationNode->addChild('city', htmlspecialchars($job->city->name ?? 'N/A'));
+            $locationNode->addChild('state', htmlspecialchars($job->state->name ?? 'N/A'));
+            $locationNode->addChild('country', htmlspecialchars($job->state->country->name ?? 'N/A'));
+
+            $companyNode = $jobNode->addChild('company');
+            $companyNode->addChild('name', htmlspecialchars($job->company->user->name ?? 'N/A'));
+            $companyNode->addChild('logo', htmlspecialchars($job->company->logo_url ?? 'https://example.com/default_logo.png'));
+
+            $jobNode->addChild('posted_date', $job->created_at->format('Y-m-d\TH:i:s\Z'));
+
+            $salaryNode = $jobNode->addChild('salary');
+            $salaryNode->addChild('amount', htmlspecialchars($job->custom_salary ?? $job->min_salary . ' - ' . $job->max_salary));
+            $salaryNode->addChild('currency', 'USD'); // Assuming currency, change as needed
+            $salaryNode->addChild('period', $job->salary_mode == 'hourly' ? 'hour' : 'year');
+
+            $jobNode->addChild('apply_url', htmlspecialchars($job->apply_url ?? 'https://example.com/apply/' . $job->id));
+            $jobNode->addChild('job_type', htmlspecialchars($job->jobType->name ?? 'full-time'));
+
+            $categoriesNode = $jobNode->addChild('categories');
+            foreach ($job->selectedCategories->pluck('name')->toArray() as $category) {
+                $categoriesNode->addChild('category', htmlspecialchars($category));
+            }
+        }
+
+        return Response::make($xml->asXML(), 200)->header('Content-Type', 'application/xml');
+    }
+
     public function getAllBoundaries()
     {
         try {
@@ -220,7 +262,7 @@ class WebsiteController extends Controller
     public function RegisterCompany(){
         $data['candidates'] = Candidate::count();
 
-        return view('frontend.auth.company-register',$data); 
+        return view('frontend.auth.company-register',$data);
     }
 
     /**
@@ -317,7 +359,7 @@ class WebsiteController extends Controller
         }
     }
 
-    
+
 
     /**
      * Job category page view
@@ -577,7 +619,7 @@ class WebsiteController extends Controller
     public function employees(Request $request)
     {
 
-    
+
         try {
             abort_if(auth('user')->check() && authUser()->role == 'company', 404);
 

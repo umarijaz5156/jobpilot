@@ -56,6 +56,8 @@ class JobController extends Controller
      */
     public function index(Request $request)
     {
+
+    
         try {
             abort_if(!userCan('job.view'), 403);
 
