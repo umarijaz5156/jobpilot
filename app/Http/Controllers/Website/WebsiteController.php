@@ -67,7 +67,11 @@ class WebsiteController extends Controller
 
     public function testXml()
     {
-        $jobs = Job::orderBy('created_at', 'desc')->take(2)->get();
+        $jobs = Job::where('deadline', '>', now())
+        // ->where('status','active')
+        ->orderBy('created_at', 'desc')
+        // ->take(2)
+        ->get();
 
         $xml = new \SimpleXMLElement('<jobs/>');
 
@@ -84,17 +88,19 @@ class WebsiteController extends Controller
 
             $companyNode = $jobNode->addChild('company');
             $companyNode->addChild('name', htmlspecialchars($job->company->user->name ?? 'N/A'));
-            $companyNode->addChild('logo', htmlspecialchars($job->company->logo_url ?? 'https://example.com/default_logo.png'));
+            $companyNode->addChild('logo', htmlspecialchars($job->company->logo_url ?? 'https://councildirect.com.au/uploads/app/logo/ASsFLMESuNOY97yLF90EidCQnXRvCMIKR7PVj1ZZ.png'));
 
             $jobNode->addChild('posted_date', $job->created_at->format('Y-m-d\TH:i:s\Z'));
 
             $salaryNode = $jobNode->addChild('salary');
             $salaryNode->addChild('amount', htmlspecialchars($job->custom_salary ?? $job->min_salary . ' - ' . $job->max_salary));
-            $salaryNode->addChild('currency', 'USD'); // Assuming currency, change as needed
+            $salaryNode->addChild('currency', 'AUD'); // Assuming currency, change as needed
             $salaryNode->addChild('period', $job->salary_mode == 'hourly' ? 'hour' : 'year');
 
-            $jobNode->addChild('apply_url', htmlspecialchars($job->apply_url ?? 'https://example.com/apply/' . $job->id));
-            $jobNode->addChild('job_type', htmlspecialchars($job->jobType->name ?? 'full-time'));
+            $siteUrl = env('APP_URL'); // Assuming your site's base URL is stored in the config file
+
+            $jobNode->addChild('apply_url', htmlspecialchars($siteUrl . '/job/' . $job->slug));
+                        $jobNode->addChild('job_type', htmlspecialchars($job->jobType->name ?? 'full-time'));
 
             $categoriesNode = $jobNode->addChild('categories');
             foreach ($job->selectedCategories->pluck('name')->toArray() as $category) {
