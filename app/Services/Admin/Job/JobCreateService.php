@@ -670,11 +670,11 @@ class JobCreateService
 
         $accessToken = $this->getLongLivedTokenPJ();
         if ($logoUrl) {
-            $url = "https://graph.facebook.com/v20.0/449251164931014/photos";
+            $url = "https://graph.facebook.com/v20.0/347093105163707/photos";
             $response = $this->uploadImageToFacebook($accessToken, $logoUrl, $message,$url);
             // dd($response );
         } else {
-            $url = "https://graph.facebook.com/v20.0/449251164931014/feed";
+            $url = "https://graph.facebook.com/v20.0/347093105163707/feed";
             $response = $this->postTextToFacebook($accessToken, $message,$url);
             // dd($response );
         }
