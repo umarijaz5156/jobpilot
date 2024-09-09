@@ -791,6 +791,15 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_facebook_PJ" value="false">
+                                                <input value="true" name="ispost_facebook_PJ" type="checkbox" class="form-check-input" id="">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Facebook page of Plannin jobs?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
                                     {{-- <div class="col-sm-12 form-group">
                                         <div class="form-check">
                                             <div class="d-inline">
