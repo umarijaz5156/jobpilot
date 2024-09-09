@@ -129,7 +129,7 @@ class JobCreateService
             $this->sendJobToFacebookEH($jobCreated);
         }
 
-        if ($request->ispost_facebook_EH === 'true') {
+        if ($request->ispost_facebook_PJ === 'true') {
             $this->ispost_facebook_PJ($jobCreated);
         }
 
