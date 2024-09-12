@@ -717,7 +717,7 @@
                         },
                         success: function(response) {
 
-                            showSuccessMessage('Job Posted on the Care Worker jobs Site successfully');
+                            showSuccessMessage('Job added adzuna Jobs Paid side successfully');
                              // Hide the loader and show the text again
                              $buttonLoader.addClass('d-none');
                             $buttonText.removeClass('d-none');
