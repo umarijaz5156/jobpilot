@@ -34,6 +34,12 @@ return new class extends Migration
             $table->string('facebook_page_id_pj', 255)->after('facebook_app_secret_pj');
             $table->text('facebook_access_token_pj')->after('facebook_page_id_pj');
 
+
+            $table->string('facebook_app_id_cw', 255)->after('facebook_access_token_pj');
+            $table->string('facebook_app_secret_cw', 255)->after('facebook_app_id_cw');
+            $table->string('facebook_page_id_cw', 255)->after('facebook_app_secret_cw');
+            $table->text('facebook_access_token_cw')->after('facebook_page_id_cw');
+
         });
     }
 
