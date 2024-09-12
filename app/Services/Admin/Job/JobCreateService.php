@@ -968,9 +968,9 @@ class JobCreateService
         try {
 
             $setting = Setting::first();
-            $appId = $setting->facebook_app_id_cr;
-            $appSecret = $setting->facebook_app_secret_cr;
-            $shortLivedToken = $setting->facebook_access_token_cr;
+            $appId = $setting->facebook_app_id_cw;
+            $appSecret = $setting->facebook_app_secret_cw;
+            $shortLivedToken = $setting->facebook_access_token_cw;
 
             $client = new \GuzzleHttp\Client();
             $response = $client->get('https://graph.facebook.com/v20.0/oauth/access_token', [
@@ -984,7 +984,7 @@ class JobCreateService
 
             $responseBody = json_decode($response->getBody(), true);
             $longLivedToken = $responseBody['access_token'];
-            $setting->facebook_access_token_cr  = $longLivedToken;
+            $setting->facebook_access_token_cw  = $longLivedToken;
             $setting->save();
 
             return $longLivedToken;
