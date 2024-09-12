@@ -160,6 +160,9 @@ Route::controller(WebsiteController::class)->name('website.')->group(function ()
     Route::get('/essapi/getAllBoundaries', 'getAllBoundaries')->name('getAllBoundaries');
     Route::get('/essapi/createVacancy', 'createVacancy')->name('createVacancy');
     Route::get('/test-xml', 'testXml')->name('testXml');
+    Route::get('/test-xml-adzuna-paid', 'testXmlAdzunaPaid')->name('testXml');
+
+
 
     Route::get('/', 'index')->name('home');
     Route::get('/about', 'about')->name('about');
@@ -337,3 +340,6 @@ Route::get('/jobs/planningjobs', [JobController::class, 'planningjobsSelectedJob
 
 // care site
 Route::get('/jobs/carejobs', [JobController::class, 'CarejobsSelectedJobs'])->name('jobs.carejobs');
+Route::get('/jobs/adzunaJobsPaid', [JobController::class, 'adzunaJobsPaidSelectedJobs'])->name('jobs.adzunaJobsPaid');
+
+

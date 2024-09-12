@@ -67,11 +67,55 @@ class WebsiteController extends Controller
 
     public function testXml()
     {
-        // $jobs = Job::where('deadline', '>', now())
-        // ->orderBy('created_at', 'desc')
-        // ->get();
 
         $jobs = Job::whereDate('deadline', '>', now()->addDay()->toDateString())
+        ->where('adzuna_paid',0)
+           ->orderBy('created_at', 'desc')
+           ->get();
+
+        $xml = new \SimpleXMLElement('<jobs/>');
+
+        foreach ($jobs as $job) {
+            $jobNode = $xml->addChild('job');
+            $jobNode->addChild('id', $job->id);
+            $jobNode->addChild('title', htmlspecialchars($job->title));
+            $jobNode->addChild('description', htmlspecialchars($job->description));
+
+            $locationNode = $jobNode->addChild('location');
+            $locationNode->addChild('city', htmlspecialchars($job->city->name ?? 'N/A'));
+            $locationNode->addChild('state', htmlspecialchars($job->state->name ?? 'N/A'));
+            $locationNode->addChild('country', htmlspecialchars($job->state->country->name ?? 'N/A'));
+
+            $companyNode = $jobNode->addChild('company');
+            $companyNode->addChild('name', htmlspecialchars($job->company->user->name ?? 'N/A'));
+            $companyNode->addChild('logo', htmlspecialchars($job->company->logo_url ?? 'https://councildirect.com.au/uploads/app/logo/ASsFLMESuNOY97yLF90EidCQnXRvCMIKR7PVj1ZZ.png'));
+
+            $jobNode->addChild('posted_date', $job->created_at->format('Y-m-d\TH:i:s\Z'));
+
+            $salaryNode = $jobNode->addChild('salary');
+            $salaryNode->addChild('amount', htmlspecialchars($job->custom_salary ?? $job->min_salary . ' - ' . $job->max_salary));
+            $salaryNode->addChild('currency', 'AUD'); // Assuming currency, change as needed
+            $salaryNode->addChild('period', $job->salary_mode == 'hourly' ? 'hour' : 'year');
+
+            $siteUrl = env('APP_URL'); // Assuming your site's base URL is stored in the config file
+
+            $jobNode->addChild('apply_url', htmlspecialchars($siteUrl . '/job/' . $job->slug));
+                        $jobNode->addChild('job_type', htmlspecialchars($job->jobType->name ?? 'full-time'));
+
+            $categoriesNode = $jobNode->addChild('categories');
+            foreach ($job->selectedCategories->pluck('name')->toArray() as $category) {
+                $categoriesNode->addChild('category', htmlspecialchars($category));
+            }
+        }
+
+        return Response::make($xml->asXML(), 200)->header('Content-Type', 'application/xml');
+    }
+
+    public function testXmlAdzunaPaid()
+    {
+
+        $jobs = Job::whereDate('deadline', '>', now()->addDay()->toDateString())
+        ->where('adzuna_paid',1)
            ->orderBy('created_at', 'desc')
            ->get();
 

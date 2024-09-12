@@ -503,5 +503,18 @@ class JobController extends Controller
     }
 
 
+    public function adzunaJobsPaidSelectedJobs(Request $request){
+
+        foreach ($request->ids as $jobId) {
+
+           $job = Job::where('id',$jobId)->first();
+           $job->adzuna_paid = 1;
+           $job->save();
+        }
+
+        return true;
+    }
+
+
 
 }

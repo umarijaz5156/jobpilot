@@ -152,6 +152,11 @@
                                 <span id="button-loader-2" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                             </button>
 
+                            <button id="adzunaJobsPaid" class="btn btn-primary ml-3">
+                                <span id="button-text-2">{{ __('Make jobs paid at Adzuna') }}</span>
+                                <span id="button-loader-2" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            </button>
+
                         </div>
                     </div>
                     <div class="row">
@@ -317,7 +322,7 @@
                                                 @endif
                                                 <td>
                                                     @if ($job->essapi_job_id)
-                                                    
+
                                                     <a data-toggle="tooltip" data-placement="top"
                                                     title="{{ __('details') }}"
                                                     href="https://www.workforceaustralia.gov.au/individuals/jobs/details/{{ $job->essapi_job_id }}"
@@ -326,7 +331,7 @@
                                                     <x-svg.table-btn-arrow />
 
                                                  </a>
-                                                 
+
                                                 @endif
                                                     <a data-toggle="tooltip" data-placement="top"
                                                         title="{{ __('details') }}"
@@ -684,6 +689,48 @@
                     });
                  });
 
+
+                //  adzunaJobsPaid
+
+                 $('#adzunaJobsPaid').click(function() {
+                        var $button = $(this);
+                        var $buttonText = $button.find('#button-text-2');
+                        var $buttonLoader = $button.find('#button-loader-2');
+
+                        // Show the loader and hide the text
+                        $buttonText.addClass('d-none');
+                        $buttonLoader.removeClass('d-none');
+
+                        var selectedJobsE = [];
+                    $('.job-checkbox:checked').each(function() {
+                        selectedJobsE.push($(this).val());
+                    });
+
+                    function showSuccessMessage(message) {
+                        toastr.success(message);
+                    }
+                    // AJAX request to delete selected jobs
+                    $.ajax({
+                        url: '{{ route('jobs.adzunaJobsPaid') }}',
+                        data: {
+                            ids: selectedJobsE
+                        },
+                        success: function(response) {
+
+                            showSuccessMessage('Job Posted on the Care Worker jobs Site successfully');
+                             // Hide the loader and show the text again
+                             $buttonLoader.addClass('d-none');
+                            $buttonText.removeClass('d-none');
+                            setTimeout(function() {
+                                window.location.reload()
+
+                        }, 2000);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error(error);
+                        }
+                    });
+                 });
 
 
 
