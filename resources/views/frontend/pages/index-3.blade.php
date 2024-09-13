@@ -168,7 +168,30 @@
         </div>
     </section>
 
+    <section class="rounded shadow-sm md:tw-py-20 tw-py-12">
+        <div class="container">
+            <div class="text-center">
+                <h2>Find Council Jobs in Australia</h2>
+            </div>
+            <div class="tw-mt-8 tw-relative tw-z-50">
+                 <div class="row justify-content-center">
+                    <div class="col-md-12 ">
+                        <div class=" p-4 " style="font-size: 1.2rem;">
 
+                            <p>
+                                Council jobs in Australia come with different benefits. It can include working for the government as policy maker or advisor.If you are finding a council job in Australia ,then Council Direct will lead you through the path.
+                            </p>
+                            <p>
+                                These council jobs are not easy to get. The competition gets extremely high between the applying candidates. One should remember before applying that there are a number of areas in Australian councils where one can apply for a job according to their level of expertise. You can open our website to see the current vacancies available in Australia.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
     <!-- top companaies -->
     @if ($top_companies && count($top_companies) > 0)
         @if (!auth('user')->check() || (auth('user')->check() && authUser()->role == 'candidate'))
@@ -344,6 +367,69 @@
         @endif
     @endif
 
+
+
+    <section class="bg-light rounded shadow-sm md:tw-py-20 tw-py-12">
+        <div class="container">
+            <div class="text-center">
+                <h2>Jobs within Government</h2>
+            </div>
+            <div class="tw-mt-8 tw-relative tw-z-50">
+                <div class="row justify-content-center">
+                    <div class="col-md-12">
+                        <div class="p-4" style="font-size: 1.2rem;">
+                            <p>
+                                Government jobs in Australia include working at local, regional and state level. It includes working in councils which enforce law and form policies for the public. There are different roles that a council job in Australia offers. In the public administration sector, they work as an analyst and advisor of the Council.
+                            </p>
+                            <p>
+                                Moreover, government jobs in Australia at local level include working with municipal committees. They manage the infrastructure within the councils.
+                            </p>
+                            <p>
+                                Civil Engineers can work in Government as well. They work on maintaining public infrastructure, water management and public health engineering. Australia offers growing opportunities for government employed civil engineers in the logistics sector as well.
+                            </p>
+                            <p>
+                                Community services are highly appreciated in Australia. They offer communal services like  youth workers and social service coordinators.
+
+                            </p>
+                            <h3 class="pt-5">Career in Council</h3>
+                            <p>
+                                A career in local council offers diverse job roles. One can work in Administration and Customer Service by bringing ease to the customers. They also manage documentation and handle inquiries. Furthermore, Urban Planning and Development is also an area which offers a wide range of jobs. This includes managing land and agriculture space of different local and regional councils.
+                            </p>
+                            <p>
+                                In Engineering and Infrastructure, they can begin their career in council by overseeing  the planning, design, and construction of roads. Career in council jobs in Australia offers long-term employment opportunities. They also help in advancing careers at government level. To get easy PR in Australia, one should apply in different local and regional councils in Australia.
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </section>
+
+    <section class="bg-light rounded shadow-sm md:tw-py-8 tw-py-8">
+        <div class="container ">
+            <div class="text-center">
+                <h2>Why Choose Us?</h2>
+            </div>
+            <div class="tw-mt-8 tw-relative tw-z-50">
+                 <div class="row justify-content-center">
+                    <div class="col-md-12 ">
+                        <div class=" p-4 " style="font-size: 1.2rem;">
+
+                            <p>
+                                Council Direct offers candidates an up to date listing of all current jobs on offer within the Local Government space in Australia.These job listings get updated on daily basis to provide you with the in-demand local and regional government jobs offered in Australia.if you want to know about the vacancies in Local Government of Australia , you can visit our website today!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
     <!-- google adsense area end -->
 
     <!-- google adsense area -->
@@ -376,6 +462,112 @@
                 </div>
             </div>
         </section>
+
+
+        <section class="bg-light py-5">
+            <div class="container">
+                <h2 class="text-center mb-4">Frequently Asked Questions</h2>
+                <div class="accordion" id="faqAccordion">
+                    <!-- FAQ 1 -->
+                    <div class="accordion-item border" style="border-color: #0851A4;">
+                        <p class="accordion-header" id="headingOne">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne" style="border-color: #0851A4; color: #0851A4;">
+                                <strong>How much do council workers get paid in Australia?</strong>
+                            </button>
+                        </p>
+                        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Council workers get paid around AUD 80,000-90,000. These figures can vary significantly based on the size of the council, geographic location, and the specific responsibilities of the role. Some regional councils may offer lower wages, while metropolitan councils in cities like Sydney or Melbourne may offer higher salaries.
+                            </div>
+                        </div>
+                    </div>
+                    <!-- FAQ 2 -->
+                    <div class="accordion-item border" style="border-color: #0851A4;">
+                        <p class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo" style="border-color: #0851A4; color: #0851A4;">
+                                <strong>What is the best council to work for in Australia?</strong>
+                            </button>
+                        </p>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                City Councils comprise the largest local government body in Australia. They offer a wide range of opportunities in urban and town management departments. Their priority is employee well-being and career development, with a strong focus on training.
+                            </div>
+                        </div>
+                    </div>
+                    <!-- FAQ 3 -->
+                    <div class="accordion-item border" style="border-color: #0851A4;">
+                        <p class="accordion-header" id="headingThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree" style="border-color: #0851A4; color: #0851A4;">
+                                <strong>What is a council worker in Australia?</strong>
+                            </button>
+                        </p>
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                A council worker in Australia is an employee of a local government council, responsible for delivering a range of services and maintaining infrastructure within a specific municipality or local government area.
+                            </div>
+                        </div>
+                    </div>
+                    <!-- FAQ 4 -->
+                    <div class="accordion-item border" style="border-color: #0851A4;">
+                        <p class="accordion-header" id="headingFour">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour" style="border-color: #0851A4; color: #0851A4;">
+                                <strong>Can foreigners apply for government jobs in Australia?</strong>
+                            </button>
+                        </p>
+                        <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Yes, foreigners can apply for government jobs in Australia, but there are certain eligibility criteria that must be met. Temporary visa holders, such as those on student or work visas, generally cannot apply for permanent government jobs. However, there may be exceptions for specialized roles or temporary contracts where local skills shortages exist.
+                            </div>
+                        </div>
+                    </div>
+                    <!-- FAQ 5 -->
+                    <div class="accordion-item border" style="border-color: #0851A4;">
+                        <p class="accordion-header" id="headingFive">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive" style="border-color: #0851A4; color: #0851A4;">
+                                <strong>Which council pays the most?</strong>
+                            </button>
+                        </p>
+                        <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                The councils that pay the highest salaries in Australia are typically located in major metropolitan areas, where the cost of living and demand for skilled workers are higher. They pay around AUD 120,000 and increase the pay for those who take on additional responsibilities.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+
+
+
+        <style>
+            .accordion-button:focus {
+                box-shadow: none;
+            }
+            .accordion-button:not(.collapsed) {
+                color: #0851A4;
+                background-color: #e0e0e0;
+            }
+            .accordion-button:not(.collapsed) .icon {
+                content: "-";
+            }
+            .accordion-button.collapsed .icon {
+                content: "+";
+            }
+            .accordion-button {
+                font-size: 1.25rem; /* Increase the font size of the questions */
+            }
+            .accordion-body {
+                font-size: 1.15rem; /* Increase the font size of the answers */
+            }
+            .accordion-button .icon {
+                margin-left: auto;
+                font-size: 1.25rem; /* Adjust the size of the icon */
+            }
+        </style>
+
+
         <!-- working process section -->
         <section class="working-process tw-bg-white">
             <div class="rt-spacer-100 rt-spacer-md-50"></div>
@@ -465,6 +657,31 @@
                 </div>
             </div>
             <div class="rt-spacer-100 rt-spacer-md-50"></div>
+        </section>
+
+        <section class="bg-light rounded shadow-sm md:tw-py-20 tw-py-12">
+            <div class="container ">
+                <div class="text-center">
+                    <h2>Conclusion</h2>
+                </div>
+                <div class="tw-mt-8 tw-relative tw-z-50">
+                     <div class="row justify-content-center">
+                        <div class="col-md-12 ">
+                            <div class=" p-4 " style="font-size: 1.2rem;">
+
+                                <p>
+                                    Council Direct is a dedicated platform for advertising government jobs in Australia, particularly focusing on council positions across various regions. It serves as a central hub for local government opportunities, helping candidates easily find jobs within councils that align with their skills and interests.
+                                </p>
+                                <p>
+                                    The platform benefits both job seekers and local councils by streamlining the recruitment process and increasing visibility of available roles. By offering a user-friendly interface and a comprehensive range of listings, Council Direct plays a vital role in connecting professionals with meaningful employment in public service across Australia.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
         </section>
 
         <!-- google adsense area -->

@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\Seo\Entities\Seo;
 use App\Http\Controllers\Api\CompanyController as ApiCompanyController;
 use App\Http\Controllers\Api\JobController;
+use App\Http\Controllers\website\pagecontroller as WebsitePagecontroller;
 
 // Route::get('/test', function () {
 //     Seo::query()->delete();
@@ -109,6 +110,13 @@ use App\Http\Controllers\Api\JobController;
 
 //     return Seo::all();
 // });
+
+Route::controller(WebsitePagecontroller::class)->name('pages.')->group(function () {
+
+    // Route::get('/mechanical-engineering-jobs', 'mechanical')->name('mechanical');
+
+
+});
 
 
 // =====================================================================
