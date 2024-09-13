@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Models\Job;
 use App\Models\JobCategory;
 use App\Models\JobRole;
+use Carbon\Carbon;
 use Modules\Location\Entities\Country;
 use Modules\Testimonial\Entities\Testimonial;
 
@@ -32,7 +33,7 @@ class IndexPageService
             ->withCount([
                 'jobs as jobs_count' => function ($q) {
                     $q->where('status', 'active')
-                    ->where('deadline', '>', now());
+                    ->where('deadline', '>=', Carbon::now()->toDateString());
                     $q = $this->filterCountryBasedJobs($q);
                 },
             ])
