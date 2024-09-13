@@ -179,11 +179,8 @@
                         <div class=" p-4 " style="font-size: 1.2rem;">
 
                             <p>
-                                Council jobs in Australia come with different benefits. It can include working for the government as policy maker or advisor.If you are finding a council job in Australia ,then Council Direct will lead you through the path.
-                            </p>
-                            <p>
-                                These council jobs are not easy to get. The competition gets extremely high between the applying candidates. One should remember before applying that there are a number of areas in Australian councils where one can apply for a job according to their level of expertise. You can open our website to see the current vacancies available in Australia.
-                            </p>
+                                Working in local government in Australia offers a unique blend of job satisfaction and community impact. As a local government employee, you have the opportunity to directly contribute to the well-being of your community. From planning and implementing infrastructure projects to delivering essential services like waste management and public transport, your work can have a tangible positive effect on the lives of residents. Additionally, Council Jobs provide a stable and secure work environment, with opportunities for career growth and development.                            </p>
+
                         </div>
                     </div>
                 </div>
