@@ -31,7 +31,8 @@ class IndexPageService
         ->where('featured', 1)
             ->withCount([
                 'jobs as jobs_count' => function ($q) {
-                    $q->where('status', 'active');
+                    $q->where('status', 'active')
+                    ->where('deadline', '>', now());
                     $q = $this->filterCountryBasedJobs($q);
                 },
             ])
