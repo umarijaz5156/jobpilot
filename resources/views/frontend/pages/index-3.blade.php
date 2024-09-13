@@ -375,26 +375,19 @@
                 <div class="row justify-content-center">
                     <div class="col-md-12">
                         <div class="p-4" style="font-size: 1.2rem;">
-                            <p>
-                                Government jobs in Australia include working at local, regional and state level. It includes working in councils which enforce law and form policies for the public. There are different roles that a council job in Australia offers. In the public administration sector, they work as an analyst and advisor of the Council.
-                            </p>
-                            <p>
-                                Moreover, government jobs in Australia at local level include working with municipal committees. They manage the infrastructure within the councils.
-                            </p>
-                            <p>
-                                Civil Engineers can work in Government as well. They work on maintaining public infrastructure, water management and public health engineering. Australia offers growing opportunities for government employed civil engineers in the logistics sector as well.
-                            </p>
-                            <p>
-                                Community services are highly appreciated in Australia. They offer communal services like  youth workers and social service coordinators.
+                            <ul>
+                                <li><strong>Job security:</strong> Government jobs are often considered more stable than private sector positions, providing a sense of security and longevity in your career.</li>
+                                <li><strong>Benefits and perks:</strong> Government employees typically enjoy competitive salaries, comprehensive benefits packages (including healthcare, retirement plans, and paid time off), and other perks like flexible work arrangements.</li>
+                                <li><strong>Public service:</strong> Government jobs offer the opportunity to serve the public and contribute to the well-being of your community.</li>
+                                <li><strong>Career advancement:</strong> Government jobs often provide opportunities for professional development, training, and career advancement.</li>
+                                <li><strong>Work-life balance:</strong> Many government jobs prioritize employee well-being and work-life balance, offering flexible work arrangements and supportive policies.</li>
+                            </ul>
 
-                            </p>
                             <h3 class="pt-5">Career in Council</h3>
                             <p>
-                                A career in local council offers diverse job roles. One can work in Administration and Customer Service by bringing ease to the customers. They also manage documentation and handle inquiries. Furthermore, Urban Planning and Development is also an area which offers a wide range of jobs. This includes managing land and agriculture space of different local and regional councils.
+                                Working in a council offers a diverse range of career opportunities, from administrative roles to technical positions. Councils play a vital role in their communities, providing essential services such as infrastructure development, waste management, and community programs. As a council employee, you can contribute to the well-being of your local area and enjoy the benefits of a stable and rewarding career path.
                             </p>
-                            <p>
-                                In Engineering and Infrastructure, they can begin their career in council by overseeing  the planning, design, and construction of roads. Career in council jobs in Australia offers long-term employment opportunities. They also help in advancing careers at government level. To get easy PR in Australia, one should apply in different local and regional councils in Australia.
-                            </p>
+
 
                         </div>
                     </div>
