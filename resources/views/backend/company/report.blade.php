@@ -81,7 +81,6 @@
                                             $deadline = \Carbon\Carbon::parse($job->deadline); // Assuming you have a 'deadline' column
                                             $lastUpdateJob = $job->last_update_job ? \Carbon\Carbon::parse($job->last_update_job) : null;
 
-                                            // Only proceed if the job is active and the deadline is in the future
                                             if ($job->status == 'active' && $deadline->greaterThan($today)) {
 
                                                 // Determine the number of days to update (based on last update or creation date)
@@ -92,7 +91,6 @@
                                                     // Use days between `last_update_job` and today
                                                     $daysBetween = $lastUpdateJob->diffInDays($today);
                                                 }
-
                                                 // Only proceed if there are days to update
                                                 if ($daysBetween > 0) {
                                                     // Initialize counts for metrics
@@ -126,6 +124,11 @@
 
                                                 // Only proceed if the job hasn't been updated yet (null last_update_job)
                                                 if (is_null($lastUpdateJob)) {
+
+                                                    if ($createdAt->greaterThan($deadline)) {
+                                                        $daysBetween = rand(30, 40);
+                                                    }
+
                                                     // Initialize counts for metrics
                                                     $socialReads = 0;
                                                     $aggregatesReads = 0;
@@ -149,6 +152,7 @@
 
                                                     $job->save();  // Save the updated job record
                                                 }
+
                                             }
 
                                         @endphp

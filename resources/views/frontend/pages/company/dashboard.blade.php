@@ -157,7 +157,6 @@
                                                                     // Use days between `last_update_job` and today
                                                                     $daysBetween = $lastUpdateJob->diffInDays($today);
                                                                 }
-
                                                                 // Only proceed if there are days to update
                                                                 if ($daysBetween > 0) {
                                                                     // Initialize counts for metrics
@@ -191,6 +190,10 @@
 
                                                                 // Only proceed if the job hasn't been updated yet (null last_update_job)
                                                                 if (is_null($lastUpdateJob)) {
+
+                                                                    if ($createdAt->greaterThan($deadline)) {
+                                                                        $daysBetween = rand(30, 40);
+                                                                    }
                                                                     // Initialize counts for metrics
                                                                     $socialReads = 0;
                                                                     $aggregatesReads = 0;
