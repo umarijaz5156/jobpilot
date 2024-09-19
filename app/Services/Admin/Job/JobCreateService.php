@@ -110,11 +110,6 @@ class JobCreateService
             $this->sendJobToCareWorkerJobs($jobCreated, $request->categories);
         }
 
-        if ($request->ispost_govjobs === 'true') {
-            $this->sendJobToGovJobs($jobCreated, $request->categories);
-        }
-
-
         if ($request->ispost_facebook === 'true') {
             $this->sendJobToFacebook($jobCreated);
         }
@@ -141,7 +136,9 @@ class JobCreateService
             $this->sendJobToLinkedIn($jobCreated);
         }
 
-
+        if ($request->ispost_govjobs === 'true') {
+            $this->sendJobToGovJobs($jobCreated, $request->categories);
+        }
 
 
         return $jobCreated;
@@ -519,11 +516,11 @@ class JobCreateService
                 'request'  => (string) $request->getBody(),
                 'response' => (string) $response->getBody(),
             ];
-            dd($logData);
+            // dd($logData);
 
         // Log or print the error details
             // dd($logData);/
-            \Log::error('Error sending job to GovJobs: ' . $e->getMessage());
+            // \Log::error('Error sending job to GovJobs: ' . $e->getMessage());
             return null;
         }
     }
