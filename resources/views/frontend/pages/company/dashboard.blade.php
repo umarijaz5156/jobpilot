@@ -141,29 +141,82 @@
                                                         <tbody>
                                                             @foreach ($company->jobs as $job)
                                                             @php
-                                                              $createdAt = \Carbon\Carbon::parse($job->created_at);
-                                                                $today = \Carbon\Carbon::now();
-                                                                $daysBetween = $createdAt->diffInDays($today);
+                                                            $createdAt = \Carbon\Carbon::parse($job->created_at);
+                                                            $today = \Carbon\Carbon::now();
+                                                            $deadline = \Carbon\Carbon::parse($job->deadline); // Assuming you have a 'deadline' column
+                                                            $lastUpdateJob = $job->last_update_job ? \Carbon\Carbon::parse($job->last_update_job) : null;
 
-                                                                $SoicalReads = 0;
-                                                                $AggregatesReads = 0;
-                                                                $websiteReads = 0;
-                                                                $websiteClicksThrough = 0;
+                                                            // Only proceed if the job is active and the deadline is in the future
+                                                            if ($job->status == 'active' && $deadline->greaterThan($today)) {
 
-                                                                for ($i = 0; $i <= $daysBetween; $i++) {
-                                                                    $SoicalReads += rand(30, 150);
-                                                                    $AggregatesReads += rand(45, 285);
-                                                                    $websiteReads += rand(50, 120);
-
-                                                                    // Introducing a decrease in clicks through over time
-                                                                    $clicksToday = max(10, rand(10, 30) - (int)($i * 0.5));
-                                                                    $websiteClicksThrough += $clicksToday;
+                                                                // Determine the number of days to update (based on last update or creation date)
+                                                                if (is_null($lastUpdateJob)) {
+                                                                    // First-time update, use days between `created_at` and today
+                                                                    $daysBetween = $createdAt->diffInDays($today);
+                                                                } else {
+                                                                    // Use days between `last_update_job` and today
+                                                                    $daysBetween = $lastUpdateJob->diffInDays($today);
                                                                 }
 
+                                                                // Only proceed if there are days to update
+                                                                if ($daysBetween > 0) {
+                                                                    // Initialize counts for metrics
+                                                                    $socialReads = 0;
+                                                                    $aggregatesReads = 0;
+                                                                    $websiteReads = 0;
+                                                                    $websiteClicksThrough = 0;
 
-                                                                $websiteClicksThrough = max(0, $websiteClicksThrough + rand(-20, 10)); // Ensure it doesn't go below 0
+                                                                    // Loop through the number of days since the last update and add random numbers
+                                                                    for ($i = 0; $i < $daysBetween; $i++) {
+                                                                        $socialReads += rand(30, 150);
+                                                                        $aggregatesReads += rand(45, 285);
+                                                                        $websiteReads += rand(50, 120);
+                                                                        $websiteClicksThrough += rand(10, 30);
+                                                                    }
 
-                                                            @endphp
+                                                                    // Update the job in the database with new calculated values
+                                                                    $job->social_media_clicks_through += $socialReads;  // Increment existing values
+                                                                    $job->aggregates_clicks_through += $aggregatesReads;
+                                                                    $job->website_reads += $websiteReads;
+                                                                    $job->website_clicks_through += $websiteClicksThrough;
+                                                                    $job->last_update_job = $today;  // Update the `last_update_job` to today
+
+                                                                    $job->save();  // Save the updated job record
+                                                                }
+                                                            } elseif ($deadline->lessThan($today)) {
+                                                                // Handle expired jobs (if the deadline is in the past)
+
+                                                                // Calculate the days between `created_at` and `deadline`
+                                                                $daysBetween = $createdAt->diffInDays($deadline);
+
+                                                                // Only proceed if the job hasn't been updated yet (null last_update_job)
+                                                                if (is_null($lastUpdateJob)) {
+                                                                    // Initialize counts for metrics
+                                                                    $socialReads = 0;
+                                                                    $aggregatesReads = 0;
+                                                                    $websiteReads = 0;
+                                                                    $websiteClicksThrough = 0;
+
+                                                                    // Loop through the number of days between creation and deadline
+                                                                    for ($i = 0; $i <= $daysBetween; $i++) {
+                                                                        $socialReads += rand(30, 150);
+                                                                        $aggregatesReads += rand(45, 285);
+                                                                        $websiteReads += rand(50, 120);
+                                                                        $websiteClicksThrough += rand(10, 30);
+                                                                    }
+
+                                                                    // Update the job in the database with the final calculated values
+                                                                    $job->social_media_clicks_through += $socialReads;
+                                                                    $job->aggregates_clicks_through += $aggregatesReads;
+                                                                    $job->website_reads += $websiteReads;
+                                                                    $job->website_clicks_through += $websiteClicksThrough;
+                                                                    $job->last_update_job = $deadline;  // Set the `last_update_job` to the deadline
+
+                                                                    $job->save();  // Save the updated job record
+                                                                }
+                                                            }
+
+                                                        @endphp
                                                                 <tr>
                                                                     <td tabindex="0">
                                                                         <a href="{{ route('website.job.details', $job->slug) }}"  class="company">
@@ -174,22 +227,22 @@
                                                                     </td>
                                                                     <td tabindex="0">
                                                                         <div class="text-center" >
-                                                                           {{ $SoicalReads }}
+                                                                           {{ $job->social_media_clicks_through }}
                                                                         </div>
                                                                     </td>
                                                                     <td tabindex="0">
                                                                         <div class="text-center" >
-                                                                           {{ $AggregatesReads }}
+                                                                           {{ $job->aggregates_clicks_through }}
                                                                         </div>
                                                                     </td>
                                                                     <td tabindex="0">
                                                                         <div class="text-center" >
-                                                                           {{ $websiteReads }}
+                                                                           {{ $job->website_reads }}
                                                                         </div>
                                                                     </td>
                                                                     <td tabindex="0">
                                                                         <div class="text-center">
-                                                                           {{  $websiteClicksThrough }}
+                                                                           {{  $job->website_clicks_through}}
                                                                         </div>
                                                                     </td>
 
