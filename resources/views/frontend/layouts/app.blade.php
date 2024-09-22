@@ -24,6 +24,7 @@
 
     {{-- seo 1 --}}
     <meta name="google-site-verification" content="PaFiDvvSgA7n0QXg1m5Fx1Knv3qdAjmNbXkD4ZKacgs" />
+
 </head>
 
 <body dir="{{ langDirection() }}">
