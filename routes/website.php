@@ -113,7 +113,9 @@ use App\Http\Controllers\website\pagecontroller as WebsitePagecontroller;
 
 Route::controller(WebsitePagecontroller::class)->name('pages.')->group(function () {
 
-    // Route::get('/mechanical-engineering-jobs', 'mechanical')->name('mechanical');
+    Route::get('/communications-council-jobs', 'communications')->name('communications');
+    Route::get('/emergency-management-council-jobs', 'management')->name('management');
+    Route::get('/human-resources-council-jobs', 'resources')->name('resources');
 
 
 });

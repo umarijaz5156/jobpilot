@@ -12,17 +12,44 @@ class pagecontroller extends Controller
 
 
 
-    // public function mechanical(){
-    //     try {
-    //         $data = (new IndexPageService())->execute();
-    //         $data['mechanical'] = Job::where('title', 'like', '%mechanical%')->take(8)->get();
-    //         return view('frontend.pages.content.mechanical', $data);
+    public function communications(){
+        try {
+            $data = (new IndexPageService())->execute();
+            $data['electrical'] = Job::where('title', 'like', '%communications%')->take(8)->get();
+            return view('frontend.pages.content.communications', $data);
 
-    //     } catch (\Exception $e) {
-    //         flashError('An error occurred: '.$e->getMessage());
+        } catch (\Exception $e) {
+            flashError('An error occurred: '.$e->getMessage());
 
-    //         return back();
-    //     }
-    // }
+            return back();
+        }
+    }
 
+    public function management(){
+        try {
+            $data = (new IndexPageService())->execute();
+            $data['electrical'] = Job::where('title', 'like', '%management%')->take(8)->get();
+            return view('frontend.pages.content.management', $data);
+
+        } catch (\Exception $e) {
+            flashError('An error occurred: '.$e->getMessage());
+
+            return back();
+        }
+    }
+
+    public function resources(){
+        try {
+            $data = (new IndexPageService())->execute();
+            $data['electrical'] = Job::where('title', 'like', '% human resources%')->take(8)->get();
+            return view('frontend.pages.content.resources', $data);
+
+        } catch (\Exception $e) {
+            flashError('An error occurred: '.$e->getMessage());
+
+            return back();
+        }
+    }
+    
+    
 }
