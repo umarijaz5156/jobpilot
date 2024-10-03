@@ -116,6 +116,8 @@ Route::controller(WebsitePagecontroller::class)->name('pages.')->group(function 
     Route::get('/communications-council-jobs', 'communications')->name('communications');
     Route::get('/emergency-management-council-jobs', 'management')->name('management');
     Route::get('/human-resources-council-jobs', 'resources')->name('resources');
+    Route::get('/environmental-council-jobs', 'environmental')->name('environmental');
+    Route::get('/community-council-jobs', 'community')->name('community');
 
 
 });

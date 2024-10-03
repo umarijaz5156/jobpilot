@@ -50,6 +50,32 @@ class pagecontroller extends Controller
             return back();
         }
     }
+
+    public function environmental(){
+        try {
+            $data = (new IndexPageService())->execute();
+            $data['electrical'] = Job::where('title', 'like', '%environmental%')->take(8)->get();
+            return view('frontend.pages.content.environmental', $data);
+
+        } catch (\Exception $e) {
+            flashError('An error occurred: '.$e->getMessage());
+
+            return back();
+        }
+    }
+
+    public function community(){
+        try {
+            $data = (new IndexPageService())->execute();
+            $data['electrical'] = Job::where('title', 'like', '%community%')->take(8)->get();
+            return view('frontend.pages.content.community', $data);
+
+        } catch (\Exception $e) {
+            flashError('An error occurred: '.$e->getMessage());
+
+            return back();
+        }
+    }
     
     
 }
