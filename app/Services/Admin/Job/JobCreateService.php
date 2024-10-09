@@ -1000,6 +1000,7 @@ class JobCreateService
     protected function sendJobToLinkedIn($job)
     {
 
+
         $characterLimit = env('LINKEDIN_JOB_DESCRIPTION_CHAR_LIMIT', 1300); // LinkedIn allows longer posts
         $description = strip_tags($job->description); // Remove HTML tags
 
@@ -1020,18 +1021,18 @@ class JobCreateService
         $vanityName = 'council-direct';
 
 
-        $client = new Client();
-
-        $headers = [
-            'Authorization' => "Bearer $accessToken",
-            'Content-Type' => 'application/json',
-        ];
-
+        $client = new Client([
+            'base_uri' => 'https://api.linkedin.com',
+            'headers' => [
+                'Authorization' => 'Bearer ' . $accessToken,
+                'Content-Type' => 'application/json',
+            ]
+        ]);
 
         try {
-            $response = $client->request('GET', 'https://api.linkedin.com/v2/organizationalEntityAcls?q=roleAssignee', [
-                'headers' => $headers,
-            ]);
+            // $response = $client->request('GET', '/v2/organizationalEntityAcls?q=roleAssignee');
+            $response = $client->request('GET', '/v2/organizations?q=search&projection=(elements*(id,name))');
+
 
             $data = json_decode($response->getBody(), true);
             dd($data );
@@ -1059,10 +1060,10 @@ class JobCreateService
 
         $organizationURN = $this->getOrganizationURN($accessToken, $vanityName);
         dd($organizationURN);
-
+        $organizationURN = 28732136;
         // Post the job to LinkedIn
-        $response = $this->postJobToLinkedIn($accessToken, $message, $job->company->linkedin_urn);
-
+        $response = $this->postJobToLinkedIn($accessToken, $message, $organizationURN);
+        dd( $response);
         return $response;
     }
 
