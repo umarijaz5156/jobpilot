@@ -1,5 +1,4 @@
 @extends('frontend.layouts.app')
-@extends('frontend.layouts.app')
 
 @section('description')
     @php
@@ -258,7 +257,7 @@ Find Latest Accounting Jobs in Australia
             @endif
         </div>
     </div>
-</section>
+    </section>
 
     <!-- google adsense area -->
     @if (advertisement_status('home_page_ad'))
