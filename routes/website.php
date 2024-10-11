@@ -172,7 +172,7 @@ Route::controller(SocialLoginController::class)->group(function () {
 // =============================Guest Routes=============================
 // ======================================================================
 Route::controller(WebsiteController::class)->name('website.')->group(function () {
-    Route::get('/register-company', 'RegisterCompany')->name('registerCompany');
+    // Route::get('/register-company', 'RegisterCompany')->name('registerCompany');
     Route::get('/essapi/getAllBoundaries', 'getAllBoundaries')->name('getAllBoundaries');
     Route::get('/essapi/createVacancy', 'createVacancy')->name('createVacancy');
     Route::get('/test-xml', 'testXml')->name('testXml');
