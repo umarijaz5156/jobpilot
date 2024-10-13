@@ -76,6 +76,59 @@ class pagecontroller extends Controller
             return back();
         }
     }
+
+    public function accounting(){
+        try {
+            $data = (new IndexPageService())->execute();
+            $data['electrical'] = Job::where('title', 'like', '%accounting%')->take(8)->get();
+            return view('frontend.pages.content.accounting', $data);
+
+        } catch (\Exception $e) {
+            flashError('An error occurred: '.$e->getMessage());
+
+            return back();
+        }
+    }
+
+    public function property(){
+        try {
+            $data = (new IndexPageService())->execute();
+            $data['electrical'] = Job::where('title', 'like', '%property%')->take(8)->get();
+            return view('frontend.pages.content.property', $data);
+
+        } catch (\Exception $e) {
+            flashError('An error occurred: '.$e->getMessage());
+
+            return back();
+        }
+    }
+
+    public function economic(){
+        try {
+            $data = (new IndexPageService())->execute();
+            $data['electrical'] = Job::where('title', 'like', '%economic%')->take(8)->get();
+            return view('frontend.pages.content.economic', $data);
+
+        } catch (\Exception $e) {
+            flashError('An error occurred: '.$e->getMessage());
+
+            return back();
+        }
+    }
+
     
+    public function council(){
+        try {
+            $data = (new IndexPageService())->execute();
+            $data['electrical'] = Job::where('title', 'like', '%council%')->take(8)->get();
+            return view('frontend.pages.content.council', $data);
+
+        } catch (\Exception $e) {
+            flashError('An error occurred: '.$e->getMessage());
+
+            return back();
+        }
+    }
+
     
 }

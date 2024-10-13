@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\Seo\Entities\Seo;
 use App\Http\Controllers\Api\CompanyController as ApiCompanyController;
 use App\Http\Controllers\Api\JobController;
-use App\Http\Controllers\website\pagecontroller as WebsitePagecontroller;
+use App\Http\Controllers\Website\pagecontroller as WebsitePagecontroller;
 
 // Route::get('/test', function () {
 //     Seo::query()->delete();
@@ -119,6 +119,11 @@ Route::controller(WebsitePagecontroller::class)->name('pages.')->group(function 
     Route::get('/environmental-council-jobs', 'environmental')->name('environmental');
     Route::get('/community-council-jobs', 'community')->name('community');
 
+    Route::get('/accounting-council-jobs', 'accounting')->name('accounting');
+    Route::get('/property-management-jobs', 'property')->name('property');
+    Route::get('/economic-development-jobs', 'economic')->name('economic');
+    Route::get('/council-jobs', 'council')->name('council');
+
 
 });
 
@@ -168,7 +173,7 @@ Route::controller(SocialLoginController::class)->group(function () {
 // =============================Guest Routes=============================
 // ======================================================================
 Route::controller(WebsiteController::class)->name('website.')->group(function () {
-    Route::get('/register-company', 'RegisterCompany')->name('registerCompany');
+    // Route::get('/register-company', 'RegisterCompany')->name('registerCompany');
     Route::get('/essapi/getAllBoundaries', 'getAllBoundaries')->name('getAllBoundaries');
     Route::get('/essapi/createVacancy', 'createVacancy')->name('createVacancy');
     Route::get('/test-xml', 'testXml')->name('testXml');

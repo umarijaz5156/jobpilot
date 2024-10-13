@@ -102,6 +102,9 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        if($data['role'] === 'company'){
+            return redirect('/');
+        }
         $newUsername = Str::slug($data['name']);
         $oldUserName = User::where('username', $newUsername)->first();
 
