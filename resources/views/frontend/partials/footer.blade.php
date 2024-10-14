@@ -38,6 +38,17 @@
                         <li><a href="{{ route('website.posts') }}">{{ __('blog') }}</a></li>
                     </ul>
                 </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 rt-single-widget ">
+                    <div>
+                        <video style="border-radius:30px"  width="100%" controls poster="{{ asset('videos/blog-img.png') }}">
+                            <source src="{{ asset('videos/Council_Direct_Blog.mp4') }}"   type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+
+
+
                 <!-- <div class="col-lg-2 col-md-3 col-sm-6 rt-single-widget ">
                     <h2 class="footer-title">{{ __('candidate') }}</h2>
                     <ul class="rt-usefulllinks2">

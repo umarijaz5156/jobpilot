@@ -116,19 +116,5 @@ class pagecontroller extends Controller
         }
     }
 
-    
-    public function council(){
-        try {
-            $data = (new IndexPageService())->execute();
-            $data['electrical'] = Job::where('title', 'like', '%council%')->take(8)->get();
-            return view('frontend.pages.content.council', $data);
 
-        } catch (\Exception $e) {
-            flashError('An error occurred: '.$e->getMessage());
-
-            return back();
-        }
-    }
-
-    
 }

@@ -122,7 +122,6 @@ Route::controller(WebsitePagecontroller::class)->name('pages.')->group(function 
     Route::get('/accounting-council-jobs', 'accounting')->name('accounting');
     Route::get('/property-management-jobs', 'property')->name('property');
     Route::get('/economic-development-jobs', 'economic')->name('economic');
-    Route::get('/council-jobs', 'council')->name('council');
 
 
 });
