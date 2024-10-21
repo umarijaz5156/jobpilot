@@ -116,5 +116,31 @@ class pagecontroller extends Controller
         }
     }
 
+    public function planning(){
+        try {
+            $data = (new IndexPageService())->execute();
+            $data['electrical'] = Job::where('title', 'like', '%planning%')->take(8)->get();
+            return view('frontend.pages.content.planning', $data);
+
+        } catch (\Exception $e) {
+            flashError('An error occurred: '.$e->getMessage());
+
+            return back();
+        }
+    }
+
+    public function asset(){
+        try {
+            $data = (new IndexPageService())->execute();
+            $data['electrical'] = Job::where('title', 'like', '%management%')->take(8)->get();
+            return view('frontend.pages.content.asset', $data);
+
+        } catch (\Exception $e) {
+            flashError('An error occurred: '.$e->getMessage());
+
+            return back();
+        }
+    }
+
 
 }
