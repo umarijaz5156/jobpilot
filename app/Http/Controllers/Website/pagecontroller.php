@@ -158,7 +158,7 @@ class pagecontroller extends Controller
     public function corporation(){
         try {
             $data = (new IndexPageService())->execute();
-            $data['electrical'] = Job::where('title', 'like', '%corporation%')->take(8)->get();
+            $data['electrical'] = Job::where('title', 'like', '%water%')->take(8)->get();
             return view('frontend.pages.content.corporation', $data);
 
         } catch (\Exception $e) {
