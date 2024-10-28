@@ -126,6 +126,8 @@ Route::controller(WebsitePagecontroller::class)->name('pages.')->group(function 
     Route::get('/asset-management-jobs', 'asset')->name('asset');
 
 
+    Route::get('/caravan-park-management-jobs', 'caravan')->name('caravan');
+    Route::get('/water-corporation-jobs', 'corporation')->name('corporation');
 
 });
 

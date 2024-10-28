@@ -142,5 +142,31 @@ class pagecontroller extends Controller
         }
     }
 
+    public function caravan(){
+        try {
+            $data = (new IndexPageService())->execute();
+            $data['electrical'] = Job::where('title', 'like', '%caravan%')->take(8)->get();
+            return view('frontend.pages.content.caravan', $data);
+
+        } catch (\Exception $e) {
+            flashError('An error occurred: '.$e->getMessage());
+
+            return back();
+        }
+    }
+
+    public function corporation(){
+        try {
+            $data = (new IndexPageService())->execute();
+            $data['electrical'] = Job::where('title', 'like', '%corporation%')->take(8)->get();
+            return view('frontend.pages.content.corporation', $data);
+
+        } catch (\Exception $e) {
+            flashError('An error occurred: '.$e->getMessage());
+
+            return back();
+        }
+    }
+
 
 }
