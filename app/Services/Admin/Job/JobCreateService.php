@@ -1019,7 +1019,7 @@ class JobCreateService
              }
              $seeMoreLink = url('/job/' . $job->slug);
 
-             $seeMoreLink = "https://councildirect.com.au/job/environmental-project-officer-sustainability-1720304684-6689c42c4c4e3";
+            //  $seeMoreLink = "https://councildirect.com.au/job/environmental-project-officer-sustainability-1720304684-6689c42c4c4e3";
              // Format the message
              $message = $job->title . "\n\n"; // Job title on the first line
             $message .= $description . "\n\n"; // Truncated description
