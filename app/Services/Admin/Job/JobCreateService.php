@@ -1017,7 +1017,7 @@ class JobCreateService
              if (strlen($description) > $characterLimit) {
                  $description = substr($description, 0, $characterLimit) . '...';
              }
-             $seeMoreLink = url('/job/' . $job->slug);
+             $seeMoreLink = 'https://councildirect.com.au/job/' . $job->slug;
 
             //  $seeMoreLink = "https://councildirect.com.au/job/environmental-project-officer-sustainability-1720304684-6689c42c4c4e3";
              // Format the message
