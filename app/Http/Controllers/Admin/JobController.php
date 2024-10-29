@@ -36,7 +36,7 @@ use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Modules\Location\Entities\Country;
 use App\Services\API\EssAPI\EssApiService;
-
+use Illuminate\Support\Facades\Http;
 class JobController extends Controller
 {
     use JobAble;
@@ -57,7 +57,7 @@ class JobController extends Controller
     public function index(Request $request)
     {
 
-    
+
         try {
             abort_if(!userCan('job.view'), 403);
 
@@ -667,5 +667,264 @@ class JobController extends Controller
         dd('done all');
     }
 
+
+
+      //
+      public function redirectToLinkedIn()
+      {
+        dd('sss');
+          $clientId = config('constants.linkedin_client_id');
+          $redirectUri = config('constants.linkedin_redirect_uri');
+          $scopes = ['r_organization_admin', 'w_organization_social', 'rw_organization_admin', 'w_member_social', 'r_organization_social'];
+          $scope = implode(' ', $scopes);
+
+          $url = "https://www.linkedin.com/oauth/v2/authorization?" . http_build_query([
+              'response_type' => 'code',
+              'client_id' => $clientId,
+              'redirect_uri' => $redirectUri,
+              'scope' => $scope,
+          ]);
+
+          return redirect()->away($url);
+      }
+      // callback
+      public function handleLinkedInCallback(Request $request)
+      {
+        dd('sss');
+          // This function will handle the callback and exchange the authorization code for an access token.
+          $code = $request->get('code');
+
+          if (!$code) {
+              return response()->json(['error' => 'Authorization code not found'], 400);
+          }
+
+
+          // Implement access token retrieval here
+          // (Refer to the function we discussed for exchanging the code for an access token)
+          $client_id = config('constants.linkedin_client_id');
+          $client_secret = config('constants.linkedin_client_secret');
+          $redirect_uri = config('constants.linkedin_redirect_uri');
+
+          // Exchange authorization code for access token
+          $url = 'https://www.linkedin.com/oauth/v2/accessToken';
+          $params = [
+              'grant_type' => 'authorization_code',
+              'code' => $code,
+              'redirect_uri' => $redirect_uri,
+              'client_id' => $client_id,
+              'client_secret' => $client_secret,
+          ];
+
+          // Initialize cURL session
+          $ch = curl_init();
+
+          // Set cURL options
+          curl_setopt($ch, CURLOPT_URL, $url);
+          curl_setopt($ch, CURLOPT_POST, true);
+          curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+          curl_setopt($ch, CURLOPT_HTTPHEADER, [
+              'Content-Type: application/x-www-form-urlencoded',
+          ]);
+
+          // Execute cURL request and get the response
+          $response = curl_exec($ch);
+
+          // Check for cURL errors
+          if (curl_errno($ch)) {
+              $error_msg = curl_error($ch);
+              curl_close($ch);
+              return response()->json(['error' => 'cURL error: ' . $error_msg], 400);
+          }
+
+          curl_close($ch);
+
+          // Decode the JSON response
+          $data = json_decode($response, true);
+
+          // Check if access token is present in the response
+          if (isset($data['access_token'])) {
+              $accessToken = $data['access_token'];
+
+
+              $setting = Setting::first();
+              $setting->linkedin_access_token = $accessToken;
+              $setting->save();
+              $this->fetchManagedOrganizations();
+              // You can store this token securely in the database and use it for API requests.
+              return response()->json(['access_token' => $accessToken]);
+          } else {
+              // Log or return the full response if the access token is missing
+              return response()->json(['error' => 'Access token not found', 'response' => $data], 400);
+          }
+
+          // Continue with your application logic after retrieving the access token.
+      }
+      //  fetch all pages of a connected user
+      public function fetchManagedOrganizations()
+      {
+        dd('sss');
+          $url = "https://api.linkedin.com/v2/organizationalEntityAcls?q=roleAssignee&role=ADMINISTRATOR";
+
+          //$accessToken = "AQWaXFOHp28qXrFnb72EJaouPLNza-zHOvffxIYNb03526wP81npp7Okv6cQKlO44LKqXjKYaWSaSgu0bOXs5PMBIxu6urTeJA2biiIs9lfSy8VDyFPUnyT6wivE6st2Oyw7iYsawagdgdFNXzAwdpFCEYjqwHO32dLdScyIbQeYJloByR6DHGHxsQpGUeRcVERu6u9R9hqpUHSFXdxxxLLGbB3ODCM1UYKzj4h_EEbPe9anEEsvE2J_JOMxSalI7v4qlhpOiQLrWCI2YCK_PMJpp7hmKqfDSveWlx2W0LIC8pvreJGx14B4Qfh_3pBBacgdYrhJirAutyvl-fA1ME2XCunVog";
+          $setting = Setting::first();
+          $accessToken = $setting->linkedin_access_token;
+          $ch = curl_init();
+          curl_setopt($ch, CURLOPT_URL, $url);
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+          curl_setopt($ch, CURLOPT_HTTPHEADER, [
+              "Authorization: Bearer $accessToken",
+              "Content-Type: application/json",
+              "X-Restli-Protocol-Version: 2.0.0",
+          ]);
+
+          $response = curl_exec($ch);
+          if (curl_errno($ch)) {
+              $error_msg = curl_error($ch);
+              curl_close($ch);
+              return ["error" => $error_msg];
+          }
+
+          curl_close($ch);
+
+
+          $data = json_decode($response, true);
+          dd($data);
+          return $data;
+
+          if (isset($data['elements'])) {
+              $organizations = [];
+              foreach ($data['elements'] as $element) {
+                  if (isset($element['organization~']['id'], $element['organization~']['localizedName'])) {
+                      $organizations[] = [
+                          'id' => $element['organization~']['id'],
+                          'name' => $element['organization~']['localizedName']
+                      ];
+                  }
+              }
+              return $organizations;
+          }
+
+          return response()->json(["error" => "No organizations found"]);
+      }
+      public function createTextPostOnLinkedInPage()
+      {
+        dd('sss');
+          $accessToken = "YOUR_ACCESS_TOKEN";
+          $organizationId = 105426956;
+          $content = "Hello testing from laravel app";
+          $url = "https://api.linkedin.com/v2/ugcPosts";
+
+          $postData = [
+              "author" => "urn:li:organization:$organizationId",
+              "lifecycleState" => "PUBLISHED",
+              "specificContent" => [
+                  "com.linkedin.ugc.ShareContent" => [
+                      "shareCommentary" => [
+                          "text" => $content
+                      ],
+                      "shareMediaCategory" => "NONE"
+                  ]
+              ],
+              "visibility" => [
+                  "com.linkedin.ugc.MemberNetworkVisibility" => "PUBLIC"
+              ]
+          ];
+
+          $ch = curl_init();
+          curl_setopt($ch, CURLOPT_URL, $url);
+          curl_setopt($ch, CURLOPT_POST, true);
+          curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+          curl_setopt($ch, CURLOPT_HTTPHEADER, [
+              "Authorization: Bearer $accessToken",
+              "Content-Type: application/json",
+              "X-Restli-Protocol-Version: 2.0.0",
+          ]);
+
+          $response = curl_exec($ch);
+
+          if (curl_errno($ch)) {
+              echo 'CURL error: ' . curl_error($ch);
+          }
+
+          curl_close($ch);
+
+          return json_decode($response, true);
+      }
+
+
+      public function linkedInPostWithImage()
+      {
+        dd('sss');
+          $setting = Setting::first();
+          $accessToken = $setting->linkedin_access_token;
+          $organizationId = $setting->linkedin_council_direct_id;
+
+          $company = Company::find(10);
+          $imagePath = public_path($company->logo);
+
+        //   dd($imagePath);
+
+          $company_id = "urn:li:organization:$organizationId";
+          $post_title = "hello this is text post";
+
+          $register_image_request = [
+              "registerUploadRequest" => [
+                  "recipes" => [
+                      "urn:li:digitalmediaRecipe:feedshare-image"
+                  ],
+                  "owner" => "$company_id",
+                  "serviceRelationships" => [
+                      [
+                          "relationshipType" => "OWNER",
+                          "identifier" => "urn:li:userGeneratedContent"
+                      ]
+                  ]
+              ]
+          ];
+
+          $register_post = Http::post("https://api.linkedin.com/v2/assets?action=registerUpload&oauth2_access_token=$accessToken", $register_image_request);
+          $register_post = json_decode($register_post, true);
+          $upload_url = $register_post['value']['uploadMechanism']['com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest']['uploadUrl'];
+          $upload_assets = $register_post['value']['asset'];
+
+          $response = Http::withHeaders(['Authorization' => "Bearer $accessToken"])->withBody(file_get_contents($imagePath), '')->put($upload_url);
+          $request = [
+              "author" => "$company_id",
+              "lifecycleState" => "PUBLISHED",
+              "specificContent" => [
+                  "com.linkedin.ugc.ShareContent" => [
+                      "shareCommentary" => [
+                          "text" => $post_title
+                      ],
+                      "shareMediaCategory" => "IMAGE",
+                      "media" => [
+                          [
+                              "status" => "READY",
+                              "media" => $upload_assets,
+                          ]
+                      ]
+                  ],
+              ],
+              "visibility" => [
+                  "com.linkedin.ugc.MemberNetworkVisibility" => "PUBLIC",
+              ]
+          ];
+          $post_url = "https://api.linkedin.com/v2/ugcPosts?oauth2_access_token=" . $accessToken;
+          $post = Http::post($post_url, $request);
+
+          if ($post->successful()) {
+            // Display the successful response
+            $responseData = $post->json(); // Convert response to array
+            dd('Post successful:', $responseData);
+        } else {
+            // Display the error message
+            $errorMessage = $post->body(); // Get the body of the response
+            $errorStatus = $post->status(); // Get the status code
+            dd('Post failed with status ' . $errorStatus . ':', $errorMessage);
+        }
+          return $post;
+      }
 
 }

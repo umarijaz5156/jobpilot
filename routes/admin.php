@@ -61,7 +61,7 @@ Route::prefix('admin')->group(function () {
     });
 
 
-    
+
     Route::get('/cities-by-state', [AdminController::class, 'getCitiesByState'])->name('cities.byState');
 
     Route::middleware(['auth:admin'])->group(function () {
@@ -89,21 +89,21 @@ Route::prefix('admin')->group(function () {
         Route::get('/company/change/status', [CompanyController::class, 'statusChange'])->name('company.status.change');
         Route::get('/company/verify/status', [CompanyController::class, 'verificationChange'])->name('company.verify.change');
         Route::get('/company/profile/verify/status', [CompanyController::class, 'profileVerificationChange'])->name('company.profile.verify.change');
-       
+
            //    expost old companies from the council
         Route::get('/company/file/upload', [CompanyController::class, 'fileUploadProfiles'])->name('company.file.upload');
         Route::get('/company/file/UplaodVideo', [CompanyController::class, 'UplaodVideo'])->name('company.file.UplaodVideo');
 
-        
+
         Route::get('/company/report/{id}', [CompanyController::class, 'reportCompany'])->name('company.report');
         Route::post('/send-email', [CompanyController::class, 'sendEmail'])->name('send.email');
         Route::get('/send-email-test', [CompanyController::class, 'sendEmail'])->name('send.email.test');
 
-        
+
             Route::get('/feature/companies', [CompanyController::class, 'featureCompany'])->name('admin.feature.company');
             Route::post('/company/update-featured', [CompanyController::class, 'updateFeaturedC'])->name('company.updateFeatured');
 
-    
+
         // Candidate Route
         Route::resource('candidate', CandidateController::class);
         Route::get('/candidate/change/status', [CandidateController::class, 'statusChange'])->name('candidate.status.change');
@@ -128,7 +128,13 @@ Route::prefix('admin')->group(function () {
         Route::post('/jobs/update-featured', [JobController::class, 'updateFeatured'])->name('jobs.updateFeatured');
 
 
-        // export jobs from the old council
+        Route::get('/linkedin/authorize', [JobController::class, 'redirectToLinkedIn'])->name('linkedin.authorize');
+         Route::get('/linkedin-callback', [JobController::class, 'handleLinkedInCallback'])->name('linkedin.callback');
+        Route::get('/linkedin-pages', [JobController::class, 'fetchManagedOrganizations'])->name('linkedin.pages');
+         Route::get('linkedin-post',[JobController::class,'createTextPostOnLinkedInPage']);
+        Route::get('linkedin-post-img',[JobController::class,'linkedInPostWithImage']);
+
+        // export jobs from the old council 
         Route::get('/company/jobs/file/upload', [JobController::class, 'fileUploadJobs'])->name('job.file.upload');
 
 

@@ -812,8 +812,8 @@
                                     <div class="col-sm-12 form-group">
                                         <div class="form-check">
                                             <div class="d-inline">
-                                                <input type="hidden" name="ispost_linkedin" value="false">
-                                                <input value="true" name="ispost_linkedin" type="checkbox" class="form-check-input" id="ispost_linkedin">
+                                                <input type="hidden" name="ispost_linkedin_cd" value="false">
+                                                <input value="true" name="ispost_linkedin_cd" type="checkbox" class="form-check-input" id="ispost_linkedin_cd">
                                                 <label class="form-check-label mr-5" for="">{{ __('Post job at Linkedin page of council direct?') }}</label>
                                             </div>
                                         </div>

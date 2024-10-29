@@ -11,8 +11,10 @@ use App\Models\State;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use App\Services\API\EssAPI\EssApiService;
+use Exception;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Http;
 
 class JobCreateService
 {
@@ -132,9 +134,11 @@ class JobCreateService
             $this->ispost_facebook_CR($jobCreated);
         }
 
-        if ($request->ispost_linkedin === 'true') {
-            $this->sendJobToLinkedIn($jobCreated);
+
+        if ($request->ispost_linkedin_cd === 'true') {
+            $this->sendJobToLinkedInCD($jobCreated);
         }
+
 
         if ($request->ispost_govjobs === 'true') {
             $this->sendJobToGovJobs($jobCreated, $request->categories);
@@ -995,144 +999,118 @@ class JobCreateService
     }
 
 
+
+
+
+
      // linkined
+     protected function sendJobToLinkedInCD($job)
+     {
 
-    protected function sendJobToLinkedIn($job)
-    {
+        //  try {
+             $characterLimit = env('LINKEDIN_JOB_DESCRIPTION_CHAR_LIMIT', 100); // LinkedIn allows longer posts
 
+             $description = strip_tags($job->description); // Remove HTML tags
+             $description = trim($description); // Trim leading and trailing whitespace
 
-        $characterLimit = env('LINKEDIN_JOB_DESCRIPTION_CHAR_LIMIT', 1300); // LinkedIn allows longer posts
-        $description = strip_tags($job->description); // Remove HTML tags
+             // Truncate the description if it exceeds the character limit
+             if (strlen($description) > $characterLimit) {
+                 $description = substr($description, 0, $characterLimit) . '...';
+             }
+             $seeMoreLink = url('/job/' . $job->slug);
 
-        // Truncate the description if it exceeds the character limit
-        if (strlen($description) > $characterLimit) {
-            $description = substr($description, 0, $characterLimit) . '...';
-        }
+             $seeMoreLink = "https://councildirect.com.au/job/environmental-project-officer-sustainability-1720304684-6689c42c4c4e3";
+             // Format the message
+             $message = $job->title . "\n\n"; // Job title on the first line
+            $message .= $description . "\n\n"; // Truncated description
+            $message .= "Click here to see more: " . $seeMoreLink; // Add the link
 
-        $seeMoreLink = url('/job/' . $job->slug);
+             $setting = Setting::first();
+             $accessToken = $setting->linkedin_access_token;
+             $organizationId = $setting->linkedin_council_direct_id;
 
-        // Format the message
-        $message = $job->title . "\n\n"; // Job title on the first line
-        $message .= $description . "\n\n"; // Truncated description
-        $message .= "Click here to see more: " . $seeMoreLink; // Add the link
-
-        $accessToken = $this->getLinkedInAccessToken();
-
-        $vanityName = 'council-direct';
-
-
-        $client = new Client([
-            'base_uri' => 'https://api.linkedin.com',
-            'headers' => [
-                'Authorization' => 'Bearer ' . $accessToken,
-                'Content-Type' => 'application/json',
-            ]
-        ]);
-
-        try {
-            // $response = $client->request('GET', '/v2/organizationalEntityAcls?q=roleAssignee');
-            $response = $client->request('GET', '/v2/organizations?q=search&projection=(elements*(id,name))');
+             $company = Company::find($job->company_id);
+             $imagePath = public_path($company->logo);
 
 
-            $data = json_decode($response->getBody(), true);
-            dd($data );
-            foreach ($data['elements'] as $element) {
-                if (isset($element['organizationalTarget'])) {
-                    $organizationUrn = $element['organizationalTarget'];
-                    $organizationId = str_replace('urn:li:organization:', '', $organizationUrn);
-                    echo "Organization ID: " . $organizationId . "\n";
-                }
-            }
-        } catch (RequestException $e) {
-            dd($e->getMessage());
-            if ($e->hasResponse()) {
-                $response = $e->getResponse();
-                $statusCode = $response->getStatusCode();
-                $errorBody = $response->getBody();
-                echo "Error: Received status code $statusCode with message: $errorBody";
-            } else {
-                echo "Error: " . $e->getMessage();
-            }
-        } catch (\Exception $e) {
-            dd($e->getMessage());
-            echo "An unexpected error occurred: " . $e->getMessage();
-        }
 
-        $organizationURN = $this->getOrganizationURN($accessToken, $vanityName);
-        dd($organizationURN);
-        $organizationURN = 28732136;
-        // Post the job to LinkedIn
-        $response = $this->postJobToLinkedIn($accessToken, $message, $organizationURN);
-        dd( $response);
-        return $response;
-    }
+             $company_id = "urn:li:organization:$organizationId";
+             $post_title = trim($message); // Ensure no excess whitespace
+            //  dd($post_title);
+            //  $post_title = "hello this is text post";
+             //  dd($imagePath);
+             $register_image_request = [
+                 "registerUploadRequest" => [
+                     "recipes" => [
+                         "urn:li:digitalmediaRecipe:feedshare-image"
+                     ],
+                     "owner" => "$company_id",
+                     "serviceRelationships" => [
+                         [
+                             "relationshipType" => "OWNER",
+                             "identifier" => "urn:li:userGeneratedContent"
+                         ]
+                     ]
+                 ]
+             ];
 
-    protected function postJobToLinkedIn($accessToken, $message, $organizationURN)
-    {
-        $url = "https://api.linkedin.com/v2/ugcPosts";
+             $register_post = Http::post("https://api.linkedin.com/v2/assets?action=registerUpload&oauth2_access_token=$accessToken", $register_image_request);
+             $register_post = json_decode($register_post, true);
+             $upload_url = $register_post['value']['uploadMechanism']['com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest']['uploadUrl'];
+             $upload_assets = $register_post['value']['asset'];
 
-        $postData = [
-            'author' => 'urn:li:organization:' . $organizationURN, // Replace with your organization's URN
-            'lifecycleState' => 'PUBLISHED',
-            'specificContent' => [
-                'com.linkedin.ugc.ShareContent' => [
-                    'shareCommentary' => [
-                        'text' => $message
-                    ],
-                    'shareMediaCategory' => 'NONE'
-                ]
-            ],
-            'visibility' => [
-                'com.linkedin.ugc.MemberNetworkVisibility' => 'PUBLIC'
-            ]
-        ];
+             $response = Http::withHeaders(['Authorization' => "Bearer $accessToken"])->withBody(file_get_contents($imagePath), '')->put($upload_url);
+             $request = [
+                 "author" => "$company_id",
+                 "lifecycleState" => "PUBLISHED",
+                 "specificContent" => [
+                     "com.linkedin.ugc.ShareContent" => [
+                         "shareCommentary" => [
+                             "text" => $post_title
+                         ],
+                         "shareMediaCategory" => "IMAGE",
+                         "media" => [
+                             [
+                                 "status" => "READY",
+                                 "media" => $upload_assets,
+                             ]
+                         ]
+                     ],
+                 ],
+                 "visibility" => [
+                     "com.linkedin.ugc.MemberNetworkVisibility" => "PUBLIC",
+                 ]
+             ];
+             $post_url = "https://api.linkedin.com/v2/ugcPosts?oauth2_access_token=" . $accessToken;
+             $post = Http::post($post_url, $request);
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Authorization: Bearer " . $accessToken,
-            "Content-Type: application/json",
-            "X-Restli-Protocol-Version: 2.0.0"
-        ]);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
+             return true;
 
-        $response = curl_exec($ch);
-        curl_close($ch);
+             //  if ($post->successful()) {
+            //     // Display the successful response
+            //     $responseData = $post->json(); // Convert response to array
+            //     dd('Post successful:', $responseData);
+            // } else {
+            //     // Display the error message
+            //     $errorMessage = $post->body(); // Get the body of the response
+            //     $errorStatus = $post->status(); // Get the status code
+            //     dd('Post failed with status ' . $errorStatus . ':', $errorMessage);
+            // }
 
-        return json_decode($response, true);
-    }
 
-    protected function getLinkedInAccessToken()
-    {
-        $accesToken = env('LINKEDIN_ACCESS_TOKEN');
-        return $accesToken;
-    }
+        //  } catch (\GuzzleHttp\Exception\RequestException $e) {
+        //     dd($e->getMessage());
+        //      // Handle Guzzle-specific request exceptions
+        //      return 'Request Error: ' . $e->getMessage();
+        //  } catch (\Exception $e) {
+        //     dd($e->getMessage());
+        //      // Handle any other general exceptions
+        //      return 'General Error: ' . $e->getMessage();
+        //  }
 
-    protected function getOrganizationURN($accessToken, $vanityName)
-    {
-        $url = "https://api.linkedin.com/v2/organizations?q=vanityName&vanityName=" . urlencode($vanityName);
+        //  dd('none');
+     }
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Authorization: Bearer " . $accessToken,
-            "X-Restli-Protocol-Version: 2.0.0"
-        ]);
-
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        $data = json_decode($response, true);
-        dd($data);
-        if (isset($data['elements'][0]['id'])) {
-            return $data['elements'][0]['id']; // Return the organization URN
-        }
-
-        return null; // Handle cases where the URN is not found
-    }
 
 
 
