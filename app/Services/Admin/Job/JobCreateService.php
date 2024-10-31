@@ -1130,7 +1130,7 @@ class JobCreateService
              if (strlen($description) > $characterLimit) {
                  $description = substr($description, 0, $characterLimit) . '...';
              }
-             $seeMoreLink = 'https://landandwaterjobs.com.au/job/' . $job->slug;
+             $seeMoreLink = 'https://councildirect.com.au/job/' . $job->slug;
 
 
              $message = $job->title . "\n\n"; // Job title on the first line
@@ -1236,7 +1236,7 @@ class JobCreateService
              if (strlen($description) > $characterLimit) {
                  $description = substr($description, 0, $characterLimit) . '...';
              }
-             $seeMoreLink = 'https://landandwaterjobs.com.au/job/' . $job->slug;
+             $seeMoreLink = 'https://councildirect.com.au/job/' . $job->slug;
 
 
              $message = $job->title . "\n\n"; // Job title on the first line
