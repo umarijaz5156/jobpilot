@@ -818,6 +818,24 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_linkedin_wl" value="false">
+                                                <input value="true" name="ispost_linkedin_wl" type="checkbox" class="form-check-input" id="ispost_linkedin_wl">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Linkedin page of Water land?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_linkedin_cw" value="false">
+                                                <input value="true" name="ispost_linkedin_cw" type="checkbox" class="form-check-input" id="ispost_linkedin_cw">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Linkedin page of Care Worker?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
