@@ -13,10 +13,17 @@ class Kernel extends ConsoleKernel
      *
      * @var array
      */
+    // protected $commands = [
+    //     ResetDB::class,
+    //     'App\Console\Commands\UpdateJobStatus',
+    // ];
+
     protected $commands = [
-        ResetDB::class,
-        'App\Console\Commands\UpdateJobStatus',
+        \App\Console\Commands\UpdateJobStatus::class,
+        \App\Console\Commands\StatusUpdate::class,
+
     ];
+
 
     /**
      * Define the application's command schedule.
@@ -25,6 +32,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+
+        $schedule->command('app:status-update')->daily();
         // $schedule->command('reset:db')->everyMinute();
         // $schedule->command('reset:db')->everyThirtyMinutes();
         $schedule->command('jobs:updatestatus')
