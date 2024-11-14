@@ -104,6 +104,18 @@ Route::prefix('admin')->group(function () {
             Route::post('/company/update-featured', [CompanyController::class, 'updateFeaturedC'])->name('company.updateFeatured');
 
 
+        // auto get council jobs
+        Route::get('/auto-get-centralCoast', [CompanyController::class, 'centralCoast'])->name('auto.centralCoast');
+
+
+
+
+
+
+
+
+
+
         // Candidate Route
         Route::resource('candidate', CandidateController::class);
         Route::get('/candidate/change/status', [CandidateController::class, 'statusChange'])->name('candidate.status.change');
@@ -134,7 +146,7 @@ Route::prefix('admin')->group(function () {
          Route::get('linkedin-post',[JobController::class,'createTextPostOnLinkedInPage']);
         Route::get('linkedin-post-img',[JobController::class,'linkedInPostWithImage']);
 
-        // export jobs from the old council 
+        // export jobs from the old council
         Route::get('/company/jobs/file/upload', [JobController::class, 'fileUploadJobs'])->name('job.file.upload');
 
 

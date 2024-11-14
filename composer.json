@@ -18,6 +18,7 @@
         "dgvai/laravel-sslcommerz": "^1.0",
         "doctrine/dbal": "^3.3",
         "f9webltd/laravel-api-response-helpers": "^1.5",
+        "fabpot/goutte": "^4.0",
         "facebook/graph-sdk": "^5.1",
         "fruitcake/php-cors": "^1.2",
         "google/apiclient": "^2.12.1",

@@ -24,8 +24,14 @@ use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
 use App\Mail\UserPdfMail;
+use App\Models\Job;
+use App\Models\State;
 use Illuminate\Support\Facades\Mail;
 use PDF;
+use GuzzleHttp\Client as ClientC;
+use Symfony\Component\DomCrawler\Crawler;
+use Goutte\Client;
+
 
 class CompanyController extends Controller
 {
@@ -601,4 +607,153 @@ class CompanyController extends Controller
 
         return null;
     }
+
+
+
+
+
+    // auto council jobs functions
+
+    public function centralCoast(){
+
+        ini_set('max_execution_time', 300000000); // Set to 5 minutes
+
+        $user = User::where('name', 'Central Coast Council')->first();
+
+        $allJobs = [];
+        $client = new Client();
+        $iframeUrl = 'https://centralcoast.applynow.net.au';
+
+            // Request the page with the iframe
+            $crawler = $client->request('GET', $iframeUrl);
+
+            // Extract job listings from the iframe page (replace selector with actual job container)
+            $jobBlocks = $crawler->filter('.jobblock');  // Adjust the selector based on actual HTML
+
+
+            $jobBlocks->each(function ($jobBlock) use (&$allJobs, $client, $user) {
+
+            $url = $jobBlock->attr('data-url');
+
+            $existingJob = Job::where('apply_url', $url)->first();
+            if ($existingJob) {
+
+            }else{
+
+                $title = $jobBlock->filter('.job_title')->text();
+                $location = $jobBlock->filter('.location')->text();
+                $state = $jobBlock->attr('data-address_state') ?? 'New South Wales';
+                $deadline = $jobBlock->attr('data-expires_at');
+
+                $clientC = new ClientC();
+                $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                $nominatimResponse = $clientC->get($nominatimUrl, [
+                    'query' => [
+                        'q' => $location,
+                        'format' => 'json',
+                        'limit' => 1
+                    ],
+                    'headers' => [
+                        'User-Agent' => 'YourAppName/1.0'
+                    ]
+                ]);
+
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '-16.4614455' ;
+                    $lng =  '145.372664';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $state . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+
+                $jobCrawler = $client->request('GET', $url);
+                // Get job description
+                $description = $jobCrawler->filter('#job_description')->html() ?? 'No description available';
+
+                // Format the deadline and postedAt to proper Carbon instances
+                $formattedDeadline = Carbon::parse($deadline)->format('Y-m-d') ?? '2024-11-30';
+
+                // Prepare the job data
+                $jobRequest = [
+                    'title' => $title,
+                    'category_id' => 14,
+                    'company_id' => $user->company->id,
+                    'company_name' => 'Central Coast Council',
+                    'apply_url' => $url,
+                    'description' => $description,
+                    'state_id' => $sId, // or dynamically get based on state
+                    'vacancies' => 1,
+                    'deadline' => $formattedDeadline,
+                    'salary_mode' => 'custom',
+                    'salary_type_id' => 1,
+                    'apply_on' => 'custom_url',
+                    'custom_salary' => 'Competitive',
+                    'job_type_id' => 1, // Adjust this according to your mapping logic
+                    'role_id' => 1,
+                    'education_id' => 2,
+                    'experience_id' => 4,
+                    'featured' => 0,
+                    'highlight' => 0,
+                    'status' => 'active',
+                    'ongoing' => 0
+                ];
+
+                // Save job into the database
+                $done = $this->createJobFromScrape($jobRequest);
+
+                $categories = [0 => "14"];
+                $done->selectedCategories()->sync($categories);
+
+                $done->update([
+                    'address' => $exact_location,
+                    'neighborhood' => $location,
+                    'locality' => $location,
+                    'place' =>  $location,
+                    'country' => 'Australia',
+                    'district' => $state ?? '',
+                    'region' => $state ?? '',
+                    'long' => $lng,
+                    'lat' => $lat,
+                    'exact_location' => $exact_location,
+                ]);
+
+                $allJobs[] = $jobRequest;
+            }
+        });
+
+        // dd($allJobs); // If you want to inspect the final result after the loop
+        return response()->json([
+            'message' => count($allJobs) . ' job(s)',
+        ]);
+
+            // Optionally return all the jobs or handle the data further
+            // return $allJobs;
+            // dd('all done');
+
+    }
+
+
+
+    private function createJobFromScrape($jobData)
+    {
+       $job =  Job::create($jobData);
+       return $job;
+    }
+
+
 }
