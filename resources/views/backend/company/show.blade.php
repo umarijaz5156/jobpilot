@@ -9,18 +9,7 @@
             <div class="col-12">
 
                 <div class="ll-card">
-                    <div class="p-3 text-right">
-                        <button id="scrapeJobsButton" class="btn btn-primary">
-                            Start Scraping Jobs
-                        </button>
 
-                        <!-- Loading indicator, initially hidden -->
-                        <div id="loadingIndicator" style="display: none;color:rgb(24, 24, 104);">Loading...</div>
-
-                        <!-- Message to show the result -->
-                        <div id="resultMessage" style="display: none; color:#28a745;"></div>
-
-                    </div>
 
                     <div class="ll-card-header d-flex flex-wrap justify-content-between align-items-center">
                         <h3 class="card-title line-height-36">{{ $company->user->name }}'s
@@ -490,38 +479,7 @@
 
 @section('script')
 
-<script>
-    $(document).ready(function() {
-        // When the button is clicked
-        $('#scrapeJobsButton').click(function() {
-            // Show loading indicator
-            $('#loadingIndicator').show();
-            $('#resultMessage').hide();  // Hide any previous messages
 
-            // Send AJAX request to the Laravel controller
-            $.ajax({
-                url: "{{ route('auto.centralCoast') }}",  // The route to trigger the scraping
-                method: 'GET',
-                success: function(response) {
-                    // Hide loading indicator
-                    $('#loadingIndicator').hide();
-
-                    // Display success message with the number of jobs scraped
-                    $('#resultMessage').text(response.message + ' Jobs scraped successfully!');
-                    $('#resultMessage').show();
-                },
-                error: function(xhr, status, error) {
-                    // Hide loading indicator
-                    $('#loadingIndicator').hide();
-
-                    // Display error message
-                    $('#resultMessage').text('An error occurred while scraping the jobs.');
-                    $('#resultMessage').show();
-                }
-            });
-        });
-    });
-    </script>
 
     <script>
         $(document).ready(function() {

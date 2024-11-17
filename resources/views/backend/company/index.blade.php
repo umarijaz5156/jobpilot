@@ -11,6 +11,7 @@
                     <div class="card-header">
                         <div class="d-flex justify-content-between">
                             <h3 class="card-title line-height-36">{{ __('company_list') }}</h3>
+
                            <div>
                                 @if (userCan('company.create'))
                                     <a href="{{ route('company.create') }}"
@@ -27,7 +28,18 @@
                            </div>
                         </div>
                     </div>
+                    <div class="p-3 text-right">
+                        <button id="scrapeJobsButton" class="btn btn-primary">
+                            Start Scraping Jobs
+                        </button>
 
+                        <!-- Loading indicator, initially hidden -->
+                        <div id="loadingIndicator" style="display: none;color:rgb(24, 24, 104);">Loading...</div>
+
+                        <!-- Message to show the result -->
+                        <div id="resultMessage" style="display: none; color:#28a745;"></div>
+
+                    </div>
                     {{-- Filter  --}}
                     <form id="formSubmit"  action="{{ route('company.index') }}" method="GET" onchange="this.submit();">
                         <div class="card-body border-bottom row">
@@ -304,6 +316,66 @@
 @endsection
 
 @section('script')
+<script>
+    $(document).ready(function() {
+        // When the button is clicked
+        $('#scrapeJobsButton').click(function() {
+            // Show loading indicator
+            $('#loadingIndicator').show();
+            $('#resultMessage').hide();  // Hide any previous messages
+
+            // Define routes and their respective display messages
+            const scrapingRoutes = [
+                { route: "{{ route('auto.centralCoast') }}", message: "Scraping Central Coast Jobs..." },
+                { route: "{{ route('auto.CanterburyBankstown') }}", message: "Scraping Canterbury Bankstown Jobs..." },
+                { route: "{{ route('auto.ByronShire') }}", message: "Scraping Byron Shire Jobs..." },
+                { route: "{{ route('auto.BulokeShire') }}", message: "Scraping Buloke Shire Jobs..." }
+
+                // You can add more routes here in the future
+            ];
+
+            // Function to start scraping tasks
+            function scrapeJobs(index) {
+                if (index < scrapingRoutes.length) {
+                    // Show message for the current task
+                    $('#resultMessage').text(scrapingRoutes[index].message);
+                    $('#resultMessage').show();
+
+                    // First AJAX request for the current route
+                    $.ajax({
+                        url: scrapingRoutes[index].route,  // The current scraping route
+                        method: 'GET',
+                        success: function(response) {
+                            // Show completion message for current job scraping
+                            $('#resultMessage').text(response.message + ' completed!');
+
+                            // Recursively trigger the next scraping task after a delay
+                            setTimeout(function() {
+                                scrapeJobs(index + 1);  // Move to the next route
+                            }, 3000);  // Optional delay before starting the next scraping
+                        },
+                        error: function(xhr, status, error) {
+                            // Hide loading indicator and show error message
+                            $('#loadingIndicator').hide();
+                            $('#resultMessage').text('An error occurred while scraping the jobs.');
+                            $('#resultMessage').show();
+                        }
+                    });
+                } else {
+                    // All scraping tasks are completed
+                    $('#loadingIndicator').hide();
+                    $('#resultMessage').text('All scraping tasks completed!');
+                }
+            }
+
+            // Start scraping from the first route
+            scrapeJobs(0);
+        });
+    });
+</script>
+
+
+
     <script>
         $('.status-switch').on('change', function() {
             var status = $(this).prop('checked') == true ? 1 : 0;

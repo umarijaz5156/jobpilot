@@ -612,7 +612,7 @@ class CompanyController extends Controller
 
 
 
-    // auto council jobs functions
+    // central Coast council jobs functions
 
     public function centralCoast(){
 
@@ -738,7 +738,7 @@ class CompanyController extends Controller
 
         // dd($allJobs); // If you want to inspect the final result after the loop
         return response()->json([
-            'message' => count($allJobs) . ' job(s)',
+            'message' => count($allJobs) . ' job(s) scraped from Central Coast',
         ]);
 
             // Optionally return all the jobs or handle the data further
@@ -747,6 +747,505 @@ class CompanyController extends Controller
 
     }
 
+    // CanterburyBankstown
+
+    public function CanterburyBankstown() {
+        ini_set('max_execution_time', 300000000); // Set to 5 minutes
+
+        $user = User::where('name', 'City of Canterbury Bankstown')->first();
+        $allJobs = [];
+        $client = new Client();
+        $mainUrl = 'https://careers.cbcity.nsw.gov.au/search'; // Main job search page URL
+
+        // Request the page with the job listings
+        $crawler = $client->request('GET', $mainUrl);
+
+        // Extract job rows from the search results table
+        $jobRows = $crawler->filter('#searchresults .data-row');  // Loop through each job row
+
+        $jobRows->each(function ($jobRow) use (&$allJobs, $client, $user) {
+
+            $jobUrl = $jobRow->filter('.jobTitle-link')->attr('href');  // Get the relative job URL
+            $title = $jobRow->filter('.jobTitle-link')->text(); // Get the job title
+            $location = $jobRow->filter('.jobLocation')->text(); // Get the job location
+            $stateMap = [
+                'QLD' => 'Queensland',
+                'ACT' => 'Australian Capital Territory',
+                'NSW' => 'New South Wales',
+                'SA'  => 'South Australia',
+                'TAS' => 'Tasmania',
+                'VIC' => 'Victoria',
+                'WA'  => 'Western Australia',
+                'NT'  => 'Northern Territory',
+            ];
+
+
+            // Extract state abbreviation (2-3 uppercase letters)
+            preg_match('/\b([A-Z]{2,3})\b/', $location, $matches);
+
+            // Check if we found a match
+            if (isset($matches[1]) && array_key_exists($matches[1], $stateMap)) {
+                $stateFullName = $stateMap[$matches[1]];
+            } else {
+                // Default or fallback state if no match found
+                $stateFullName = 'New South Wales';
+            }
+
+
+            // If the job URL exists, process the job
+            if ($jobUrl) {
+                $fullUrl = 'https://careers.cbcity.nsw.gov.au' . $jobUrl; // Make the URL absolute
+
+                // Check if the job already exists
+                $existingJob = Job::where('apply_url', $fullUrl)->first();
+                if (!$existingJob) {
+
+                    // Fetch job details page to get description and other information
+                    $jobCrawler = $client->request('GET', $fullUrl);
+
+                    // Extract job description, location, and expiry date
+                    $description = $jobCrawler->filter('.jobdescription')->html() ?? 'No description available'; // Get job description HTML
+
+                    $expiryDate = $jobCrawler->filter('#job-date')->text(); // Extract expiry date
+                    $expiryDateCleaned = str_replace('Date: ', '', $expiryDate); // Clean up the date string
+
+                    // Parse the date and format it to 'Y-m-d'
+                    $formattedExpiryDate = Carbon::parse($expiryDateCleaned)->format('Y-m-d');
+
+                    // Check if the parsed expiry date is in the past
+                    if (Carbon::parse($formattedExpiryDate)->isBefore(Carbon::today())) {
+                        // If the expiry date is in the past, set it to two weeks from today
+                        $formattedExpiryDate = Carbon::today()->addWeeks(2)->format('Y-m-d');
+                    }
+
+                    // You can now use $formattedExpiryDate which is either the original date or updated
+
+                    // Parse and format the expiry date
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+
+                    $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                    if (!empty($nominatimData)) {
+                        $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                        $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                        $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                    } else {
+                        $lat = '-16.4614455' ;
+                        $lng =  '145.372664';
+                        $exact_location = $location;
+
+                    }
+
+
+                    $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                    if($stateId){
+                        $sId = $stateId->id;
+                    }else{
+                        $sId = 3909;
+                    }
+
+
+                    // Prepare the job data
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => 14,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'City of Canterbury Bankstown',
+                        'apply_url' => $fullUrl,
+                        'description' => $description,
+                        'state_id' => $sId, // Use a default state ID if state not found
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'apply_on' => 'custom_url',
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1, // Adjust according to your mapping logic
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0
+                    ];
+
+                    // Save job into the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    $categories = [0 => "14"];
+                    $done->selectedCategories()->sync($categories);
+
+                    // Update location and other fields
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to the allJobs array
+                    $allJobs[] = $jobRequest;
+                }
+            }
+        });
+
+        // Return the number of jobs found
+
+        return response()->json([
+            'message' => count($allJobs) . ' job(s) scraped from Canterbury Bankstown',
+        ]);
+
+    }
+
+
+
+    // ByronShire Council
+
+    public function ByronShire()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Byron Shire Council')->first();
+        $allJobs = [];
+        $client = new Client();
+
+        // Step 1: Load the page that contains the iframe
+        $mainUrl = 'https://www.byron.nsw.gov.au/Council/Jobs/Current-vacancies';
+        $crawler = $client->request('GET', $mainUrl);
+
+        // Step 2: Get the iframe URL (where the job list is located)
+        $iframeUrl = $crawler->filter('iframe')->attr('src');
+        if (!$iframeUrl) {
+            return response()->json(['message' => 'Iframe not found.']);
+        }
+
+        // Step 3: Load the iframe content
+        $crawler = $client->request('GET', $iframeUrl);
+
+        // Step 4: Extract job listings
+        $jobCards = $crawler->filter('.jobs-list .jobblock');
+          // Debugging step to check if job cards are correctly extracted
+
+        // Step 5: Iterate over each job card to extract job details
+        $jobCards->each(function (Crawler $node) use ($client, &$allJobs,$user) {
+                // Extract job data from the node's attributes
+                $title = $node->filter('.job_title')->text();
+
+                $location = $node->filter('.location')->text();
+                $jobUrl = $node->attr('data-url');
+                $existingJob = Job::where('apply_url', $jobUrl)->first();
+                if (!$existingJob) {
+                    $closingDate = $node->attr('data-expires_at');
+                    $vacancies = $node->attr('data-vacancies');
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $description = $jobCrawler->filter('#description')->html() ?? 'No description available';
+
+                    $stateMap = [
+                        'QLD' => 'Queensland',
+                        'ACT' => 'Australian Capital Territory',
+                        'NSW' => 'New South Wales',
+                        'SA'  => 'South Australia',
+                        'TAS' => 'Tasmania',
+                        'VIC' => 'Victoria',
+                        'WA'  => 'Western Australia',
+                        'NT'  => 'Northern Territory',
+                    ];
+
+                    // Extract state abbreviation (2-3 uppercase letters)
+                    preg_match('/\b([A-Z]{2,3})\b/', $location, $matches);
+
+                    // Check if we found a match
+                    if (isset($matches[1]) && array_key_exists($matches[1], $stateMap)) {
+                        $stateFullName = $stateMap[$matches[1]];
+                    } else {
+                        // Default or fallback state if no match found
+                        $stateFullName = 'New South Wales';
+                    }
+
+
+                    // Clean up and format closing date
+                    $formattedExpiryDate = Carbon::createFromFormat('Y-m-d H:i:s O', $closingDate)->format('Y-m-d');
+                    // Check if the parsed expiry date is in the past
+                    if (Carbon::parse($formattedExpiryDate)->isBefore(Carbon::today())) {
+                        // If the expiry date is in the past, set it to two weeks from today
+                        $formattedExpiryDate = Carbon::today()->addWeeks(2)->format('Y-m-d');
+                    }
+
+                    // You can now use $formattedExpiryDate which is either the original date or updated
+
+                    // Parse and format the expiry date
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+
+                    $nominatimData = json_decode($nominatimResponse->getBody(), true);
+                    if (!empty($nominatimData)) {
+                        $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                        $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                        $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                    } else {
+                        $lat = '-16.4614455' ;
+                        $lng =  '145.372664';
+                        $exact_location = $location;
+
+                    }
+
+
+                    $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                    if($stateId){
+                        $sId = $stateId->id;
+                    }else{
+                        $sId = 3909;
+                    }
+
+
+                    // Prepare the job data
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => 14,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Byron Shire Council',
+                        'apply_url' => $jobUrl,
+                        'description' => $description,
+                        'state_id' => $sId, // Use a default state ID if state not found
+                        'vacancies' => $vacancies ?? 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'apply_on' => 'custom_url',
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1, // Adjust according to your mapping logic
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0
+                    ];
+
+                    // Save job into the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    $categories = [0 => "14"];
+                    $done->selectedCategories()->sync($categories);
+
+                    // Update location and other fields
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to the allJobs array
+                    $allJobs[] = $jobRequest;
+                }
+
+        });
+
+        // Return the number of jobs found
+        return response()->json([
+            'message' => count($allJobs) . ' job(s) scraped from Byron Shire Council',
+        ]);
+    }
+
+
+    // BulokeShire
+
+    public function BulokeShire()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Buloke Shire Council')->first();
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://www.buloke.vic.gov.au/employment'; // Main job listing page
+        $crawler = $client->request('GET', $mainUrl);
+
+        // Step 2: Extract job listings from the page
+        // Adjust the selector based on the new structure
+        $jobCards = $crawler->filter('.ArticleList li'); // 'li' inside '.ArticleList' contains the job links
+
+        // Step 3: Iterate over each job listing
+        $jobCards->each(function ($node) use ($client, &$allJobs,$user) {
+            // Extract job title and URL
+            $title = $node->filter('.ArticleName')->text();
+            $jobUrl = $node->filter('.ArticleName')->attr('href');
+            $jobUrl = 'https://www.buloke.vic.gov.au' . $jobUrl; // Make sure to use the full URL
+
+
+        $existingJob = Job::where('apply_url', $jobUrl)->first();
+         if (!$existingJob) {
+
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    // Extract the job description using the correct selector (use your 'page_content' class or another appropriate class)
+                    $description = $jobCrawler->filter('.page_content .content_holder')->html(); // Adjust based on the actual structure of the job detail page
+                    $description = $description ?: 'No description available'; // If no description is found
+
+
+                    $formattedExpiryDate = Carbon::today()->addWeeks(4)->format('Y-m-d');
+                    $vacancies = 1;
+                    $location = 'Broadway, Wycheproof VIC';
+
+                    $stateMap = [
+                        'QLD' => 'Queensland',
+                        'ACT' => 'Australian Capital Territory',
+                        'NSW' => 'New South Wales',
+                        'SA'  => 'South Australia',
+                        'TAS' => 'Tasmania',
+                        'VIC' => 'Victoria',
+                        'WA'  => 'Western Australia',
+                        'NT'  => 'Northern Territory',
+                    ];
+
+                    // Extract state abbreviation (2-3 uppercase letters)
+                    preg_match('/\b([A-Z]{2,3})\b/', $location, $matches);
+
+                    // Check if we found a match
+                    if (isset($matches[1]) && array_key_exists($matches[1], $stateMap)) {
+                        $stateFullName = $stateMap[$matches[1]];
+                    } else {
+                        // Default or fallback state if no match found
+                        $stateFullName = 'Victoria';
+                    }
+
+                    // You can now use $formattedExpiryDate which is either the original date or updated
+
+                    // Parse and format the expiry date
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+
+                    $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+
+                    if (!empty($nominatimData)) {
+                        $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                        $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                        $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                    } else {
+                        $lat = '-16.4614455' ;
+                        $lng =  '145.372664';
+                        $exact_location = $location;
+
+                    }
+
+
+                    $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                    if($stateId){
+                        $sId = $stateId->id;
+                    }else{
+                        $sId = 3909;
+                    }
+
+
+                    // Prepare the job data
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => 14,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Buloke Shire Council',
+                        'apply_url' => $jobUrl,
+                        'description' => $description,
+                        'state_id' => $sId, // Use a default state ID if state not found
+                        'vacancies' => $vacancies ?? 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'apply_on' => 'custom_url',
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1, // Adjust according to your mapping logic
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0
+                    ];
+
+                    // Save job into the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    $categories = [0 => "14"];
+                    $done->selectedCategories()->sync($categories);
+
+                    // Update location and other fields
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to the allJobs array
+                    $allJobs[] = $jobRequest;
+            }
+
+        });
+
+        // Return the number of jobs found
+        return response()->json([
+            'message' => count($allJobs) . ' job(s) scraped from Buloke Shire Council',
+        ]);
+    }
 
 
     private function createJobFromScrape($jobData)

@@ -106,6 +106,9 @@ Route::prefix('admin')->group(function () {
 
         // auto get council jobs
         Route::get('/auto-get-centralCoast', [CompanyController::class, 'centralCoast'])->name('auto.centralCoast');
+        Route::get('/auto-get-Canterbury-Bankstown', [CompanyController::class, 'CanterburyBankstown'])->name('auto.CanterburyBankstown');
+        Route::get('/auto-get-ByronShire', [CompanyController::class, 'ByronShire'])->name('auto.ByronShire');
+        Route::get('/auto-get-BulokeShire', [CompanyController::class, 'BulokeShire'])->name('auto.BulokeShire');
 
 
 
