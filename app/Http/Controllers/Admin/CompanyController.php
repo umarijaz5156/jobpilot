@@ -691,7 +691,7 @@ class CompanyController extends Controller
                 // Prepare the job data
                 $jobRequest = [
                     'title' => $title,
-                    'category_id' => 14,
+                    'category_id' => 3,
                     'company_id' => $user->company->id,
                     'company_name' => 'Central Coast Council',
                     'apply_url' => $url,
@@ -716,7 +716,7 @@ class CompanyController extends Controller
                 // Save job into the database
                 $done = $this->createJobFromScrape($jobRequest);
 
-                $categories = [0 => "14"];
+                $categories = [0 => "3"];
                 $done->selectedCategories()->sync($categories);
 
                 $done->update([
@@ -860,7 +860,7 @@ class CompanyController extends Controller
                     // Prepare the job data
                     $jobRequest = [
                         'title' => $title,
-                        'category_id' => 14,
+                        'category_id' => 3,
                         'company_id' => $user->company->id,
                         'company_name' => 'City of Canterbury Bankstown',
                         'apply_url' => $fullUrl,
@@ -885,7 +885,7 @@ class CompanyController extends Controller
                     // Save job into the database
                     $done = $this->createJobFromScrape($jobRequest);
 
-                    $categories = [0 => "14"];
+                    $categories = [0 => "3"];
                     $done->selectedCategories()->sync($categories);
 
                     // Update location and other fields
@@ -1033,7 +1033,7 @@ class CompanyController extends Controller
                     // Prepare the job data
                     $jobRequest = [
                         'title' => $title,
-                        'category_id' => 14,
+                        'category_id' => 3,
                         'company_id' => $user->company->id,
                         'company_name' => 'Byron Shire Council',
                         'apply_url' => $jobUrl,
@@ -1058,7 +1058,7 @@ class CompanyController extends Controller
                     // Save job into the database
                     $done = $this->createJobFromScrape($jobRequest);
 
-                    $categories = [0 => "14"];
+                    $categories = [0 => "3"];
                     $done->selectedCategories()->sync($categories);
 
                     // Update location and other fields
@@ -1193,7 +1193,7 @@ class CompanyController extends Controller
                     // Prepare the job data
                     $jobRequest = [
                         'title' => $title,
-                        'category_id' => 14,
+                        'category_id' => 3,
                         'company_id' => $user->company->id,
                         'company_name' => 'Buloke Shire Council',
                         'apply_url' => $jobUrl,
@@ -1218,7 +1218,7 @@ class CompanyController extends Controller
                     // Save job into the database
                     $done = $this->createJobFromScrape($jobRequest);
 
-                    $categories = [0 => "14"];
+                    $categories = [0 => "3"];
                     $done->selectedCategories()->sync($categories);
 
                     // Update location and other fields
@@ -1246,6 +1246,575 @@ class CompanyController extends Controller
             'message' => count($allJobs) . ' job(s) scraped from Buloke Shire Council',
         ]);
     }
+
+
+    // BouliaShire
+
+    public function BouliaShire()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Boulia Shire Council')->first();
+
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://www.boulia.qld.gov.au/Council/Employment-Opportunities'; // Updated job listing page
+        $crawler = $client->request('GET', $mainUrl);
+        // Step 1: Extract job listings from the table with the given class
+        $jobRows = $crawler->filter('.sc-responsive-table tbody tr'); // Select table rows
+
+
+        // Step 2: Iterate over each row to extract position title and PDF link
+        $jobRows->each(function ($node) use ($client, &$allJobs, $user) {
+            // Extract the position title and PDF link from the table row
+            $title = $node->filter('td')->eq(0)->text();
+            $title = preg_replace('/\xA0/', ' ', $title); // Replace non-breaking space with regular space
+            $title = utf8_encode($title); // Ensure the text is UTF-8 encoded
+
+            $pdfLink = $node->filter('td')->eq(1)->filter('a')->attr('href'); // Assuming PDF link is in the second <td> and inside <a> tag
+            if (strpos($pdfLink, 'http') === false) {
+                $pdfLink = 'https://www.boulia.qld.gov.au' . $pdfLink;
+            }
+
+            $existingJob = Job::where('apply_url', $pdfLink)->first();
+            if (!$existingJob) {
+                        if ($pdfLink) {
+                // Complete the PDF URL if it's relative
+
+                // Step 3: Download and extract text from the PDF
+                $pdfContent = $this->extractTextFromPdf($pdfLink);
+
+                if ($pdfContent) {
+
+
+                        $stateFullName = 'Queensland';
+                        $location = 'boulia shire council';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+
+                    $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+
+                    if (!empty($nominatimData)) {
+                        $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                        $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                        $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                    } else {
+                        $lat = '-16.4614455' ;
+                        $lng =  '145.372664';
+                        $exact_location = $location;
+
+                    }
+
+
+                    $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                    if($stateId){
+                        $sId = $stateId->id;
+                    }else{
+                        $sId = 3909;
+                    }
+
+
+
+                    // Prepare job data for saving
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => 3,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Boulia Shire Council',
+                        'apply_url' => $pdfLink,
+                        'description' => $pdfContent, // Use PDF content as job description
+                        'state_id' => $sId, // Default state ID for Queensland (QLD)
+                        'vacancies' => 1,
+                        'deadline' => Carbon::today()->addWeeks(4)->format('Y-m-d'),
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'apply_on' => 'custom_url',
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1, // Adjust as necessary
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 1
+                    ];
+
+
+                        // Save job into the database
+                        $done = $this->createJobFromScrape($jobRequest);
+
+
+                    // Sync categories or other relations if necessary
+                    $categories = [0 => "3"];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to the allJobs array
+                    $allJobs[] = $jobRequest;
+                }
+            }
+        }
+
+        });
+
+        // Return the number of jobs found
+        return response()->json([
+            'message' => count($allJobs) . ' job(s) scraped from Boulia Shire Council',
+        ]);
+    }
+
+
+    // BrokenHillCity
+
+    public function BrokenHillCity()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Broken Hill City Council')->first();
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://www.brokenhill.nsw.gov.au/Council/Careers/Positions-Vacant'; // Main job listing page
+        $crawler = $client->request('GET', $mainUrl);
+
+        // Extract job listings from the page
+        $jobCards = $crawler->filter('.list-item-container'); // Assuming your class for job containers is .list-item-container
+
+        $jobCards->each(function ($node) use ($client, &$allJobs, $user) {
+            // Extract job title
+            $title = $node->filter('.list-item-title')->text();
+            // Extract closing date, job type, and location
+            // $closingDate = $node->filter('.applications-closing')->text();
+            $closingDate = Carbon::today()->addWeeks(4)->format('Y-m-d');
+
+
+            $jobUrl = $node->filter('a')->attr('href');
+
+            $jobCrawler = $client->request('GET', $jobUrl);
+
+            // Extract the apply link from the hyperlink-button-container class
+            $jobUrl = $jobCrawler->filter('.hyperlink-button-container a')->attr('href');
+
+            // If job doesn't already exist, proceed
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                // Go to job details page
+                $jobCrawler = $client->request('GET', $jobUrl);
+
+                // Extract the job details
+                $jobDescription = $jobCrawler->filter('.job-ad-description')->html();
+                $salary = $jobCrawler->filter('.job-ad-salary')->text();
+                $formattedExpiryDate = Carbon::parse($closingDate)->format('Y-m-d');
+
+
+                $stateFullName = 'New South Wales';
+                $location = 'Broken Hill';
+                $clientC = new ClientC();
+                $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                $nominatimResponse = $clientC->get($nominatimUrl, [
+                    'query' => [
+                        'q' => $location,
+                        'format' => 'json',
+                        'limit' => 1
+                    ],
+                    'headers' => [
+                        'User-Agent' => 'YourAppName/1.0'
+                    ]
+                ]);
+
+            $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+            if (!empty($nominatimData)) {
+                $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+            } else {
+                $lat = '-16.4614455' ;
+                $lng =  '145.372664';
+                $exact_location = $location;
+
+            }
+
+
+            $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+            if($stateId){
+                $sId = $stateId->id;
+            }else{
+                $sId = 3909;
+            }
+
+
+
+
+
+                // Prepare job data for insertion
+                $jobRequest = [
+                    'title' => $title,
+                    'category_id' => 3,
+                    'company_id' => $user->company->id,
+                    'company_name' => 'Broken Hill City Council',
+                    'apply_url' => $jobUrl,
+                    'description' => $jobDescription,
+                    'state_id' => $sId, // Default state (Victoria)
+                    'vacancies' => 1,
+                    'deadline' => $formattedExpiryDate,
+                    'salary_mode' => 'custom',
+                    'salary_type_id' => 1,
+                    'custom_salary' => $salary ?: 'Competitive', // Fallback if salary is not available
+                    'job_type_id' => 1,
+                    'role_id' => 1,
+                    'education_id' => 2,
+                    'experience_id' => 4,
+                    'featured' => 0,
+                    'highlight' => 0,
+                    'status' => 'active',
+                    'ongoing' => 0,
+                ];
+
+                // Save the job to the database
+                $done = $this->createJobFromScrape($jobRequest);
+
+                // Update categories
+                $categories = [0 => "3"];
+                $done->selectedCategories()->sync($categories);
+
+                $done->update([
+                    'address' => $exact_location,
+                    'neighborhood' => $exact_location,
+                    'locality' => $exact_location,
+                    'place' => $exact_location,
+                    'country' => 'Australia',
+                    'district' => $stateFullName, // Assuming state is NSW
+                    'region' => $stateFullName, // Assuming state is NSW
+                    'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                    'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                    'exact_location' => $exact_location,
+                ]);
+
+                // Add to allJobs array
+                $allJobs[] = $jobRequest;
+            }
+        });
+
+        // Return the number of jobs scraped
+        return response()->json([
+            'message' => count($allJobs) . ' job(s) scraped from Broken Hill City Council',
+        ]);
+    }
+
+
+    // BlueMountainsCity
+
+    public function BlueMountainsCity()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Blue Mountains City Council')->first();
+
+        $allJobs = [];
+        // $client = new Client();
+
+        // $mainUrl = 'https://www.bmcc.nsw.gov.au/jobs'; // Updated job listing page
+        // $crawler = $client->request('GET', $mainUrl);
+        // Step 1: Extract job listings from the table with the given class
+        // $jobRows = $crawler->filter('.field-middle-body'); // Select table rows
+        $client = new ClientC([
+            'headers' => [
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+                'Referer' => 'https://www.bmcc.nsw.gov.au'
+            ]
+        ]);
+
+        $mainUrl = 'https://www.bmcc.nsw.gov.au/jobs';
+        $response = $client->request('GET', $mainUrl);
+
+        // Get the HTML content from the response body
+        $htmlContent = (string) $response->getBody();
+
+        // Pass the raw HTML to the Crawler
+        $crawler = new Crawler($htmlContent);
+
+        // Initialize an empty array to store job titles and URLs
+        $jobs = [];
+
+        // Filter the content by the .field-middle-body .field class
+        $crawler->filter('.field-middle-body .field')->each(function ($node) use (&$jobs) {
+            // For each .field section, find the <h3> tag
+            $node->filter('h3')->each(function ($h3Node) use ($node, &$jobs) {
+                // Get the job title (text inside the <h3> tag)
+                $title = $h3Node->text();
+
+                // Find the first <p> tag following this <h3> tag
+                $pTag = $h3Node->nextAll()->filter('p')->first();
+
+                // Get the anchor (<a>) tag inside the <p> tag and extract the href (URL)
+                $link = $pTag->filter('a')->attr('href');
+                $link = 'https://www.bmcc.nsw.gov.au' . $link;
+                // Store the title and link in the $jobs array
+                $jobs[] = [
+                    'title' => $title,
+                    'link' => $link
+                ];
+            });
+        });
+
+
+        // Step 2: Iterate over each row to extract position title and PDF link
+        foreach($jobs as $job){
+
+            $link = $job['link'];
+            $title = $job['title'];
+            $link = trim($link);
+
+
+            $response = $client->request('GET', $link);
+
+
+
+            // Get the HTML content from the response body
+            $htmlContent = (string) $response->getBody();
+            $crawler = new Crawler($htmlContent);
+            $jobUrl = $crawler->filter('.related-download-link a')->attr('href');
+
+
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+                if (!$existingJob) {
+
+                    $pdfContent = $this->extractTextFromPdfForBlueMountain($jobUrl);
+
+
+                        $stateFullName = 'New South Wales';
+                        $location = 'Blue Mountains City Council';
+                        $clientC = new ClientC();
+                        $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                        $nominatimResponse = $clientC->get($nominatimUrl, [
+                            'query' => [
+                                'q' => $location,
+                                'format' => 'json',
+                                'limit' => 1
+                            ],
+                            'headers' => [
+                                'User-Agent' => 'YourAppName/1.0'
+                            ]
+                        ]);
+
+                        $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                        if (!empty($nominatimData)) {
+                            $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                            $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                            $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                        } else {
+                            $lat = '-16.4614455' ;
+                            $lng =  '145.372664';
+                            $exact_location = $location;
+
+                        }
+
+
+                        $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                        if($stateId){
+                            $sId = $stateId->id;
+                        }else{
+                            $sId = 3909;
+                        }
+
+
+
+                        // Prepare job data for saving
+                        $jobRequest = [
+                            'title' => $title,
+                            'category_id' => 3,
+                            'company_id' => $user->company->id,
+                            'company_name' => 'Blue Mountains City Council',
+                            'apply_url' => $jobUrl,
+                            'description' => $pdfContent, // Use PDF content as job description
+                            'state_id' => $sId, // Default state ID for Queensland (QLD)
+                            'vacancies' => 1,
+                            'deadline' => Carbon::today()->addWeeks(4)->format('Y-m-d'),
+                            'salary_mode' => 'custom',
+                            'salary_type_id' => 1,
+                            'apply_on' => 'custom_url',
+                            'custom_salary' => 'Competitive',
+                            'job_type_id' => 1, // Adjust as necessary
+                            'role_id' => 1,
+                            'education_id' => 2,
+                            'experience_id' => 4,
+                            'featured' => 0,
+                            'highlight' => 0,
+                            'status' => 'active',
+                            'ongoing' => 0
+                        ];
+
+
+                            // Save job into the database
+                            $done = $this->createJobFromScrape($jobRequest);
+
+
+                        // Sync categories or other relations if necessary
+                        $categories = [0 => "3"];
+                        $done->selectedCategories()->sync($categories);
+
+                        $done->update([
+                            'address' => $exact_location,
+                            'neighborhood' => $exact_location,
+                            'locality' => $exact_location,
+                            'place' => $exact_location,
+                            'country' => 'Australia',
+                            'district' => $stateFullName, // Assuming state is NSW
+                            'region' => $stateFullName, // Assuming state is NSW
+                            'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                            'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                            'exact_location' => $exact_location,
+                        ]);
+
+                        // Add to the allJobs array
+                        $allJobs[] = $jobRequest;
+
+
+                 }
+
+        }
+
+        // Return the number of jobs found
+        return response()->json([
+            'message' => count($allJobs) . ' job(s) scraped from Boulia Shire Council',
+        ]);
+    }
+
+    private function extractTextFromPdfForBlueMountain($pdfUrl)
+    {
+        // Initialize Guzzle Client with appropriate headers
+        $client = new \GuzzleHttp\Client([
+            'headers' => [
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+                'Referer' => 'https://www.bmcc.nsw.gov.au',  // Optional: some sites require a referer
+            ]
+        ]);
+
+        try {
+            // Make a GET request to fetch the PDF content
+            $response = $client->request('GET', $pdfUrl);
+
+            // Check for successful response
+            if ($response->getStatusCode() !== 200) {
+                return 'Failed to fetch the PDF file. Status Code: ' . $response->getStatusCode();
+            }
+
+            // Get the PDF content from the response body
+            $pdfContent = $response->getBody()->getContents();
+
+            // Initialize the PdfParser
+            $parser = new \Smalot\PdfParser\Parser();
+            $pdf = $parser->parseContent($pdfContent);
+
+            // Extract the text content from the PDF
+            $text = $pdf->getText();
+
+            // If text is found, return it as is, otherwise return a default message
+            if ($text) {
+                return $text;  // Plain text from the PDF
+            } else {
+                return 'No text available in the PDF';
+            }
+
+        } catch (\Exception $e) {
+            // Handle errors (e.g., failed to fetch PDF or parse it)
+            return 'Error extracting text from PDF: ' . $e->getMessage();
+        }
+    }
+
+
+
+    // private function extractTextFromPdf($pdfUrl)
+    // {
+    //     // Use a library like PdfParser or another PDF parsing library to extract text from PDF
+    //     // For simplicity, we'll assume you have a method that extracts the text from a PDF file
+    //     try {
+    //         // Download the PDF file contents
+    //         $pdfContent = file_get_contents($pdfUrl);
+
+    //         // Assuming you have a library to extract text from PDF (e.g., PdfParser)
+    //         $parser = new \Smalot\PdfParser\Parser();
+    //         $pdf = $parser->parseContent($pdfContent);
+
+    //         // Extract the text content from the PDF
+    //         $text = $pdf->getText();
+
+    //         // Return the extracted text
+    //         return $text ?: 'No description available'; // Return default if no text is found
+    //     } catch (\Exception $e) {
+    //         // Handle errors (e.g., failed to fetch PDF or parse it)
+    //         return null;
+    //     }
+    // }
+
+    private function extractTextFromPdf($pdfUrl)
+{
+    // Use the PdfParser library to extract text from the PDF
+    try {
+        // Download the PDF file contents
+        $pdfContent = file_get_contents($pdfUrl);
+
+        // Initialize the PdfParser
+        $parser = new \Smalot\PdfParser\Parser();
+        $pdf = $parser->parseContent($pdfContent);
+
+        // Extract the text content from the PDF
+        $text = $pdf->getText();
+
+        // If text is found, convert it to HTML by wrapping it in <p> tags
+        if ($text) {
+            // Split the text by newlines and wrap each line in <p> tags
+            $lines = explode("\n", $text);
+            $htmlContent = '';
+            foreach ($lines as $line) {
+                // Escape any HTML special characters
+                $htmlContent .= '<p>' . htmlspecialchars($line) . '</p>';
+            }
+        } else {
+            $htmlContent = '<p>No description available</p>';
+        }
+
+        // Return the HTML content
+        return $htmlContent;
+    } catch (\Exception $e) {
+        // Handle errors (e.g., failed to fetch PDF or parse it)
+        return $e->getMessage();
+    }
+}
+
+
 
 
     private function createJobFromScrape($jobData)

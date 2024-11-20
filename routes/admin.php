@@ -110,7 +110,9 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-ByronShire', [CompanyController::class, 'ByronShire'])->name('auto.ByronShire');
         Route::get('/auto-get-BulokeShire', [CompanyController::class, 'BulokeShire'])->name('auto.BulokeShire');
 
-
+        Route::get('/auto-get-BouliaShire', [CompanyController::class, 'BouliaShire'])->name('auto.BouliaShire');
+        Route::get('/auto-get-BrokenHillCity', [CompanyController::class, 'BrokenHillCity'])->name('auto.BrokenHillCity');
+        Route::get('/auto-get-BlueMountainsCity', [CompanyController::class, 'BlueMountainsCity'])->name('auto.BlueMountainsCity');
 
 
 

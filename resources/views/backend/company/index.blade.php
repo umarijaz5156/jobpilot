@@ -329,7 +329,10 @@
                 { route: "{{ route('auto.centralCoast') }}", message: "Scraping Central Coast Jobs..." },
                 { route: "{{ route('auto.CanterburyBankstown') }}", message: "Scraping Canterbury Bankstown Jobs..." },
                 { route: "{{ route('auto.ByronShire') }}", message: "Scraping Byron Shire Jobs..." },
-                { route: "{{ route('auto.BulokeShire') }}", message: "Scraping Buloke Shire Jobs..." }
+                { route: "{{ route('auto.BulokeShire') }}", message: "Scraping Buloke Shire Jobs..." },
+                { route: "{{ route('auto.BouliaShire') }}", message: "Scraping Boulia Shire Jobs..." },
+                { route: "{{ route('auto.BrokenHillCity') }}", message: "Scraping Broken Hill City Shire Jobs..." },
+                { route: "{{ route('auto.BlueMountainsCity') }}", message: "Scraping Blue Mountains City Council Jobs..." }
 
                 // You can add more routes here in the future
             ];
