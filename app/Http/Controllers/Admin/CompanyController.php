@@ -26,6 +26,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Mail\UserPdfMail;
 use App\Models\Job;
 use App\Models\State;
+use Exception;
 use Illuminate\Support\Facades\Mail;
 use PDF;
 use GuzzleHttp\Client as ClientC;
@@ -1589,7 +1590,6 @@ class CompanyController extends Controller
 
         // Step 2: Iterate over each row to extract position title and PDF link
         foreach($jobs as $job){
-
             $link = $job['link'];
             $title = $job['title'];
             $link = trim($link);
@@ -1602,7 +1602,8 @@ class CompanyController extends Controller
             // Get the HTML content from the response body
             $htmlContent = (string) $response->getBody();
             $crawler = new Crawler($htmlContent);
-            $jobUrl = $crawler->filter('.related-download-link a')->attr('href');
+
+            $jobUrl = $crawler->filter('.related-download-link a')->attr('href') ?? $link;
 
 
 
@@ -1708,9 +1709,303 @@ class CompanyController extends Controller
 
         // Return the number of jobs found
         return response()->json([
-            'message' => count($allJobs) . ' job(s) scraped from Boulia Shire Council',
+            'message' => count($allJobs) . ' job(s) scraped from Blue Mountains City Council',
         ]);
     }
+
+
+    // BlacktownCity
+
+
+    public function BarklyRegional()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Barkly Regional Council')->first();
+        $allJobs = [];
+        $client = new Client();
+        $mainUrl = 'https://www.barkly.nt.gov.au/careers/current-vacancies'; // Main job listing page
+        $crawler = $client->request('GET', $mainUrl);
+    
+        // Extract job listings from the page
+        $jobListings = $crawler->filter('.small-listing'); // Assuming job listings are inside .small-listing
+    
+        $jobListings->each(function ($node) use ($client, &$allJobs, $user) {
+
+            $title = $node->filter('a')->text();
+            $location = trim($node->filter('.medium-4.large-3.columns')->eq(1)->text());
+
+            $closingDate = trim($node->filter('.medium-4.large-4.columns.files')->text());
+            $closingDate = preg_replace('/^Closing\s+[A-Za-z]+\s+/', '', $closingDate);
+            $formattedExpiryDate = Carbon::parse($closingDate)->format('Y-m-d');
+           
+          
+            $jobUrl = $node->filter('a')->attr('href');
+
+            // Check if the job already exists in the database
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+
+            if (!$existingJob) {
+    
+                // Go to the job details page
+                $jobCrawler = $client->request('GET', $jobUrl);
+    
+                // Extract the job description (from large-9 columns)
+                $jobDescription = $jobCrawler->filter('.large-9.columns')->html(); // Get the HTML content of the job description
+
+
+                $stateFullName = 'Northern Territory';
+                $clientC = new ClientC();
+                $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                $nominatimResponse = $clientC->get($nominatimUrl, [
+                    'query' => [
+                        'q' => $location,
+                        'format' => 'json',
+                        'limit' => 1
+                    ],
+                    'headers' => [
+                        'User-Agent' => 'YourAppName/1.0'
+                    ]
+                ]);
+
+            $nominatimData = json_decode($nominatimResponse->getBody(), true);
+            if (!empty($nominatimData)) {
+                $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+            } else {
+                $lat = '-16.4614455' ;
+                $lng =  '145.372664';
+                $exact_location = $location;
+
+            }
+
+
+            $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+
+            if($stateId){
+                $sId = $stateId->id;
+            }else{
+                $sId = 3909;
+            }
+
+
+                // Prepare job data for insertion
+                $jobRequest = [
+                    'title' => $title,
+                    'category_id' => 3,
+                    'company_id' => $user->company->id,
+                    'company_name' => 'Barkly Regional Council',
+                    'apply_url' => $jobUrl,
+                    'description' => $jobDescription,
+                    'state_id' => $sId, // Default state (Victoria)
+                    'vacancies' => 1,
+                    'deadline' => $formattedExpiryDate,
+                    'salary_mode' => 'custom',
+                    'salary_type_id' => 1,
+                    'custom_salary' => 'Competitive', // Fallback if salary is not available
+                    'job_type_id' => 1,
+                    'role_id' => 1,
+                    'education_id' => 2,
+                    'experience_id' => 4,
+                    'featured' => 0,
+                    'highlight' => 0,
+                    'status' => 'active',
+                    'ongoing' => 0,
+                ];
+
+                // Save the job to the database
+                $done = $this->createJobFromScrape($jobRequest);
+
+                // Update categories
+                $categories = [0 => "3"];
+                $done->selectedCategories()->sync($categories);
+
+                $done->update([
+                    'address' => $exact_location,
+                    'neighborhood' => $exact_location,
+                    'locality' => $exact_location,
+                    'place' => $exact_location,
+                    'country' => 'Australia',
+                    'district' => $stateFullName, // Assuming state is NSW
+                    'region' => $stateFullName, // Assuming state is NSW
+                    'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                    'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                    'exact_location' => $exact_location,
+                ]);
+
+                // Add to allJobs array
+                $allJobs[] = $jobRequest;
+            }
+        });
+
+        // Return the number of jobs scraped
+        return response()->json([
+            'message' => count($allJobs) . ' job(s) scraped from Barkly Regional Council',
+        ]);
+    }
+    
+
+    // BananaShire
+
+    public function BananaShire()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Banana Shire Council')->first();
+
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://www.banana.qld.gov.au/jobs-council/job-vacancies-1'; // Job listing page URL
+        $crawler = $client->request('GET', $mainUrl);
+    
+        // Step 1: Extract job listings from the table with the given class
+        $jobRows = $crawler->filter('.editor table tbody tr'); // Select rows in the table
+    
+        // Step 2: Iterate over each row to extract position title, location, job type, closing date, and PDF link
+        $jobRows->each(function ($node) use ($client, &$allJobs, $user) {
+
+
+               // Extract the PDF link (assuming it's inside a link in the first column)
+               $pdfLink = $node->filter('td')->eq(0)->filter('a')->attr('href'); // Assuming PDF link is in the first <td> and inside <a> tag
+               if (strpos($pdfLink, 'http') === false) {
+                   $pdfLink = 'https://www.banana.qld.gov.au' . $pdfLink; // Make the URL absolute if it's relative
+               }
+ 
+               $existingJob = Job::where('apply_url', $pdfLink)->first();
+          if (!$existingJob)  {
+                    $title = $node->filter('td')->eq(0)->text();
+                    $title = preg_replace('/\xA0/', ' ', $title); // Replace non-breaking space with regular space
+                    $title = utf8_encode($title); // Ensure the text is UTF-8 encoded
+
+                    // Extract location (2nd column)
+                    $location = $node->filter('td')->eq(1)->text();
+                    $location = trim($location); // Remove any extra spaces
+                
+                    $closingDate = $node->filter('td')->eq(3)->text();
+                    $closingDate = trim($closingDate); // Remove extra spaces
+                
+                if($closingDate == 'Open'){
+                    $formattedExpiryDate = Carbon::today()->addWeeks(4)->format('Y-m-d');
+                }else{
+                    $formattedExpiryDate = Carbon::parse($closingDate)->format('Y-m-d');
+                }
+
+                     $stateFullName = 'Queensland';
+                    $location = 'boulia shire council';
+
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+
+                    $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                    if (!empty($nominatimData)) {
+                        $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                        $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                        $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                    } else {
+                        $lat = '-16.4614455' ;
+                        $lng =  '145.372664';
+                        $exact_location = $location;
+
+                    }
+
+
+                    $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                    if($stateId){
+                        $sId = $stateId->id;
+                    }else{
+                        $sId = 3909;
+                    }
+
+                    $description = '<div class="job-desc">
+                        <p><strong>ABOUT COUNCIL</strong><br><strong>Our Vision</strong></p><p>â€œShire of Opportunityâ€<br>To improve the quality of life for our communities through the delivery of efficient, effective and sustainable<br>services and facilities.</p><p><strong>Our Mission</strong></p><p>Our Council is committed to promoting and striving for continuous improvement in all that we do, for the benefit and growth of the whole of our Shire.</p><p><strong>Our Values</strong></p><p>â€¢ Advocacy for our people<br>â€¢ Effective and responsive leadership<br>â€¢ Integrity and mutual respect<br>â€¢ Honesty, equity and consistency in all aspects of Councilâ€™s operations<br>â€¢ Quality of service to our citizens<br>â€¢ Work constructively together, in the spirit of teamwork<br>â€¢ Sustainable growth and development</p><p><strong>GENERAL POSITION INFORMATION</strong></p><p>To assist in the implementation, coordination and promotion of Councilâ€™s Safety Management System in<br>accordance with legislative requirements and Council policies.</p><p><strong>TO APPLY</strong></p><p>Submit the following documentation via email or in person:</p><p>âš« Application for Employment<br>âš« Cover Letter<br>âš« Resume<br>âš« Copies of any relevant Qualifications/Tickets/Licences are not required â€“<br>please include details in the application form.</p><p>Your cover letter should outline qualifications, education and licences as well as abilities, skills and knowledge found on page two of the position description.</p><p>Ensure you provide relevant examples where you have demonstrated your<br>ability to perform the duties and responsibilities required in the position<br>description.</p><p>Email: enquiries@banana.qld.gov.au<br>In person: Banana Shire Council Admin Office, 62 Valentine Plains Road, Biloela</p>
+                    </div>';
+
+
+
+                    // Prepare job data for saving
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => 3,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Banana Shire Council',
+                        'apply_url' => $pdfLink,
+                        'description' => $description, // Use PDF content as job description
+                        'state_id' => $sId, // Default state ID for Queensland (QLD)
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'apply_on' => 'custom_url',
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1, // Adjust as necessary
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 1
+                    ];
+
+
+                        // Save job into the database
+                        $done = $this->createJobFromScrape($jobRequest);
+
+
+                    // Sync categories or other relations if necessary
+                    $categories = [0 => "3"];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+                    // Add to the allJobs array
+                    $allJobs[] = $jobRequest;
+                
+            
+        }
+
+        });
+
+        // Return the number of jobs found
+        return response()->json([
+            'message' => count($allJobs) . ' job(s) scraped from Banana Shire Council',
+        ]);
+    }
+
+
+    // BanyuleCity
+
+
+
+
+
+    
+
 
     private function extractTextFromPdfForBlueMountain($pdfUrl)
     {

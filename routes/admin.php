@@ -114,8 +114,8 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-BrokenHillCity', [CompanyController::class, 'BrokenHillCity'])->name('auto.BrokenHillCity');
         Route::get('/auto-get-BlueMountainsCity', [CompanyController::class, 'BlueMountainsCity'])->name('auto.BlueMountainsCity');
 
-
-
+        Route::get('/auto-get-BarklyRegional', [CompanyController::class, 'BarklyRegional'])->name('auto.BarklyRegional');
+        Route::get('/auto-get-BananaShire', [CompanyController::class, 'BananaShire'])->name('auto.BananaShire');
 
 
 
