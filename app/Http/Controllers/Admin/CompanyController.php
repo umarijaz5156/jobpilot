@@ -25,6 +25,7 @@ use Maatwebsite\Excel\Facades\Excel;
 
 use App\Mail\UserPdfMail;
 use App\Models\Job;
+use App\Models\JobCategory;
 use App\Models\State;
 use Exception;
 use Illuminate\Support\Facades\Mail;
@@ -1726,10 +1727,10 @@ class CompanyController extends Controller
         $client = new Client();
         $mainUrl = 'https://www.barkly.nt.gov.au/careers/current-vacancies'; // Main job listing page
         $crawler = $client->request('GET', $mainUrl);
-    
+
         // Extract job listings from the page
         $jobListings = $crawler->filter('.small-listing'); // Assuming job listings are inside .small-listing
-    
+
         $jobListings->each(function ($node) use ($client, &$allJobs, $user) {
 
             $title = $node->filter('a')->text();
@@ -1738,18 +1739,18 @@ class CompanyController extends Controller
             $closingDate = trim($node->filter('.medium-4.large-4.columns.files')->text());
             $closingDate = preg_replace('/^Closing\s+[A-Za-z]+\s+/', '', $closingDate);
             $formattedExpiryDate = Carbon::parse($closingDate)->format('Y-m-d');
-           
-          
+
+
             $jobUrl = $node->filter('a')->attr('href');
 
             // Check if the job already exists in the database
             $existingJob = Job::where('apply_url', $jobUrl)->first();
 
             if (!$existingJob) {
-    
+
                 // Go to the job details page
                 $jobCrawler = $client->request('GET', $jobUrl);
-    
+
                 // Extract the job description (from large-9 columns)
                 $jobDescription = $jobCrawler->filter('.large-9.columns')->html(); // Get the HTML content of the job description
 
@@ -1845,7 +1846,7 @@ class CompanyController extends Controller
             'message' => count($allJobs) . ' job(s) scraped from Barkly Regional Council',
         ]);
     }
-    
+
 
     // BananaShire
 
@@ -1860,10 +1861,10 @@ class CompanyController extends Controller
 
         $mainUrl = 'https://www.banana.qld.gov.au/jobs-council/job-vacancies-1'; // Job listing page URL
         $crawler = $client->request('GET', $mainUrl);
-    
+
         // Step 1: Extract job listings from the table with the given class
         $jobRows = $crawler->filter('.editor table tbody tr'); // Select rows in the table
-    
+
         // Step 2: Iterate over each row to extract position title, location, job type, closing date, and PDF link
         $jobRows->each(function ($node) use ($client, &$allJobs, $user) {
 
@@ -1873,7 +1874,7 @@ class CompanyController extends Controller
                if (strpos($pdfLink, 'http') === false) {
                    $pdfLink = 'https://www.banana.qld.gov.au' . $pdfLink; // Make the URL absolute if it's relative
                }
- 
+
                $existingJob = Job::where('apply_url', $pdfLink)->first();
           if (!$existingJob)  {
                     $title = $node->filter('td')->eq(0)->text();
@@ -1883,10 +1884,10 @@ class CompanyController extends Controller
                     // Extract location (2nd column)
                     $location = $node->filter('td')->eq(1)->text();
                     $location = trim($location); // Remove any extra spaces
-                
+
                     $closingDate = $node->filter('td')->eq(3)->text();
                     $closingDate = trim($closingDate); // Remove extra spaces
-                
+
                 if($closingDate == 'Open'){
                     $formattedExpiryDate = Carbon::today()->addWeeks(4)->format('Y-m-d');
                 }else{
@@ -1985,8 +1986,8 @@ class CompanyController extends Controller
                     ]);
                     // Add to the allJobs array
                     $allJobs[] = $jobRequest;
-                
-            
+
+
         }
 
         });
@@ -1998,13 +1999,401 @@ class CompanyController extends Controller
     }
 
 
-    // BanyuleCity
+    // Alice Springs Town Coun­cil
+
+
+    public function AliceSprings()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        // $user = User::where('name', 'Broken Hill City Council')->first();
+        $user = User::where('name', 'Alice Springs Town Council')->first();
+
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://alicesprings.nt.gov.au/council/opportunities/jobs'; // Main job listing page
+     // Make a request to the main job listing page
+        $crawler = $client->request('GET', $mainUrl);
+
+        // Extract all job listing cards
+        $jobCards = $crawler->filter('.jobs .grid-x .cell');  // Target individual job containers
+        $allJobs = [];
+        // Iterate over each job listing
+        $jobCards->each(function ($node) use ($client, &$allJobs, $user) {
+            // Extract job title
+            $jobUrl = $node->filter('.cell h3 a')->attr('href');
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+
+            if (!$existingJob) {
+
+                $title = $node->filter('.cell .wrapper h3 a')->text();
+                $data = $node->filter('.cell .meta')->html();
+                preg_match('/<b>Closes:<\/b>(.*?)<br>/s', $data, $closingDateMatches);
+                $closingDate = isset($closingDateMatches[1]) ? trim($closingDateMatches[1]) : 'Not Available';
+
+
+                $formattedExpiryDate = Carbon::parse($closingDate)->format('Y-m-d');
+
+
+                $jobCrawler = $client->request('GET', $jobUrl);
+
+                $jobDescription = $jobCrawler->filter('.content-blocks')->html();
 
 
 
 
+                    $stateFullName = 'Northern Territory';
+                    $location = 'Alice Springs Town Coun­cil';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
 
-    
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '-16.4614455' ;
+                    $lng =  '145.372664';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => 3,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Alice Springs Town Coun­cil',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId, // Default state (Victoria)
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive', // Fallback if salary is not available
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => "3"];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+                    $allJobs[] = $jobRequest;
+            }
+
+
+        });
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => count($allJobs) . ' job(s) scraped from Alice Springs Town Council',
+        ]);
+    }
+
+
+    //  CardiniaShire
+
+    public function CardiniaShire()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Cardinia Shire Council')->first();
+
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://careers.cardinia.vic.gov.au/our-jobs';
+
+        $crawler = $client->request('GET', $mainUrl);
+
+        $jobCards = $crawler->filter('.page-central .adlogic_job_results .position');  // Target individual job containers
+        $allJobs = [];
+
+        $jobCards->each(function ($node) use ($client, &$allJobs, $user) {
+
+
+            $jobUrl = $node->filter('.job-header-container h1 a')->attr('href');
+            if($jobUrl == '{job_link}'){
+                return;
+            }
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                $title = $node->filter('.job-header-container h1 a')->text();
+
+                // Extract category
+                $category = $node->filter('.ajb_classification li a')->text();
+                $formattedExpiryDate = Carbon::today()->addWeeks(4)->format('Y-m-d');
+
+                $categories = JobCategory::with('translations')->get();
+
+
+                $categoryWords = explode(' ', strtolower($category));
+
+                $categoryId = 3;
+
+                foreach ($categories as $cat) {
+                    // Get the translated name of the category (in English for example)
+                    $catName = strtolower($cat->translations->first()->name);
+                    $catWords = explode(' ', $catName);
+
+                    if (array_intersect($categoryWords, $catWords)) {
+                        $categoryId = $cat->id; // Set the matched category ID
+                        break;
+                    }
+                }
+
+                $jobDescription = '<div class="container my-5">
+                    <h2 class="text-center mb-4">Our Recruitment Process</h2>
+                    <p>We know it takes time to apply for a new role, and we want to make it as easy as possible for you to join our team. However, there are a few key steps in our process to ensure we are the right fit for you. Below is an overview of our recruitment process, so you know what to expect when applying for a position with us.</p>
+                    <p>Cardinia’s recruitment process is a crucial part of our mission to create an inclusive workplace with teams made up of individuals from diverse backgrounds who are united by shared purpose and values.</p>
+                    <p>Every role is different, so while the steps and timelines may vary, one thing remains the same: we can’t wait to meet you!</p>
+
+                    <div class="accordion" id="recruitmentProcess">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    Step 1 – Discover the right opportunity for you
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#recruitmentProcess">
+                                <div class="accordion-body">
+                                    Submit your application or expression of interest on our Current Vacancies page. If you have any support or access requirements, please let us know at the time you apply for a position by contacting our People and Culture team on 1300 787 624 or through the details listed below.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    Step 2 – Submit your application
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#recruitmentProcess">
+                                <div class="accordion-body">
+                                    Please ensure you include a cover letter and an updated CV with your application. We’d love to learn more about you and why you believe you’ll be a great fit for our team.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    Step 3 – Shortlisting applications
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#recruitmentProcess">
+                                <div class="accordion-body">
+                                    If you’re shortlisted, a member of our People and Culture team or the Hiring Manager will invite you to an interview, which may be held in person or online. This process typically takes around 14 days, but the timeframe may vary depending on the number of applications received. We understand the time and effort it takes to apply and interview, so we promise to respond to all applicants, no matter the outcome.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFour">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                    Step 4 – Prepare for your interview
+                                </button>
+                            </h2>
+                            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#recruitmentProcess">
+                                <div class="accordion-body">
+                                    Think of your previous experience in work situations and prepare specific examples of how you’ve handled those situations in a positive way, using the STAR method. This is a template for answering key selection criteria or interview questions. <br>
+                                    <strong>STAR stands for:</strong><br>
+                                    <ul>
+                                        <li><strong>Situation:</strong> Explain the context.</li>
+                                        <li><strong>Task:</strong> Explain the task and how you used your skills to complete it, or explain the problem and how you solved it.</li>
+                                        <li><strong>Action:</strong> Explain what you did to achieve the goal or solve the problem.</li>
+                                        <li><strong>Result:</strong> Explain the end result and its positive impact.</li>
+                                    </ul>
+                                    Remember, the interview is a two-way process, so make sure to prepare your own questions.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFive">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                    Step 5 – Time for your interview!
+                                </button>
+                            </h2>
+                            <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#recruitmentProcess">
+                                <div class="accordion-body">
+                                    Make sure you plan ahead to arrive at your interview on time. If your interview is taking place at our office at 20 Siding Ave, Officer VIC 3809, make a plan for how you’ll get here and how much time it will take you. Otherwise, if your interview is a virtual meeting, check you have the correct meeting software installed and the joining link works. <br><br>
+                                    At your interview, you’ll be meeting with a selection panel, typically comprised of two to three people, with gender balance where possible. They will ask you a series of questions and may ask you to participate in other selection techniques, such as case studies/role-play, work samples, aptitude and ability. You will also have an opportunity to ask questions.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingSix">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                                    Step 6 – After the interview
+                                </button>
+                            </h2>
+                            <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#recruitmentProcess">
+                                <div class="accordion-body">
+                                    You may be invited to come in for a second interview. If unsuccessful, after an interview, the Hiring Manager will contact you and provide feedback. <br><br>
+                                    If you are the preferred applicant, the Hiring Manager will discuss the next stage, which includes pre-employment checks such as reference and National Police checks. Depending on your role, you may also need to undertake a Working with Children check or Pre-Employment medicals. This process can take between 4 – 10 days.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingSeven">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven">
+                                    Step 7 – Congratulations and welcome to the Cardinia team!
+                                </button>
+                            </h2>
+                            <div id="collapseSeven" class="accordion-collapse collapse" aria-labelledby="headingSeven" data-bs-parent="#recruitmentProcess">
+                                <div class="accordion-body">
+                                    Welcome aboard! Our People and Culture Team will issue your contract. Once you accept, a formal letter of offer and new starter information is sent electronically and must be completed and returned prior to your first day of work. If you’d like to see what your future team is up to, you can follow us on Facebook, Instagram or LinkedIn.<br><br>
+                                    Or, if you weren’t successful on this occasion but are still interested in joining the team, you can join our Talent Pool to be considered for future opportunities.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                ';
+
+
+                    $stateFullName = 'Victoria';
+                    $location = 'Cardinia Shire Council';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '-16.4614455' ;
+                    $lng =  '145.372664';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Alice Springs Town Coun­cil',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId, // Default state (Victoria)
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive', // Fallback if salary is not available
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+                    $allJobs[] = $jobRequest;
+            }
+
+
+        });
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => count($allJobs) . ' job(s) scraped from Cardinia Shire Council',
+        ]);
+    }
 
 
     private function extractTextFromPdfForBlueMountain($pdfUrl)
