@@ -2404,7 +2404,7 @@ class CompanyController extends Controller
         ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
 
         // $user = User::where('name', 'Cardinia Shire Council')->first();
-        $user = User::where('name', ' Central Land Council')->first();
+        $user = User::where('username', ' Central-Land')->first();
         dd($user);
         $allJobs = [];
         $client = new Client();
