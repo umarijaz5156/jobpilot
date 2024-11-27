@@ -2525,7 +2525,7 @@ class CompanyController extends Controller
                         'title' => $title,
                         'category_id' => $categoryId,
                         'company_id' => $user->company->id,
-                        'company_name' => ' Central Land Council',
+                        'company_name' => 'Central Land Council',
                         'apply_url' => $jobUrl,
                         'description' => $jobDescription,
                         'state_id' => $sId, // Default state (Victoria)
@@ -2543,7 +2543,7 @@ class CompanyController extends Controller
                         'status' => 'active',
                         'ongoing' => 0,
                     ];
-
+                    dd($jobRequest);
                     // Save the job to the database
                     $done = $this->createJobFromScrape($jobRequest);
 
