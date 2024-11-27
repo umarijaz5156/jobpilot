@@ -2007,7 +2007,7 @@ class CompanyController extends Controller
         ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
 
         // $user = User::where('name', 'Broken Hill City Council')->first();
-        $user = User::where('name', 'Alice Springs Town Council')->first();
+        $user = User::where('name', 'Alice Springs Town Coun­cil')->first();
 
         $allJobs = [];
         $client = new Client();
