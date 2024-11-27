@@ -2434,7 +2434,7 @@ class CompanyController extends Controller
 
                     $categoryId = 3;
 
-                    $jobDescription = `<div>
+                    $jobDescription = "<div>
                         <ul>
                             <li>Competitive salary and benefits package, five weeks annual leave plus paid Christmas shutdown</li>
                             <li>Temporary accommodation and relocation assistance available</li>
@@ -2476,15 +2476,14 @@ class CompanyController extends Controller
                         <p><strong>CONTACT DETAILS</strong></p>
                         <p>If you're interested in using your skills&nbsp;to make a real difference&nbsp;<strong>apply now!</strong></p>
                         <p>For further information about this role, please contact&nbsp;Emily Ryan&nbsp;on 8951 6211.</p>
-                        <p>For more information about the application process please contact Jess Howard (Human Resources Advisor)&nbsp;on 08 8951 6211 or&nbsp;<a href="mailto:jobs@clc.org.au">jobs@clc.org.au</a>.</p>
+                        <p>For more information about the application process please contact Jess Howard (Human Resources Advisor)&nbsp;on 08 8951 6211 or&nbsp;<a href='mailto:jobs@clc.org.au'>jobs@clc.org.au</a>.</p>
                         <p>&nbsp;</p>
                         <p><em>Total effective package includes: base salary, district allowance, superannuation, leave loading, relocation assistance, annual airfare allowance and salary packaging options. Annual progression within the salary scale is subject to satisfactory performance. Progression is in accordance with annual increments set out in an enterprise agreement.</em></p>
                         <p><em>The filling of this vacancy is an affirmative measure under section 8(1) of the Racial Discrimination Act 1975.</em></p>
                         <br><br>
-                    </div>`;
+                    </div>";
 
 
-                dd($jobDescription);
                     $stateFullName = 'Northern Territory';
                     $clientC = new ClientC();
                     $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
@@ -2543,7 +2542,6 @@ class CompanyController extends Controller
                         'status' => 'active',
                         'ongoing' => 0,
                     ];
-                    dd($jobRequest);
                     // Save the job to the database
                     $done = $this->createJobFromScrape($jobRequest);
 
