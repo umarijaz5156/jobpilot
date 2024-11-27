@@ -2484,7 +2484,7 @@ class CompanyController extends Controller
                     </div>`;
 
 
-
+                dd($jobDescription);
                     $stateFullName = 'Northern Territory';
                     $clientC = new ClientC();
                     $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
