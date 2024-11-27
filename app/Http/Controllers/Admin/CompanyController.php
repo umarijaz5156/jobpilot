@@ -2405,7 +2405,6 @@ class CompanyController extends Controller
 
         // $user = User::where('name', 'Cardinia Shire Council')->first();
         $user = User::where('username', 'Central-Land')->first();
-        dd($user);
         $allJobs = [];
         $client = new Client();
 
