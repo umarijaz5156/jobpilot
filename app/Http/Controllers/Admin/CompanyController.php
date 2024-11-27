@@ -2575,6 +2575,170 @@ class CompanyController extends Controller
         ]);
     }
 
+    //  CityBallarat
+
+    public function CityBallarat()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'City of Ballarat')->first();
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://careers.ballarat.vic.gov.au/job/job_search_result.cfm';
+        $client = new Client();
+        $allJobs1 = []; // Array to store all job details
+
+        function scrapeJobs($client, $mainUrl, &$allJobs) {
+            $crawler = $client->request('GET', $mainUrl);
+            do {
+                // Extract job rows where title and apply links are present
+                $crawler->filter('tr')->each(function (Crawler $node) use (&$allJobs) {
+                    // Check if this row contains a job title
+                    if ($node->filter('.clsJobTitle')->count() > 0) {
+                        $title = $node->filter('.clsJobTitle')->text();
+                        $applyLink = $node->filter('.clsJobTitle')->attr('href');
+
+                        $allJobs[] = [
+                            'title' => trim($title),
+                            'apply_link' => 'https://careers.ballarat.vic.gov.au' . trim($applyLink),
+                        ];
+                    }
+                });
+
+                // Check if the 'Next 10' button exists to paginate
+                $nextButton = $crawler->filter('#btnNextBottom');
+                if ($nextButton->count() > 0) {
+                    // Simulate a click on the "Next 10" button
+                    $form = $nextButton->form();
+                    $crawler = $client->submit($form);
+                } else {
+                    break; // Exit loop when no "Next 10" button exists
+                }
+            } while (true);
+        }
+        scrapeJobs($client, $mainUrl, $allJobs);
+
+
+
+        foreach($allJobs as $job) {
+
+
+            $title = $job['title'];
+
+            $formattedExpiryDate = Carbon::today()->addWeeks(6)->format('Y-m-d');
+
+            $jobUrl = $job['apply_link'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                $jobCrawler = $client->request('GET', $jobUrl);
+
+                $jobDescription = $jobCrawler->filter('table .detailsBG')->html();
+
+
+                $stateFullName = 'Victoria';
+                $location = 'City of Ballarat';
+                $clientC = new ClientC();
+                $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                $nominatimResponse = $clientC->get($nominatimUrl, [
+                    'query' => [
+                        'q' => $location,
+                        'format' => 'json',
+                        'limit' => 1
+                    ],
+                    'headers' => [
+                        'User-Agent' => 'YourAppName/1.0'
+                    ]
+                ]);
+
+            $nominatimData = json_decode($nominatimResponse->getBody(), true);
+            if (!empty($nominatimData)) {
+                $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+            } else {
+                $lat = '-16.4614455' ;
+                $lng =  '145.372664';
+                $exact_location = $location;
+
+            }
+
+
+            $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+            if($stateId){
+                $sId = $stateId->id;
+            }else{
+                $sId = 3909;
+            }
+
+
+                // Prepare job data for insertion
+                $jobRequest = [
+                    'title' => $title,
+                    'category_id' => 3,
+                    'company_id' => $user->company->id,
+                    'company_name' => 'City of Ballarat',
+                    'apply_url' => $jobUrl,
+                    'description' => $jobDescription,
+                    'state_id' => $sId,
+                    'vacancies' => 1,
+                    'deadline' => $formattedExpiryDate,
+                    'salary_mode' => 'custom',
+                    'salary_type_id' => 1,
+                    'custom_salary' => 'Competitive',
+                    'job_type_id' => 1,
+                    'role_id' => 1,
+                    'education_id' => 2,
+                    'experience_id' => 4,
+                    'featured' => 0,
+                    'highlight' => 0,
+                    'status' => 'active',
+                    'ongoing' => 0,
+                ];
+
+                // Save the job to the database
+                $done = $this->createJobFromScrape($jobRequest);
+
+                // Update categories
+                $categories = [0 => "3"];
+                $done->selectedCategories()->sync($categories);
+
+                $done->update([
+                    'address' => $exact_location,
+                    'neighborhood' => $exact_location,
+                    'locality' => $exact_location,
+                    'place' => $exact_location,
+                    'country' => 'Australia',
+                    'district' => $stateFullName, // Assuming state is NSW
+                    'region' => $stateFullName, // Assuming state is NSW
+                    'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                    'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                    'exact_location' => $exact_location,
+                ]);
+
+                // Add to allJobs array
+                $allJobs1[] = $jobRequest;
+            }
+        }
+
+        // Return the number of jobs scraped
+        return response()->json([
+            'message' => count($allJobs1) . ' job(s) scraped from City of Ballarat',
+        ]);
+    }
+
+
+
+
+
+
+
+
+
+
 
     private function extractTextFromPdfForBlueMountain($pdfUrl)
     {

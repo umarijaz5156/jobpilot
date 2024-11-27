@@ -337,7 +337,8 @@
                 { route: "{{ route('auto.BananaShire') }}", message: "Scraping  Banana Shire Council Jobs..." },
                 { route: "{{ route('auto.AliceSprings') }}", message: "Scraping  Alice Springs Town Coun­cil Jobs..." },
                 { route: "{{ route('auto.CardiniaShire') }}", message: "Scraping  Cardinia Shire Council Jobs..." },
-                { route: "{{ route('auto.CentralLand') }}", message: "Scraping  Central Land Council Jobs..." }
+                { route: "{{ route('auto.CentralLand') }}", message: "Scraping  Central Land Council Jobs..." },
+                { route: "{{ route('auto.CityBallarat') }}", message: "Scraping  City Ballarat Council Jobs..." }
 
 
 
