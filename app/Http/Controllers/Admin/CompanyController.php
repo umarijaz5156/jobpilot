@@ -2013,7 +2013,7 @@ class CompanyController extends Controller
         $client = new Client();
 
         $mainUrl = 'https://alicesprings.nt.gov.au/council/opportunities/jobs'; // Main job listing page
-     // Make a request to the main job listing page
+        // Make a request to the main job listing page
         $crawler = $client->request('GET', $mainUrl);
 
         // Extract all job listing cards
@@ -2084,7 +2084,7 @@ class CompanyController extends Controller
                         'title' => $title,
                         'category_id' => 3,
                         'company_id' => $user->company->id,
-                        'company_name' => 'Alice Springs Town Coun­cil',
+                        'company_name' => 'Alice Springs Town Council',
                         'apply_url' => $jobUrl,
                         'description' => $jobDescription,
                         'state_id' => $sId, // Default state (Victoria)
@@ -2343,7 +2343,7 @@ class CompanyController extends Controller
                         'title' => $title,
                         'category_id' => $categoryId,
                         'company_id' => $user->company->id,
-                        'company_name' => 'Alice Springs Town Coun­cil',
+                        'company_name' => 'Cardinia Shire Council',
                         'apply_url' => $jobUrl,
                         'description' => $jobDescription,
                         'state_id' => $sId, // Default state (Victoria)
@@ -2392,6 +2392,189 @@ class CompanyController extends Controller
         // Return the number of jobs scraped
         return response()->json([
         'message' => count($allJobs) . ' job(s) scraped from Cardinia Shire Council',
+        ]);
+    }
+
+
+    // CentralLand
+
+
+    public function CentralLand()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        // $user = User::where('name', 'Cardinia Shire Council')->first();
+        $user = User::where('name', ' Central Land Council')->first();
+
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://careers.clc.org.au';
+
+        $crawler = $client->request('GET', $mainUrl);
+
+        $jobCards = $crawler->filter('.nav-tabs li');  // Target individual job containers
+        $allJobs = [];
+        $jobCards->each(function ($node) use ($client, &$allJobs, $user) {
+
+
+            $jobUrl = $node->filter('a')->attr('href'); // Extract 'href' from <a> tag
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                 // Get the job title
+                    $title = $node->filter('span.span9')->text();
+                    $title = preg_replace('/^[A-Z]{2,}\d{2,}\s+-\s+/i', '', $title);
+
+                    $closingDateText = $node->filter('.span3')->text();
+                    preg_match('/Closing Date: ([\d\/]+)/', $closingDateText, $matches);
+                    $formattedExpiryDate = isset($matches[1]) ? Carbon::createFromFormat('d/m/Y', $matches[1])->format('Y-m-d') : null;
+
+                    $location = $node->filter('.clearfix + div')->text();
+
+                    $categoryId = 3;
+
+                    $jobDescription = `<div>
+                        <ul>
+                            <li>Competitive salary and benefits package, five weeks annual leave plus paid Christmas shutdown</li>
+                            <li>Temporary accommodation and relocation assistance available</li>
+                            <li>Professional development opportunities available</li>
+                        </ul>
+                        <p><strong>OUR STORY</strong></p>
+                        <p>The Central Land Council (CLC) is a corporate Commonwealth entity established under the <em>Aboriginal Land Rights (Northern Territory) Act 1976</em>. The CLC represents traditional landowners, native title holders and other Aboriginal people in the southern half of the Northern Territory—an area of almost 780,000 square kilometres.&nbsp;</p>
+                        <p>The CLC provides its constituents with advice, advocacy and practical assistance to support their aspirations, manage their land and realise and protect their rights.</p>
+                        <p>&nbsp;</p>
+                        <p><strong>AFFIRMATIVE ACTION PLAN</strong></p>
+                        <p>Eligible Aboriginal applicants will be granted priority consideration for this vacancy. If an Aboriginal applicant is selected, the remaining non-Aboriginal applicants will not be assessed.</p>
+                        <p>Applicants must have relevant qualifications and demonstrate that they meet essential criteria in order to be considered.&nbsp; An applicant selected under this affirmative action plan will be required to provide evidence of their eligibility prior to commencement, such as:</p>
+                        <ul>
+                            <li>completed statutory declaration form, or</li>
+                            <li>supporting statement from an appropriate Aboriginal organisation</li>
+                        </ul>
+                        <p>&nbsp;</p>
+                        <p><strong>BENEFITS</strong></p>
+                        <ul>
+                            <li>Attractive base salary plus 15.4% superannuation</li>
+                            <li>Generous salary packaging (maximum $29,000 annually, depending on individual circumstances);</li>
+                            <li>Ongoing district&nbsp;allowance (circa $3,640 for an individual or $6,660 with dependents);</li>
+                            <li>Yearly airfare allowance (circa $1,300;)</li>
+                            <li>Relocation assistance, should you be moving to the region; and</li>
+                            <li>Subsidised, fully furnished accommodation&nbsp;for the first four months.&nbsp;</li>
+                        </ul>
+                        <p>&nbsp;</p>
+                        <p>The Central Land Council&nbsp;is&nbsp;dedicated to delivering&nbsp;ongoing professional development and career progression for its people.&nbsp;You'll have the opportunity to undertake professional development and to take part in a number of new projects as the organisation continues to grow and innovate. With this in mind, applications are invited from experienced legal secretaries, career paralegals, and law students with administrative experience.</p>
+                        <p>Most importantly, this role will allow you to work in a&nbsp;diverse environment&nbsp;where you affect real change.&nbsp;</p>
+                        <p>&nbsp;</p>
+                        <p><strong>MANDATORY REQUIREMENTS</strong></p>
+                        <ul>
+                            <li>Selection Criteria Summary</li>
+                            <li>Ochre card (working with vulnerable people check)</li>
+                            <li>National police clearance</li>
+                            <li>Driver's licence</li>
+                        </ul>
+                        <p>&nbsp;</p>
+                        <p><strong>CONTACT DETAILS</strong></p>
+                        <p>If you're interested in using your skills&nbsp;to make a real difference&nbsp;<strong>apply now!</strong></p>
+                        <p>For further information about this role, please contact&nbsp;Emily Ryan&nbsp;on 8951 6211.</p>
+                        <p>For more information about the application process please contact Jess Howard (Human Resources Advisor)&nbsp;on 08 8951 6211 or&nbsp;<a href="mailto:jobs@clc.org.au">jobs@clc.org.au</a>.</p>
+                        <p>&nbsp;</p>
+                        <p><em>Total effective package includes: base salary, district allowance, superannuation, leave loading, relocation assistance, annual airfare allowance and salary packaging options. Annual progression within the salary scale is subject to satisfactory performance. Progression is in accordance with annual increments set out in an enterprise agreement.</em></p>
+                        <p><em>The filling of this vacancy is an affirmative measure under section 8(1) of the Racial Discrimination Act 1975.</em></p>
+                        <br><br>
+                    </div>`;
+
+
+
+                    $stateFullName = 'Northern Territory';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '-16.4614455' ;
+                    $lng =  '145.372664';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => ' Central Land Council',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId, // Default state (Victoria)
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive', // Fallback if salary is not available
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+                    $allJobs[] = $jobRequest;
+            }
+
+
+        });
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => count($allJobs) . ' job(s) scraped from Central Land Council',
         ]);
     }
 

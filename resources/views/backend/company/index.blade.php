@@ -336,7 +336,9 @@
                 { route: "{{ route('auto.BarklyRegional') }}", message: "Scraping Barkly Regional Council Jobs..." },
                 { route: "{{ route('auto.BananaShire') }}", message: "Scraping  Banana Shire Council Jobs..." },
                 { route: "{{ route('auto.AliceSprings') }}", message: "Scraping  Alice Springs Town Coun­cil Jobs..." },
-                { route: "{{ route('auto.CardiniaShire') }}", message: "Scraping  Cardinia Shire Council Jobs..." }
+                { route: "{{ route('auto.CardiniaShire') }}", message: "Scraping  Cardinia Shire Council Jobs..." },
+                { route: "{{ route('auto.CentralLand') }}", message: "Scraping  Central Land Council Jobs..." }
+
 
 
                 // You can add more routes here in the future

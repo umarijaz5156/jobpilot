@@ -119,7 +119,7 @@ Route::prefix('admin')->group(function () {
 
         Route::get('/auto-get-AliceSprings', [CompanyController::class, 'AliceSprings'])->name('auto.AliceSprings');
         Route::get('/auto-get-CardiniaShire', [CompanyController::class, 'CardiniaShire'])->name('auto.CardiniaShire');
-
+        Route::get('/auto-get-CentralLand', [CompanyController::class, 'CentralLand'])->name('auto.CentralLand');
 
 
 
