@@ -338,7 +338,10 @@
                 { route: "{{ route('auto.AliceSprings') }}", message: "Scraping  Alice Springs Town Coun­cil Jobs..." },
                 { route: "{{ route('auto.CardiniaShire') }}", message: "Scraping  Cardinia Shire Council Jobs..." },
                 { route: "{{ route('auto.CentralLand') }}", message: "Scraping  Central Land Council Jobs..." },
-                { route: "{{ route('auto.CityBallarat') }}", message: "Scraping  City Ballarat Council Jobs..." }
+                { route: "{{ route('auto.CityBallarat') }}", message: "Scraping  City Ballarat Council Jobs..." },
+                { route: "{{ route('auto.CitySalisbury') }}", message: "Scraping  City Salisbury Council Jobs..." },
+                { route: "{{ route('auto.ChartersTowers') }}", message: "Scraping  Charters Towers Regional Council Jobs..." },
+                { route: "{{ route('auto.GreaterBendigo') }}", message: "Scraping  City of Greater Bendigo Council Jobs..." },
 
 
 

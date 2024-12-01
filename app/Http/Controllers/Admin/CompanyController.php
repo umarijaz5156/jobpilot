@@ -2732,12 +2732,450 @@ class CompanyController extends Controller
 
 
 
+    //         City of Salisbury
 
 
+    public function CitySalisbury()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'City of Salisbury')->first();
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://jobs.salisbury.sa.gov.au/job/job_search_result.cfm';
+        $client = new Client();
+        $allJobs1 = []; // Array to store all job details
+
+        function scrapeJobsCitySalisbury($client, $mainUrl, &$allJobs) {
+            $crawler = $client->request('GET', $mainUrl);
+            do {
+                // Extract job rows where title and apply links are present
+                $crawler->filter('.jobSearchResult tr')->each(function (Crawler $node) use (&$allJobs) {
+                    // Check if this row contains a job title
+                    if ($node->filter('.clsJobTitle')->count() > 0) {
+                        $title = $node->filter('.clsJobTitle')->text();
+                        $applyLink = $node->filter('.clsJobTitle')->attr('href');
+
+                        $allJobs[] = [
+                            'title' => trim($title),
+                            'apply_link' => 'https://jobs.salisbury.sa.gov.au' . trim($applyLink),
+                        ];
+                    }
+                });
+
+                // Check if the 'Next 10' button exists to paginate
+                $nextButton = $crawler->filter('#btnNextBottom');
+                if ($nextButton->count() > 0) {
+                    // Simulate a click on the "Next 10" button
+                    $form = $nextButton->form();
+                    $crawler = $client->submit($form);
+                } else {
+                    break; // Exit loop when no "Next 10" button exists
+                }
+            } while (true);
+        }
+        scrapeJobsCitySalisbury($client, $mainUrl, $allJobs);
 
 
+        foreach($allJobs as $job) {
+
+            $title = $job['title'];
+
+            $formattedExpiryDate = Carbon::today()->addWeeks(6)->format('Y-m-d');
+
+            $jobUrl = $job['apply_link'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                $jobCrawler = $client->request('GET', $jobUrl);
+
+                $jobDescription = $jobCrawler->filter('.jobDetailsBody .detailsBG')->html();
 
 
+                $stateFullName = 'South Australia';
+                $location = 'City of Salisbury';
+                $clientC = new ClientC();
+                $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                $nominatimResponse = $clientC->get($nominatimUrl, [
+                    'query' => [
+                        'q' => $location,
+                        'format' => 'json',
+                        'limit' => 1
+                    ],
+                    'headers' => [
+                        'User-Agent' => 'YourAppName/1.0'
+                    ]
+                ]);
+
+            $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+            if (!empty($nominatimData)) {
+                $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+            } else {
+                $lat = '-16.4614455' ;
+                $lng =  '145.372664';
+                $exact_location = $location;
+
+            }
+
+
+            $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+            if($stateId){
+                $sId = $stateId->id;
+            }else{
+                $sId = 3909;
+            }
+
+
+                // Prepare job data for insertion
+                $jobRequest = [
+                    'title' => $title,
+                    'category_id' => 3,
+                    'company_id' => $user->company->id,
+                    'company_name' => 'City of Salisbury',
+                    'apply_url' => $jobUrl,
+                    'description' => $jobDescription,
+                    'state_id' => $sId,
+                    'vacancies' => 1,
+                    'deadline' => $formattedExpiryDate,
+                    'salary_mode' => 'custom',
+                    'salary_type_id' => 1,
+                    'custom_salary' => 'Competitive',
+                    'job_type_id' => 1,
+                    'role_id' => 1,
+                    'education_id' => 2,
+                    'experience_id' => 4,
+                    'featured' => 0,
+                    'highlight' => 0,
+                    'status' => 'active',
+                    'ongoing' => 0,
+                ];
+
+                // Save the job to the database
+                $done = $this->createJobFromScrape($jobRequest);
+
+                // Update categories
+                $categories = [0 => "3"];
+                $done->selectedCategories()->sync($categories);
+
+                $done->update([
+                    'address' => $exact_location,
+                    'neighborhood' => $exact_location,
+                    'locality' => $exact_location,
+                    'place' => $exact_location,
+                    'country' => 'Australia',
+                    'district' => $stateFullName, // Assuming state is NSW
+                    'region' => $stateFullName, // Assuming state is NSW
+                    'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                    'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                    'exact_location' => $exact_location,
+                ]);
+
+                // Add to allJobs array
+                $allJobs1[] = $jobRequest;
+            }
+        }
+
+        // Return the number of jobs scraped
+        return response()->json([
+            'message' => count($allJobs1) . ' job(s) scraped from City of Salisbury',
+        ]);
+    }
+
+
+    //         Charters Towers Region
+
+    public function ChartersTowers()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Charters Towers Regional Council')->first();
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://www.charterstowers.qld.gov.au/current-opportunities';
+
+        $crawler = $client->request('GET', $mainUrl);
+
+        $jobCards = $crawler->filter('.directory__list li');  // Target individual job containers
+        $allJobs = [];
+        $jobCards->each(function ($node) use ($client, &$allJobs, $user) {
+
+
+            $jobUrl = $node->filter('.directory__link')->attr('href'); // Extract 'href' from <a> tag
+            $jobUrl = 'https://www.charterstowers.qld.gov.au' . $jobUrl;
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                 // Get the job title
+                    $title = $node->filter('.directory__title')->text();
+
+                    $formattedExpiryDate = Carbon::today()->addWeeks(6)->format('Y-m-d');
+
+
+                    $categoryId = 3;
+
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $jobDescription = $jobCrawler->filter('.directory-detail')->html();
+
+
+                    $location = 'Charters Towers';
+                    $stateFullName = 'Queensland';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '-16.4614455' ;
+                    $lng =  '145.372664';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Charters Towers Regional Council',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId, // Default state (Victoria)
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive', // Fallback if salary is not available
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+                    $allJobs[] = $jobRequest;
+            }
+
+
+        });
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => count($allJobs) . ' job(s) scraped from Charters Towers Regional Council',
+        ]);
+    }
+
+
+    // GreaterBendigo
+
+
+    public function GreaterBendigo()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'City of Greater Bendigo')->first();
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://city-of-bendigo.applynow.net.au';
+
+        $crawler = $client->request('GET', $mainUrl);
+
+        $jobNodes = $crawler->filter('#joblist > div'); // Target job entries inside #joblist
+
+
+        $jobNodes->each(function ($node) use (&$allJobs) {
+            try {
+                // Extract data
+                $jobTitle = $node->filter('a.job_title')->text('');
+                $jobUrl = $node->filter('a.job_title')->attr('href');
+                $expiresRaw = $node->filter('span.expires')->text('');
+                $location = $node->filter('span.location')->text('');
+
+                // Format the expiry date
+                $closeDate = Carbon::parse($expiresRaw); // Parse the raw date
+                $currentDate = Carbon::now();
+
+                // If close date is within a week, extend by 3 weeks
+                if ($closeDate->diffInDays($currentDate) < 7) {
+                    $closeDate = $currentDate->addWeeks(3);
+                }
+
+                $formattedExpiryDate = $closeDate->format('Y-m-d');
+
+                // Append job to the array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => $jobUrl,
+                    'expires' => $formattedExpiryDate,
+                    'location' => $location,
+                ];
+            } catch (\Exception $e) {
+                // Handle missing data or parsing errors
+                // error_log("Error parsing job: " . $e->getMessage());
+            }
+        });
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                 // Get the job title
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = $job['location'];
+
+
+                    $categoryId = 3;
+
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $jobDescription = $jobCrawler->filter('#description')->html();
+
+                    $stateFullName = 'Victoria';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '-16.4614455' ;
+                    $lng =  '145.372664';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'City of Greater Bendigo',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId, // Default state (Victoria)
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive', // Fallback if salary is not available
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => count($allJobs) . ' job(s) scraped from City of Greater Bendigo Council',
+        ]);
+    }
 
 
     private function extractTextFromPdfForBlueMountain($pdfUrl)
