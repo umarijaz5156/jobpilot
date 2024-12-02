@@ -1604,12 +1604,15 @@ class CompanyController extends Controller
             $htmlContent = (string) $response->getBody();
             $crawler = new Crawler($htmlContent);
 
-            $jobUrl = $crawler->filter('.related-download-link a')->attr('href') ?? $link;
 
+            $jobUrl = $crawler->filter('.related-download-link a')->count()
+            ? $crawler->filter('.related-download-link a')->attr('href')
+            : 'No URL Available'; // Fallback value
 
 
             $existingJob = Job::where('apply_url', $jobUrl)->first();
                 if (!$existingJob) {
+
 
                     $pdfContent = $this->extractTextFromPdfForBlueMountain($jobUrl);
 
@@ -2630,7 +2633,8 @@ class CompanyController extends Controller
 
             $jobUrl = $job['apply_link'];
 
-            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            $existingJob = Job::where('apply_url', 'like', $jobUrl . '%')->first();
+
             if (!$existingJob) {
 
                 $jobCrawler = $client->request('GET', $jobUrl);
