@@ -3182,6 +3182,185 @@ class CompanyController extends Controller
     }
 
 
+    // City of Greater Dandenong
+
+    public function GreaterDandenong()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'City of Greater Dandenong')->first();
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://jobs.greaterdandenong.vic.gov.au/jobs';
+
+        $crawler = $client->request('GET', $mainUrl);
+
+        $jobNodes = $crawler->filter('.views-row'); // Target job entries
+
+        $allJobs = []; // Initialize an array to store the jobs
+
+        $jobNodes->each(function ($node) use (&$allJobs) {
+            try {
+                // Extract job title
+                $jobTitle = $node->filter('.views-field-title .field-content a')->text();
+
+                // Extract job URL
+                $jobUrl = $node->filter('.views-field-title .field-content a')->attr('href');
+
+                // Extract expiry date
+                $expiresRaw = $node->filter('.deadline time')->attr('datetime');
+
+                // Extract location
+                $location = $node->filter('.location')->text('');
+
+                // Format the expiry date
+                $closeDate = Carbon::parse($expiresRaw);
+                $currentDate = Carbon::now();
+
+                // If close date is within a week, extend by 3 weeks
+                if ($closeDate->diffInDays($currentDate) < 7) {
+                    $closeDate = $currentDate->addWeeks(3);
+                }
+
+                $formattedExpiryDate = $closeDate->format('Y-m-d');
+
+                // Append job to the array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => $jobUrl,
+                    'expires' => $formattedExpiryDate,
+                    'location' => $location,
+                ];
+            } catch (\Exception $e) {
+                // Handle missing data or parsing errors
+                // error_log("Error parsing job: " . $e->getMessage());
+            }
+        });
+
+        // Print extracted jobs for debugging
+        // dd($allJobs);
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+
+            if (!$existingJob) {
+
+                $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = $job['location'];
+
+
+                    $categoryId = 3;
+
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $jobDescription = $jobCrawler->filter('.field--type-text-with-summary')->html();
+
+                    $stateFullName = 'Victoria';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '-16.4614455' ;
+                    $lng =  '145.372664';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'City of Greater Dandenong',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from City of Greater Dandenong Council',
+        ]);
+    }
+
+
+
+
+
+
+
+
+
     private function extractTextFromPdfForBlueMountain($pdfUrl)
     {
         // Initialize Guzzle Client with appropriate headers
