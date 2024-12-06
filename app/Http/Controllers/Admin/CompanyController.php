@@ -3355,10 +3355,348 @@ class CompanyController extends Controller
 
 
 
+    // GreaterGeraldton
+
+    public function GreaterGeraldton()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'City of Greater Geraldton')->first();
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://www.cgg.wa.gov.au/employment';
+
+        $crawler = $client->request('GET', $mainUrl);
+
+        $jobRows = $crawler->filter('.employment-container .module-list .table tr');
+        $allJobs = []; // Initialize an array to store the jobs
+
+            // Iterate through the rows, skipping the first row (header row)
+        $jobRows->each(function ($row, $index) use (&$allJobs) {
+            if ($index === 0) {
+                // Skip the header row
+                return;
+            }
+
+            try {
+                // Extract job title
+                $jobTitle = $row->filter('td a')->text();
+
+                // Extract job URL
+                $jobUrl = $row->filter('td a')->attr('href');
+                $jobUrl = 'https://www.cgg.wa.gov.au' . $jobUrl;
+                // Extract application close date
+                $expiresRaw = $row->filter('td.table-col-right')->text();
+
+                // Parse and format the expiry date
+                $closeDate = Carbon::createFromFormat('d/m/Y g:i:s A', trim($expiresRaw));
+                $formattedExpiryDate = $closeDate->format('Y-m-d');
+
+                // Append the job to the array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => $jobUrl,
+                    'expires' => $formattedExpiryDate,
+                ];
+            } catch (\Exception $e) {
+
+            }
+        });
+
+        // Print extracted jobs for debugging
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = 'City of Greater Geraldton';
 
 
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('.data-container');
+
+                    // Remove the table from the container
+                    $dataContainer->filter('table')->each(function ($tableNode) {
+                        // Unset or ignore the table HTML
+                        $tableNode->getNode(0)->parentNode->removeChild($tableNode->getNode(0));
+                    });
+
+                    // Get the remaining HTML content as the job description
+                    $jobDescription = $dataContainer->html();
+
+                    // Debug or use the job description
+                    $stateFullName = 'Western Australia';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '-16.4614455' ;
+                    $lng =  '145.372664';
+                    $exact_location = $location;
+
+                }
 
 
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'City of Greater Geraldton',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from City of Greater Geraldton Council',
+        ]);
+    }
+
+
+    // CityHobart
+
+    public function CityHobart()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'City of Hobart')->first();
+        $allJobs = [];
+        $client = new Client();
+
+   // Define the main URL
+        $mainUrl = 'https://www.hobartcity.com.au/Council/Careers/Our-current-vacancies';
+
+        // Fetch the page content
+        $crawler = $client->request('GET', $mainUrl);
+
+
+        $jobItems = $crawler->filter('.list-container .list-item-container');
+
+        $allJobs = []; // Initialize an array to store the jobs
+
+        // Iterate through each job item
+        $jobItems->each(function ($item) use (&$allJobs) {
+            // try {
+                // Extract job URL
+
+                $jobUrl = $item->filter('a')->attr('href');
+
+                // Extract job title
+                $jobTitle = trim($item->filter('h2.list-item-title')->text());
+                // Extract application close date
+                $expiresRaw = $item->filter('p.applications-closing')->text();
+
+
+                preg_match('/Applications closing on (.+)/', $expiresRaw, $matches);
+                $closeDate = isset($matches[1]) ? Carbon::parse(trim($matches[1]))->format('Y-m-d') : null;
+                // Extract job type
+
+                // Extract job description
+
+                // Append the job to the array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => $jobUrl,
+                    'expires' => $closeDate,
+                ];
+            // } catch (\Exception $e) {
+            //     // Handle missing data or parsing errors
+            //     // error_log("Error parsing job: " . $e->getMessage());
+            // }
+        });
+
+        // Debug the extracted jobs
+
+        // Print extracted jobs for debugging
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = 'Hobart';
+
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('#description');
+
+                    $jobDescription = $dataContainer->html();
+
+                    // Debug or use the job description
+                    $stateFullName = 'Tasmania';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '-16.4614455' ;
+                    $lng =  '145.372664';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'City of Hobart',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from City of Hobart Council',
+        ]);
+    }
 
 
     private function extractTextFromPdfForBlueMountain($pdfUrl)

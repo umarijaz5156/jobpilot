@@ -342,7 +342,9 @@
                 { route: "{{ route('auto.CitySalisbury') }}", message: "Scraping  City Salisbury Council Jobs..." },
                 { route: "{{ route('auto.ChartersTowers') }}", message: "Scraping  Charters Towers Regional Council Jobs..." },
                 { route: "{{ route('auto.GreaterBendigo') }}", message: "Scraping  City of Greater Bendigo Council Jobs..." },
-                { route: "{{ route('auto.GreaterDandenong') }}", message: "Scraping  City of Greater Bendigo Council Jobs..." },
+                { route: "{{ route('auto.GreaterDandenong') }}", message: "Scraping  City of Greater Dandenong Council Jobs..." },
+                { route: "{{ route('auto.GreaterGeraldton') }}", message: "Scraping  City of Greater Geraldton Council Jobs..." },
+                { route: "{{ route('auto.CityHobart') }}", message: "Scraping  City of Hobart Council Jobs..." },
 
 
 
