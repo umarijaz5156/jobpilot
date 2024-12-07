@@ -335,7 +335,7 @@
                 { route: "{{ route('auto.BlueMountainsCity') }}", message: "Scraping Blue Mountains City Council Jobs..." },
                 { route: "{{ route('auto.BarklyRegional') }}", message: "Scraping Barkly Regional Council Jobs..." },
                 { route: "{{ route('auto.BananaShire') }}", message: "Scraping  Banana Shire Council Jobs..." },
-                { route: "{{ route('auto.AliceSprings') }}", message: "Scraping  Alice Springs Town Coun­cil Jobs..." },
+                { route: "{{ route('auto.AliceSprings') }}", message: "Scraping  Alice Springs Town Counncil Jobs..." },
                 { route: "{{ route('auto.CardiniaShire') }}", message: "Scraping  Cardinia Shire Council Jobs..." },
                 { route: "{{ route('auto.CentralLand') }}", message: "Scraping  Central Land Council Jobs..." },
                 { route: "{{ route('auto.CityBallarat') }}", message: "Scraping  City Ballarat Council Jobs..." },
@@ -345,7 +345,9 @@
                 { route: "{{ route('auto.GreaterDandenong') }}", message: "Scraping  City of Greater Dandenong Council Jobs..." },
                 { route: "{{ route('auto.GreaterGeraldton') }}", message: "Scraping  City of Greater Geraldton Council Jobs..." },
                 { route: "{{ route('auto.CityHobart') }}", message: "Scraping  City of Hobart Council Jobs..." },
+                { route: "{{ route('auto.CityPortPhillip') }}", message: "Scraping  City of Port Phillip Council Jobs..." },
 
+                
 
 
                 // You can add more routes here in the future

@@ -131,8 +131,11 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-GreaterDandenong', [CompanyController::class, 'GreaterDandenong'])->name('auto.GreaterDandenong');
         Route::get('/auto-get-GreaterGeraldton', [CompanyController::class, 'GreaterGeraldton'])->name('auto.GreaterGeraldton');
         Route::get('/auto-get-CityHobart', [CompanyController::class, 'CityHobart'])->name('auto.CityHobart');
+        Route::get('/auto-get-CityPortPhillip', [CompanyController::class, 'CityPortPhillip'])->name('auto.CityPortPhillip');
 
 
+
+        
         // Candidate Route
         Route::resource('candidate', CandidateController::class);
         Route::get('/candidate/change/status', [CandidateController::class, 'statusChange'])->name('candidate.status.change');

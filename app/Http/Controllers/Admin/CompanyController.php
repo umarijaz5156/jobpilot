@@ -1542,12 +1542,7 @@ class CompanyController extends Controller
         $user = User::where('name', 'Blue Mountains City Council')->first();
 
         $allJobs = [];
-        // $client = new Client();
-
-        // $mainUrl = 'https://www.bmcc.nsw.gov.au/jobs'; // Updated job listing page
-        // $crawler = $client->request('GET', $mainUrl);
-        // Step 1: Extract job listings from the table with the given class
-        // $jobRows = $crawler->filter('.field-middle-body'); // Select table rows
+     
         $client = new ClientC([
             'headers' => [
                 'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
@@ -2035,9 +2030,12 @@ class CompanyController extends Controller
                 preg_match('/<b>Closes:<\/b>(.*?)<br>/s', $data, $closingDateMatches);
                 $closingDate = isset($closingDateMatches[1]) ? trim($closingDateMatches[1]) : 'Not Available';
 
-
-                $formattedExpiryDate = Carbon::parse($closingDate)->format('Y-m-d');
-
+                if ($closingDate === 'Not Available') {
+                    $formattedExpiryDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
+                } else {
+                    // If closing date is available, format it as Y-m-d
+                    $formattedExpiryDate = Carbon::parse($closingDate)->format('Y-m-d');
+                }
 
                 $jobCrawler = $client->request('GET', $jobUrl);
 
@@ -3538,7 +3536,7 @@ class CompanyController extends Controller
         $allJobs = [];
         $client = new Client();
 
-   // Define the main URL
+     // Define the main URL
         $mainUrl = 'https://www.hobartcity.com.au/Council/Careers/Our-current-vacancies';
 
         // Fetch the page content
@@ -3698,6 +3696,173 @@ class CompanyController extends Controller
         ]);
     }
 
+    // CityPortPhillip
+
+    public function CityPortPhillip()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'City of Port Phillip')->first();
+        $allJobs = [];
+        $client = new Client();
+
+     // Define the main URL
+        $mainUrl = 'https://recruitment.portphillip.vic.gov.au';
+
+        // Fetch the page content
+        $crawler = $client->request('GET', $mainUrl);
+
+
+        $jobItems = $crawler->filter('.main table tbody tr');
+        $allJobs = []; // Initialize an array to store the jobs
+        $jobItems->each(function ($item) use (&$allJobs) {
+
+            try {
+                // Extract job title (from the first column of the row)
+                $jobTitle = trim($item->filter('td[data-th="Position"]')->text());
+                // Extract location (from the second column of the row)
+                $location = trim($item->filter('td[data-th="Location"]')->text());
+        
+                // Extract the closing date (from the fourth column, with the class 'date')
+                $expiresRaw = trim($item->filter('td[data-th="Closing"]')->text());
+        
+                // Convert the date into the desired format (e.g., Y-m-d)
+                $closeDate = Carbon::createFromFormat('d/m/Y', $expiresRaw)->format('Y-m-d');
+
+                $jobId = $item->attr('id');  // Extract job ID
+                $jobUrl = 'https://recruitment.portphillip.vic.gov.au/vacancies/' . $jobId . '/edit';
+                
+                // Append the job details to the array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'location' => $location,
+                    'expires' => $closeDate,
+                    'url' => $jobUrl,
+                ];
+                
+            } catch (\Exception $e) {
+                // Handle any missing data or parsing errors
+                // error_log("Error parsing job: " . $e->getMessage());
+            }
+        });
+        
+        // Debug: Dump all the job data
+        // Debug the extracted jobs
+
+        // Print extracted jobs for debugging
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = $job['location'];
+
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('.form-control-plaintext');
+
+                    $jobDescription = $dataContainer->html();
+                    // Debug or use the job description
+                    $stateFullName = 'Victoria';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '-16.4614455' ;
+                    $lng =  '145.372664';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'City of Port Phillip',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from City of Port Phillip Council',
+        ]);
+    }
 
     private function extractTextFromPdfForBlueMountain($pdfUrl)
     {
