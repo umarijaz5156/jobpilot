@@ -125,6 +125,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-CityBallarat', [CompanyController::class, 'CityBallarat'])->name('auto.CityBallarat');
 
 
+        // 2dec to 8 dec
         Route::get('/auto-get-CitySalisbury', [CompanyController::class, 'CitySalisbury'])->name('auto.CitySalisbury');
         Route::get('/auto-get-ChartersTowers', [CompanyController::class, 'ChartersTowers'])->name('auto.ChartersTowers');
         Route::get('/auto-get-GreaterBendigo', [CompanyController::class, 'GreaterBendigo'])->name('auto.GreaterBendigo');
