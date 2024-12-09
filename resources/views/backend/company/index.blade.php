@@ -346,8 +346,11 @@
                 { route: "{{ route('auto.GreaterGeraldton') }}", message: "Scraping  City of Greater Geraldton Council Jobs..." },
                 { route: "{{ route('auto.CityHobart') }}", message: "Scraping  City of Hobart Council Jobs..." },
                 { route: "{{ route('auto.CityPortPhillip') }}", message: "Scraping  City of Port Phillip Council Jobs..." },
+                { route: "{{ route('auto.ClarenceValley') }}", message: "Scraping  Clarence Valley Council Jobs..." },
+                { route: "{{ route('auto.CookShire') }}", message: "Scraping  Cook Shire Council Jobs..." },
+                { route: "{{ route('auto.CumberlandCity') }}", message: "Scraping  Cumberland City Council Jobs..." },
 
-                
+
 
 
                 // You can add more routes here in the future

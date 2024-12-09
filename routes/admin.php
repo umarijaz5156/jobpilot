@@ -134,9 +134,13 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-CityHobart', [CompanyController::class, 'CityHobart'])->name('auto.CityHobart');
         Route::get('/auto-get-CityPortPhillip', [CompanyController::class, 'CityPortPhillip'])->name('auto.CityPortPhillip');
 
+        // 9 dec 15 dec
+        Route::get('/auto-get-ClarenceValley', [CompanyController::class, 'ClarenceValley'])->name('auto.ClarenceValley');
+        Route::get('/auto-get-CookShire', [CompanyController::class, 'CookShire'])->name('auto.CookShire');
+        Route::get('/auto-get-CumberlandCity', [CompanyController::class, 'CumberlandCity'])->name('auto.CumberlandCity');
 
 
-        
+
         // Candidate Route
         Route::resource('candidate', CandidateController::class);
         Route::get('/candidate/change/status', [CandidateController::class, 'statusChange'])->name('candidate.status.change');

@@ -1542,7 +1542,7 @@ class CompanyController extends Controller
         $user = User::where('name', 'Blue Mountains City Council')->first();
 
         $allJobs = [];
-     
+
         $client = new ClientC([
             'headers' => [
                 'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
@@ -3722,16 +3722,16 @@ class CompanyController extends Controller
                 $jobTitle = trim($item->filter('td[data-th="Position"]')->text());
                 // Extract location (from the second column of the row)
                 $location = trim($item->filter('td[data-th="Location"]')->text());
-        
+
                 // Extract the closing date (from the fourth column, with the class 'date')
                 $expiresRaw = trim($item->filter('td[data-th="Closing"]')->text());
-        
+
                 // Convert the date into the desired format (e.g., Y-m-d)
                 $closeDate = Carbon::createFromFormat('d/m/Y', $expiresRaw)->format('Y-m-d');
 
                 $jobId = $item->attr('id');  // Extract job ID
                 $jobUrl = 'https://recruitment.portphillip.vic.gov.au/vacancies/' . $jobId . '/edit';
-                
+
                 // Append the job details to the array
                 $allJobs[] = [
                     'title' => $jobTitle,
@@ -3739,13 +3739,13 @@ class CompanyController extends Controller
                     'expires' => $closeDate,
                     'url' => $jobUrl,
                 ];
-                
+
             } catch (\Exception $e) {
                 // Handle any missing data or parsing errors
                 // error_log("Error parsing job: " . $e->getMessage());
             }
         });
-        
+
         // Debug: Dump all the job data
         // Debug the extracted jobs
 
@@ -3863,6 +3863,509 @@ class CompanyController extends Controller
         'message' => $jobAdded . ' job(s) scraped from City of Port Phillip Council',
         ]);
     }
+
+
+    // Circular Head
+
+    public function ClarenceValley()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Clarence Valley Council')->first();
+        $allJobs = [];
+        $client = new Client();
+        $mainUrl = 'https://clarencevalleycouncil.applynow.net.au';
+        $crawler = $client->request('GET', $mainUrl);
+
+
+        $crawler->filter('#joblist > div')->each(function (Crawler $item) use (&$allJobs) {
+            try {
+                // Extract job title from jobid (use this if job title is inside jobid)
+                $jobTitle = trim($item->filter('.location')->text());
+                // Extract apply link (assuming it's part of jobid)
+                $applyLink = trim($item->filter('a')->attr('href'));
+
+                // Extract location (from the .location span)
+                $location = trim($item->filter('.location')->text());
+                // Extract closing date from expires span
+                $expiresRaw = $item->filter('.expires')->text(); // Get the expires text
+                $expiresRaw = str_replace(' AEDT', '', $expiresRaw); // Remove ' AEDT' part
+
+                $closeDate = Carbon::createFromFormat('d M Y', trim($expiresRaw))->format('Y-m-d'); // Format the closing date
+
+                // Append the job details to the array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => $applyLink,
+                    'location' => $location,
+                    'expires' => $closeDate,
+                ];
+
+            } catch (\Exception $e) {
+                // Handle any missing data or parsing errors
+                // error_log("Error parsing job: " . $e->getMessage());
+            }
+        });
+
+        // Output the collected jobs
+
+        // Print extracted jobs for debugging
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = $job['location'];
+
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('#job_description');
+
+                    $jobDescription = $dataContainer->html();
+
+                    // Debug or use the job description
+                    $stateFullName = 'New South Wales';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '-16.4614455' ;
+                    $lng =  '145.372664';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Clarence Valley Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Clarence Valley Council',
+        ]);
+    }
+
+    // CookShire
+
+    public function CookShire()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Cook Shire Council')->first();
+        $allJobs = [];
+        $client = new Client();
+        $mainUrl = 'https://csc-ext.applynow.net.au';
+        $crawler = $client->request('GET', $mainUrl);
+
+        $jobItems = $crawler->filter('#joblist .jobblock'); // Select all job blocks
+        $allJobs = []; // Initialize an array to store the jobs
+
+        // Loop through each job item
+        $jobItems->each(function ($item) use (&$allJobs) {
+            try {
+                // Extract job title (from the <a> inside jobblock)
+                $jobTitle = trim($item->filter('.job_title')->text());
+
+                // Extract apply link (from the <a> href attribute)
+                $applyLink = trim($item->filter('.job_title')->attr('href'));
+
+                // Extract location (from the <span> with class 'location')
+                $location = trim($item->filter('.location')->text());
+
+                // Extract the expires date (from the <span> with class 'expires')
+                $expiresRaw = $item->filter('.expires')->text();
+                $expiresRaw = str_replace(' AEST', '', $expiresRaw); // Remove ' AEST' if it exists
+
+                // Convert to the correct date format (e.g., Y-m-d)
+                $closeDate = Carbon::createFromFormat('d M Y', trim($expiresRaw))->format('Y-m-d');
+
+                // Append the job details to the array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => $applyLink,
+                    'location' => $location,
+                    'expires' => $closeDate,
+                ];
+
+            } catch (\Exception $e) {
+                // Handle any missing data or parsing errors gracefully
+                // error_log("Error parsing job: " . $e->getMessage());
+            }
+        });
+
+
+
+        // Output the collected jobs
+
+        // Print extracted jobs for debugging
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = $job['location'];
+
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('#job_description');
+
+                    $jobDescription = $dataContainer->html();
+
+                    // Debug or use the job description
+                    $stateFullName = 'Queensland';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '-16.4614455' ;
+                    $lng =  '145.372664';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Cook Shire Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Cook Shire Council',
+        ]);
+    }
+
+
+    //         Cumberland City Council
+
+
+    public function CumberlandCity()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Cumberland City Council')->first();
+        $allJobs = [];
+        $client = new Client();
+        $mainUrl = 'https://cumberland.applynow.net.au'; // Your target URL
+        $crawler = $client->request('GET', $mainUrl);
+
+        // Select all job blocks inside the #joblist
+        $jobItems = $crawler->filter('#joblist .jobblock');
+        $allJobs = []; // Initialize an array to store the jobs
+
+        // Loop through each job item
+        $jobItems->each(function ($item) use (&$allJobs) {
+            try {
+                // Extract job title (from the <a> inside jobblock)
+                $jobTitle = trim($item->filter('.job_title')->text());
+
+                // Extract apply link (from the <a> href attribute)
+                $applyLink = trim($item->filter('.job_title')->attr('href'));
+
+                // Extract location (from the <span> with class 'location')
+                $location = trim($item->filter('.location')->text());
+
+                // Extract the expires date (from the <span> with class 'expires')
+                $expiresRaw = $item->filter('.expires')->text();
+                $expiresRaw = str_replace(' AEDT', '', $expiresRaw); // Remove ' AEDT' if it exists
+
+                // Convert to the correct date format (e.g., Y-m-d)
+                $closeDate = Carbon::createFromFormat('d M Y', trim($expiresRaw))->format('Y-m-d');
+
+                // Append the job details to the array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => $applyLink,
+                    'location' => $location,
+                    'expires' => $closeDate,
+                ];
+
+            } catch (\Exception $e) {
+                // Handle any missing data or parsing errors gracefully
+                // error_log("Error parsing job: " . $e->getMessage());
+            }
+        });
+
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = $job['location'];
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('#job_description');
+
+                    $jobDescription = $dataContainer->html();
+
+                    // Debug or use the job description
+                    $stateFullName = 'New South Wales';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '-16.4614455' ;
+                    $lng =  '145.372664';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Cumberland City Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Cumberland City Council',
+        ]);
+    }
+
+
+
+
+
+
+
+
+
+
 
     private function extractTextFromPdfForBlueMountain($pdfUrl)
     {
