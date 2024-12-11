@@ -19,6 +19,28 @@ use Modules\Seo\Entities\Seo;
 use App\Http\Controllers\Api\CompanyController as ApiCompanyController;
 use App\Http\Controllers\Api\JobController;
 use App\Http\Controllers\Website\pagecontroller as WebsitePagecontroller;
+use App\Models\Job;
+
+
+
+
+Route::get('/jobs/update-status', function () {
+    $currentDateTime = now();
+    $jobs = Job::where('status', '<>', 'expired')->get();
+
+    foreach ($jobs as $job) {
+        $deadline = $job->deadline;
+
+        if ($deadline <= $currentDateTime) {
+            $job->update([
+                'status' => 'expired',
+            ]);
+        }
+    }
+
+    return response()->json(['message' => 'Job statuses updated successfully.']);
+});
+
 
 // Route::get('/test', function () {
 //     Seo::query()->delete();

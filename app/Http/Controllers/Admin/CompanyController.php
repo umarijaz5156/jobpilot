@@ -4358,10 +4358,545 @@ class CompanyController extends Controller
     }
 
 
+    // FairfieldCity
+
+    public function FairfieldCity()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Fairfield City Council')->first();
+        $allJobs = [];
+        $client = new Client();
+        $baseUrl = 'https://www.fairfieldcity.nsw.gov.au/Your-Council/Working-for-Fairfield-City-Council/Job-Vacancies';
+        $currentPage = 1;
+
+        do {
+            // Construct the URL for the current page
+            $pageUrl = $baseUrl . '?page=' . $currentPage . '&dlv_OC%20CL%20Public%20Job%20Listing=(pageindex=' . $currentPage . ')';
+
+            // Make the request
+            $crawler = $client->request('GET', $pageUrl);
+
+            // Check if there are job items on the current page
+            $jobItems = $crawler->filter('.list-container.job-list-container .list-item-container');
+            if ($jobItems->count() == 0) {
+                break; // Exit if no jobs are found
+            }
+
+            // Loop through each job item
+            $jobItems->each(function ($item) use (&$allJobs) {
+                try {
+                    // Extract job title
+                    $jobTitle = trim($item->filter('.list-item-title')->text());
+
+                    // Extract apply link
+                    $applyLink = trim($item->filter('a')->attr('href'));
+
+                    // Extract the closing date
+                    $expiresRaw = trim($item->filter('.applications-closing')->text());
+                    $expiresRaw = str_replace('Applications closing on ', '', $expiresRaw);
+                    $closeDate = Carbon::createFromFormat('l, d F Y', $expiresRaw)->format('Y-m-d');
+
+                    // Append the job details to the array
+                    $allJobs[] = [
+                        'title' => $jobTitle,
+                        'url' => $applyLink,
+                        'expires' => $closeDate,
+                    ];
+                } catch (\Exception $e) {
+                    // Handle errors gracefully
+                }
+            });
+
+            // Check if there is a next page
+            $nextPage = $crawler->filter('.button-next input.btn_scPagingNonJS_enabled')->count() > 0;
+            $currentPage++;
+        } while ($nextPage);
+
+        // Output or save the scraped data
+        // dd($allJobs);
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = 'Fairfield City Council';
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('.body-content');
+
+                    $jobDescription = $dataContainer->html();
 
 
+                    $salaryContainer = $jobCrawler->filter('.content-details-list.job-details-list');
+
+                    $salaryPackage = 'Competitive';
+
+                    // Loop through each list item to find the 'Package' field
+                    $salaryContainer->filter('li')->each(function ($item) use (&$salaryPackage) {
+                        $label = $item->filter('.field-label')->text();
+                        if (stripos($label, 'Package') !== false) {
+                            $salaryPackage = trim($item->filter('.field-value')->text());
+                        }
+                    });
 
 
+                    // Debug or use the job description
+                    $stateFullName = 'New South Wales';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '-16.4614455' ;
+                    $lng =  '145.372664';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Fairfield City Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 4,
+                        'custom_salary' => $salaryPackage,
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Fairfield City Council',
+        ]);
+    }
+
+    // FlindersShire
+
+    public function FlindersShire()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Flinders Shire Council')->first();
+        $allJobs = [];
+        $client = new Client();
+        $mainUrl = 'https://www.flinders.qld.gov.au/our-governance/employment/general-vacancies'; // Your target URL
+        $client = new Client();
+        $crawler = $client->request('GET', $mainUrl);
+
+        $allJobs = []; // Initialize an array to store the jobs
+
+        // Select the table rows within the job listing table
+        $jobRows = $crawler->filter('table tbody tr');
+        // Loop through each row
+        $jobRows->each(function ($row) use (&$allJobs) {
+            try {
+                // Extract job title and remove VRN and number
+                $jobTitleRaw = trim($row->filter('td:nth-child(1)')->text());
+                $jobTitle = preg_replace('/\s*VRN\s*\d+\/\d+/', '', $jobTitleRaw);
+
+
+                $closingDateRaw = trim($row->filter('td:nth-child(4)')->text());
+
+                if (preg_match('/(\d{1,2}\/\d{1,2}\/\d{4})/', $closingDateRaw, $matches)) {
+                    $closingDate = Carbon::createFromFormat('d/m/Y', $matches[1])->format('Y-m-d');
+                } else {
+                    // Add 6 weeks to today's date if no valid date is found
+                    $closingDate = Carbon::now()->addWeeks(6)->format('Y-m-d');
+                }
+
+
+                // Extract position information HTML
+                $positionInfoHtml = $row->filter('td:nth-child(2)')->html();
+
+                // Extract application form HTML and link
+                $applyFormHtml = $row->filter('td:nth-child(3)')->html();
+                $applyFormLink = $row->filter('td:nth-child(3) a')->attr('href');
+
+                $historicalDescription = '
+                <div class="editor">
+                    <p>First settlement in 1863 was by Ernest Henry on Hughenden Station, beginning the foundation of the pastoral industry. It was not until 1877 that the site of Hughenden Township was surveyed.</p>
+                    <p>The Division of Hughenden was constituted by proclamation in the Gazette of April 22nd, 1882. The first meeting of the board was held on August 21st, 1882, the board consisting of Messrs. J.H. Harris (Chairman), J.R. Chisholm, G.C. Amos, W. Price, J. Luckmann, and Dean. Captain T.J. Sadler later became the first town clerk of Hughenden.</p>
+                    <p>On April 20th, 1887, the town of Hughenden became a separate entity from the Division of Hughenden by proclamation with the first election being held on June 1, 1887.</p>
+                    <p>When the Local Authorities Act of 1902 came into force on March 31, 1903, the Division of Hughenden became the Shire of Hughenden. On September 5, 1903, the name was altered to the Shire of Flinders. The Shire was divided into two areas by constituting portions thereof into a new Shire by the name of Wyangarie (now Richmond Shire) on October 23, 1915. The year 1958 saw the amalgamation of Hughenden Town Council and the Shire of Flinders.</p>
+                </div>
+                ';
+
+                // Add to the jobs array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'expires' => $closingDate,
+                    'description' => $positionInfoHtml . '<br>' . $applyFormHtml . '<br>' . $historicalDescription,
+                    'url' => $applyFormLink,
+                ];
+            } catch (\Exception $e) {
+                // Handle errors gracefully
+                // error_log("Error parsing job: " . $e->getMessage());
+            }
+        });
+
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $jobDescription = $job['description'];
+
+                    $location = 'Flinders Shire Council';
+
+                    $categoryId = 3;
+
+
+                    // Debug or use the job description
+                    $stateFullName = 'New South Wales';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '-16.4614455' ;
+                    $lng =  '145.372664';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Flinders Shire Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Flinders Shire Council',
+        ]);
+    }
+
+
+    // Glen Innes Severn Council
+
+    public function GlenInnesSevern()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Glen Innes Severn Council')->first();
+
+        $client = new Client();
+        $mainUrl = 'https://www.gisc.nsw.gov.au/Council/Jobs-at-Council'; // Your target URL
+
+        $crawler = $client->request('GET', $mainUrl);
+
+        // Initialize an array to store job details (move it outside the loop to make it accessible after)
+        $allJobs = [];
+
+        // Find the section after the "Current Vacancies" heading
+        $crawler->filter('h2:contains("Current Vacancies")')->each(function ($node) use ($crawler, &$allJobs) {
+            // Get all following siblings (this gets the whole section after the heading)
+            $vacanciesSection = $node->nextAll();
+
+            // Loop through all siblings and filter <p> tags
+            $vacanciesSection->each(function ($item) use (&$allJobs) {
+                // Check if the item is a <p> tag
+                if ($item->nodeName() === 'p') {
+                    // Check if the <p> tag contains an <a> tag
+                    if ($item->filter('a')->count() > 0) {
+                        try {
+                            // Extract job title from the link text inside the <a> tag
+                            $jobTitle = trim($item->text());
+
+                            // Clean the job title (remove 'GISC' numbers, 'closes' dates, and 'ongoing' text)
+                            $jobTitle = preg_replace('/\bGISC\d+\b/', '', $jobTitle); // Remove job numbers (e.g., GISC258)
+                            $jobTitle = preg_replace('/\s+closes \d{1,2} [A-Za-z]+ \d{4}/', '', $jobTitle); // Remove close date text
+                            $jobTitle = preg_replace('/\s+ongoing/', '', $jobTitle); // Remove "ongoing" text
+
+                            // Extract apply link from the href attribute of the <a> tag
+                            $applyLink = trim($item->filter('a')->attr('href')); // Ensure full URL
+
+                            // Extract close date (if present) from the job title or use a default value
+                            $expiresText = $item->text();
+                            if (preg_match('/closes (\d{1,2} [A-Za-z]+ \d{4})/', $expiresText, $matches)) {
+                                $closeDate = Carbon::createFromFormat('d F Y', $matches[1])->format('Y-m-d');
+                            } else {
+                                // If no close date, set it to 7 days from the current date
+                                $closeDate = Carbon::now()->addWeek()->format('Y-m-d');
+                            }
+
+                            // Append job details to the array
+                            $allJobs[] = [
+                                'title' => $jobTitle,
+                                'url' => $applyLink,
+                                'expires' => $closeDate,
+                            ];
+                        } catch (\Exception $e) {
+                            // Handle any missing data or parsing errors gracefully
+                            // error_log("Error parsing job: " . $e->getMessage());
+                        }
+                    }
+                }
+            });
+        });
+
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = 'Glen Innes Severn Council';
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('#description');
+
+                    $jobDescription = $dataContainer->html();
+                    // Debug or use the job description
+                    $stateFullName = 'New South Wales';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '-16.4614455' ;
+                    $lng =  '145.372664';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Glen Innes Severn Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Glen Innes Severn Council',
+        ]);
+    }
 
 
 

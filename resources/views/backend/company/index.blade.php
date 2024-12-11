@@ -349,6 +349,9 @@
                 { route: "{{ route('auto.ClarenceValley') }}", message: "Scraping  Clarence Valley Council Jobs..." },
                 { route: "{{ route('auto.CookShire') }}", message: "Scraping  Cook Shire Council Jobs..." },
                 { route: "{{ route('auto.CumberlandCity') }}", message: "Scraping  Cumberland City Council Jobs..." },
+                { route: "{{ route('auto.FairfieldCity') }}", message: "Scraping  Fairfield City Council Jobs..." },
+                { route: "{{ route('auto.FlindersShire') }}", message: "Scraping  Flinders Shire Council Jobs..." },
+                { route: "{{ route('auto.GlenInnesSevern') }}", message: "Scraping  Glen Innes Severn Council Jobs..." },
 
 
 

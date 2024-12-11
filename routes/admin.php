@@ -138,6 +138,9 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-ClarenceValley', [CompanyController::class, 'ClarenceValley'])->name('auto.ClarenceValley');
         Route::get('/auto-get-CookShire', [CompanyController::class, 'CookShire'])->name('auto.CookShire');
         Route::get('/auto-get-CumberlandCity', [CompanyController::class, 'CumberlandCity'])->name('auto.CumberlandCity');
+        Route::get('/auto-get-FairfieldCity', [CompanyController::class, 'FairfieldCity'])->name('auto.FairfieldCity');
+        Route::get('/auto-get-FlindersShire', [CompanyController::class, 'FlindersShire'])->name('auto.FlindersShire');
+        Route::get('/auto-get-GlenInnesSevern', [CompanyController::class, 'GlenInnesSevern'])->name('auto.GlenInnesSevern');
 
 
 
