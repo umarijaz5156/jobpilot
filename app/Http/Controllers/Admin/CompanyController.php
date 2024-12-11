@@ -4898,6 +4898,171 @@ class CompanyController extends Controller
         ]);
     }
 
+    // GoulburnMulwaree
+
+
+    public function GoulburnMulwaree()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Goulburn Mulwaree Council')->first();
+        $allJobs = [];
+        $client = new Client();
+        $mainUrl = 'https://www.ezisuite.net/eziJob/Goulburn/HRRegistry/default.cfm?act=listVacancies'; // Your target URL
+        $crawler = $client->request('GET', $mainUrl);
+
+        $jobItems = $crawler->filter('table tbody tr'); // Select all rows in the table body
+        $allJobs = []; // Initialize an array to store the jobs
+
+        // Loop through each job row
+        $jobItems->each(function ($item) use (&$allJobs) {
+            try {
+                // Extract job title from the <a> tag inside the first <td>
+                $jobTitle = trim($item->filter('td a')->text());
+
+                // Extract apply link from the href attribute of the <a> tag
+                $applyLink = 'https://www.ezisuite.net/eziJob/Goulburn/HRRegistry/' . trim($item->filter('td a')->attr('href'));
+
+                // Extract the close date from the third <td>
+                $expiresRaw = trim($item->filter('td')->eq(2)->text());
+
+                // Convert close date to the correct format (Y-m-d)
+                $closeDate = Carbon::createFromFormat('d/m/Y', $expiresRaw)->format('Y-m-d');
+
+                // Append the job details to the array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => $applyLink,
+                    'expires' => $closeDate,
+                ];
+
+            } catch (\Exception $e) {
+                // Handle any missing data or parsing errors gracefully
+                // error_log("Error parsing job: " . $e->getMessage());
+            }
+        });
+
+
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = 'Goulburn Mulwaree Council';
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('.section .fg')->slice(0, -1); // Exclude the last .fg element
+
+                    $jobDescription = $dataContainer->each(function ($node) {
+                        return $node->html();
+                    });
+
+                    $jobDescription = implode('', $jobDescription);
+
+
+                    // Debug or use the job description
+                    $stateFullName = 'New South Wales';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '-16.4614455' ;
+                    $lng =  '145.372664';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Goulburn Mulwaree Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Goulburn Mulwaree Council',
+        ]);
+    }
+
 
 
 
