@@ -27,6 +27,7 @@ use App\Models\Job;
 Route::get('/jobs/update-status', function () {
     $currentDateTime = now();
     $jobs = Job::where('status', '<>', 'expired')->get();
+    $updatedCount = 0;
 
     foreach ($jobs as $job) {
         $deadline = $job->deadline;
@@ -35,10 +36,14 @@ Route::get('/jobs/update-status', function () {
             $job->update([
                 'status' => 'expired',
             ]);
+            $updatedCount++;
         }
     }
 
-    return response()->json(['message' => 'Job statuses updated successfully.']);
+    return response()->json([
+        'message' => 'Job statuses updated successfully.',
+        'updated_jobs' => $updatedCount,
+    ]);
 });
 
 
