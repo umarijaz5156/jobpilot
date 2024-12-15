@@ -352,6 +352,9 @@
                 { route: "{{ route('auto.FairfieldCity') }}", message: "Scraping  Fairfield City Council Jobs..." },
                 { route: "{{ route('auto.FlindersShire') }}", message: "Scraping  Flinders Shire Council Jobs..." },
                 { route: "{{ route('auto.GlenInnesSevern') }}", message: "Scraping  Glen Innes Severn Council Jobs..." },
+                { route: "{{ route('auto.GoulburnMulwaree') }}", message: "Scraping  Goulburn Mulwaree Council Jobs..." },
+                { route: "{{ route('auto.GriffithCity') }}", message: "Scraping  Griffith City Council Jobs..." },
+                { route: "{{ route('auto.GympieRegional') }}", message: "Scraping  Gympie Regional Council Jobs..." },
 
 
 

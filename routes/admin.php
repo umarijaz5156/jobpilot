@@ -143,8 +143,9 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-GlenInnesSevern', [CompanyController::class, 'GlenInnesSevern'])->name('auto.GlenInnesSevern');
         Route::get('/auto-get-GoulburnMulwaree', [CompanyController::class, 'GoulburnMulwaree'])->name('auto.GoulburnMulwaree');
         Route::get('/auto-get-GriffithCity', [CompanyController::class, 'GriffithCity'])->name('auto.GriffithCity');
+        Route::get('/auto-get-GympieRegional', [CompanyController::class, 'GympieRegional'])->name('auto.GympieRegional');
 
-
+          
 
 
 
