@@ -355,6 +355,10 @@
                 { route: "{{ route('auto.GoulburnMulwaree') }}", message: "Scraping  Goulburn Mulwaree Council Jobs..." },
                 { route: "{{ route('auto.GriffithCity') }}", message: "Scraping  Griffith City Council Jobs..." },
                 { route: "{{ route('auto.GympieRegional') }}", message: "Scraping  Gympie Regional Council Jobs..." },
+                { route: "{{ route('auto.HinchinbrookShire') }}", message: "Scraping  Hinchinbrook Shire Council Jobs..." },
+                { route: "{{ route('auto.HornsbyShire') }}", message: "Scraping  Hornsby Shire Council Jobs..." },
+                { route: "{{ route('auto.LeetonShire') }}", message: "Scraping  Leeton Shire Council Jobs..." },
+                { route: "{{ route('auto.LivingstoneShire') }}", message: "Scraping  Livingstone ShireCouncil Jobs..." },
 
 
 

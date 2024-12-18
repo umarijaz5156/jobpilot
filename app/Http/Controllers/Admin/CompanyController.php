@@ -5078,22 +5078,22 @@ class CompanyController extends Controller
 
         $jobItems = $crawler->filter('table tbody tr'); // Select all rows in the table body
         $allJobs = []; // Initialize an array to store the jobs
-        
+
         // Loop through each job row
         $jobItems->each(function ($item) use (&$allJobs, $mainUrl) {
             try {
                 // Extract job title from the <a> tag inside the first <td>
                 $jobTitle = trim($item->filter('td a')->text());
-        
+
                 // Extract apply link from the href attribute of the <a> tag
                 $applyLink = rtrim($mainUrl, 'default.cfm') . trim($item->filter('td a')->attr('href'));
-        
+
                 // Extract the close date from the third <td>
                 $expiresRaw = trim($item->filter('td')->eq(2)->text());
-        
+
                 // Convert close date to the correct format (Y-m-d)
                 $closeDate = Carbon::createFromFormat('d/m/Y', $expiresRaw)->format('Y-m-d');
-        
+
                 // Append the job details to the array
                 $allJobs[] = [
                     'title' => $jobTitle,
@@ -5379,6 +5379,646 @@ class CompanyController extends Controller
         'message' => $jobAdded . ' job(s) scraped from Gympie Regional Council',
         ]);
     }
+
+    //
+
+    public function HinchinbrookShire()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Hinchinbrook Shire Council')->first();
+        $allJobs = [];
+        $client = new Client();
+        $mainUrl = 'https://clientapps.jobadder.com/65146/hinchinbrook-shire-council'; // Your target URL
+        $crawler = $client->request('GET', $mainUrl);
+
+        $allJobs = [];
+
+        $crawler->filter('.col-md-12 > .row > .job_items')->each(function ($item) use (&$allJobs) {
+            try {
+                // Extract job title
+                $jobTitle = trim($item->filter('h2 a')->text());
+
+                // Extract apply link
+                $applyLink = trim($item->filter('h2 a')->attr('href'));
+
+                // Extract expiry date
+                $expiryDate = trim($item->filter('h3 sub')->text());
+                $closeDate = Carbon::createFromFormat('jS F, Y', $expiryDate)->format('Y-m-d');
+
+
+                // Extract location
+                $location ='Hinchinbrook Shire Council'; // Assuming location is the 3rd list item
+
+                // Append the job details to the array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => 'https://clientapps.jobadder.com' . $applyLink,
+                    'expires' => $closeDate,
+                    'location' => $location,
+                ];
+            } catch (\Exception $e) {
+                // Handle any missing data or parsing errors gracefully
+                error_log("Error parsing job: " . $e->getMessage());
+            }
+        });
+
+
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = $job['location'];
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('.pricing-item'); // Exclude the last .fg element
+
+                    $jobDescription = $dataContainer->html();
+                    $stateFullName = 'Queensland';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Hinchinbrook Shire Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Hinchinbrook Shire Council',
+        ]);
+    }
+
+
+    // HornsbyShire
+
+    public function HornsbyShire()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Hornsby Shire Council')->first();
+        $allJobs = [];
+        $client = new Client();
+        $mainUrl = 'https://www.ezisuite.net/eziJob/Hornsby/HRRegistry/default.cfm'; // Your target URL
+        $crawler = $client->request('GET', $mainUrl);
+
+        $allJobs = [];
+
+        // Select all rows from the tbody of the table
+        $crawler->filter('table.list tbody tr')->each(function ($row) use (&$allJobs) {
+            try {
+                // Extract the job title
+                $jobTitle = trim($row->filter('td')->eq(0)->filter('a')->text());
+
+                // Extract the apply link
+                $applyLink = trim($row->filter('td')->eq(0)->filter('a')->attr('href'));
+
+                // Extract the close date
+                $closeDate = trim($row->filter('td')->eq(2)->text());
+                $formattedCloseDate = Carbon::createFromFormat('d/m/Y', $closeDate)->format('Y-m-d');
+
+                // Append the job details to the array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => 'https://www.ezisuite.net/eziJob/Hornsby/HRRegistry/' . $applyLink,
+                    'expires' => $formattedCloseDate,
+                ];
+            } catch (\Exception $e) {
+                // Handle any missing data or parsing errors gracefully
+                error_log("Error parsing job: " . $e->getMessage());
+            }
+        });
+
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = 'Hornsby Shire Council';
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('.main-content .section'); // Exclude the last .fg element
+
+                    $jobDescription = $dataContainer->html();
+
+                    $stateFullName = 'New South Wales';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Hornsby Shire Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Hornsby Shire Council',
+        ]);
+    }
+
+    // Horsham Rural City Council
+
+    public function LeetonShire()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Leeton Shire Council')->first();
+        $allJobs = [];
+        $client = new Client();
+        $mainUrl = 'https://www.leeton.nsw.gov.au/Your-Council/Work-With-Us/Jobs/Vacancies'; // Your target URL
+        $crawler = $client->request('GET', $mainUrl);
+
+        $allJobs = [];
+
+        // Select all job containers
+        $crawler->filter('div.list-container.job-list-container > div.list-item-container')->each(function (Crawler $job) use (&$allJobs) {
+            try {
+                // Extract the job title
+                $jobTitle = trim($job->filter('h2.list-item-title')->text());
+
+                // Extract the job link
+                $applyLink = trim($job->filter('a')->attr('href'));
+
+                // Extract the closing date
+                $closeDateRaw = trim($job->filter('p.applications-closing')->text());
+                preg_match('/Applications closing on (.+)/i', $closeDateRaw, $matches);
+                $formattedCloseDate = isset($matches[1]) ? Carbon::createFromFormat('l, d F Y', $matches[1])->format('Y-m-d') : null;
+
+                // Append the job details to the array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => $applyLink,
+                    'expires' => $formattedCloseDate,
+                ];
+            } catch (\Exception $e) {
+                // Handle errors gracefully
+                error_log("Error parsing job: " . $e->getMessage());
+            }
+        });
+
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url']; // URL of the job
+            $jobCrawler = $client->request('GET', $jobUrl); // Request the job URL
+            $dataContainer = $jobCrawler->filter('.content-details-list.job-details-list');
+            $dataDescription = $jobCrawler->filter('.body-content');
+            $jobDescription = $dataDescription->html();
+
+            $pdfLink = null;
+            $dataContainer->filter('a.document.ext-pdf')->each(function (Crawler $pdf) use (&$pdfLink) {
+                $pdfLink = $pdf->attr('href'); // Extract the href attribute (the PDF link)
+            });
+
+            if ($pdfLink && strpos($pdfLink, 'http') === false) {
+                $pdfLink = 'https://www.leeton.nsw.gov.au' . $pdfLink;
+            }
+
+            $existingJob = Job::where('apply_url', $pdfLink)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = 'Leeton Shire Council';
+
+                    $categoryId = 3;
+
+
+                    $stateFullName = 'New South Wales';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    try {
+                        // Make the request to Nominatim API
+                        $nominatimResponse = $clientC->get($nominatimUrl, [
+                            'query' => [
+                                'q' => $location,
+                                'format' => 'json',
+                                'limit' => 1
+                            ],
+                            'headers' => [
+                                'User-Agent' => 'YourAppName/1.0'
+                            ]
+                        ]);
+
+                        // Decode the response
+                        $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                        if (!empty($nominatimData)) {
+                            // If the response is not empty, extract the location details
+                            $lat = $nominatimData[0]['lat'] ?? '-16.4614455';
+                            $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                            $exact_location = $nominatimData[0]['display_name'] ?? $location;
+                        } else {
+                            // If no results, apply fallback values
+                            $lat = '-34.507000';
+                            $lng = '146.154338';
+                            $exact_location = $location;
+                        }
+
+                    } catch (\GuzzleHttp\Exception\RequestException $e) {
+                        $lat = '-34.507000';
+                        $lng = '146.154338';
+                        $exact_location = $location;
+
+                    }
+
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Leeton Shire Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $pdfLink,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Leeton Shire Council',
+        ]);
+    }
+
+    // LivingstoneShire
+
+    public function LivingstoneShire()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Livingstone Shire Council')->first();
+        $allJobs = [];
+        $client = new Client();
+        $mainUrl = 'https://www.livingstone.qld.gov.au/homepage/91/job-vacancies'; // Your target URL
+        $crawler = $client->request('GET', $mainUrl);
+
+        $allJobs = [];
+
+        // Select all rows from the tbody of the table
+        $crawler->filter('li.directory__item')->each(function ($li) use (&$allJobs) {
+            try {
+                // Extract the job title
+                $jobTitle = trim($li->filter('.directory__title')->text());
+
+                // // Extract the apply link
+                $applyLink = trim($li->filter('.directory__item-content a')->attr('href'));
+
+                // $closeDateText = $li->filter('.directory-detail__value')->text() ?? Carbon::now()->addWeeks(4)->format('l, j F Y');
+                // if($closeDateText){
+                //     preg_match('/Applications close (.+) at/', $closeDateText, $matches);
+                //     $closeDate = isset($matches[1]) ? $matches[1] : 'N/A';
+
+                // }else{
+                    $closeDate = Carbon::now()->addWeeks(4)->format('l, j F Y');
+                // }
+                $formattedCloseDate = Carbon::createFromFormat('l, j F Y', $closeDate)->format('Y-m-d');
+
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => 'https://www.livingstone.qld.gov.au' . $applyLink,
+                    'expires' => $formattedCloseDate,
+                ];
+            } catch (\Exception $e) {
+                // Handle any missing data or parsing errors gracefully
+                // error_log("Error parsing job: " . $e->getMessage());
+            }
+        });
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = 'Livingstone Shire Council';
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('.page-content'); // Exclude the last .fg element
+
+                    $jobDescription = $dataContainer->html();
+                    $stateFullName = 'Queensland';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Livingstone Shire Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Livingstone Shire Council',
+        ]);
+    }
+
+
 
 
     private function extractTextFromPdfForBlueMountain($pdfUrl)

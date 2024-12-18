@@ -145,10 +145,13 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-GriffithCity', [CompanyController::class, 'GriffithCity'])->name('auto.GriffithCity');
         Route::get('/auto-get-GympieRegional', [CompanyController::class, 'GympieRegional'])->name('auto.GympieRegional');
 
-          
 
+        // 16 to 22 dec
 
-
+        Route::get('/auto-get-HinchinbrookShire', [CompanyController::class, 'HinchinbrookShire'])->name('auto.HinchinbrookShire');
+        Route::get('/auto-get-HornsbyShire', [CompanyController::class, 'HornsbyShire'])->name('auto.HornsbyShire');
+        Route::get('/auto-get-LeetonShire', [CompanyController::class, 'LeetonShire'])->name('auto.LeetonShire');
+        Route::get('/auto-get-LivingstoneShire', [CompanyController::class, 'LivingstoneShire'])->name('auto.LivingstoneShire');
 
         // Candidate Route
         Route::resource('candidate', CandidateController::class);
