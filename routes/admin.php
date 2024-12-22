@@ -152,6 +152,13 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-HornsbyShire', [CompanyController::class, 'HornsbyShire'])->name('auto.HornsbyShire');
         Route::get('/auto-get-LeetonShire', [CompanyController::class, 'LeetonShire'])->name('auto.LeetonShire');
         Route::get('/auto-get-LivingstoneShire', [CompanyController::class, 'LivingstoneShire'])->name('auto.LivingstoneShire');
+        Route::get('/auto-get-LoddonShire', [CompanyController::class, 'LoddonShire'])->name('auto.LoddonShire');
+        Route::get('/auto-get-MansfieldShire', [CompanyController::class, 'MansfieldShire'])->name('auto.MansfieldShire');
+        Route::get('/auto-get-MidCoastCouncil', [CompanyController::class, 'MidCoastCouncil'])->name('auto.MidCoastCouncil');
+
+
+
+
 
         // Candidate Route
         Route::resource('candidate', CandidateController::class);

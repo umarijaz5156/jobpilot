@@ -358,7 +358,9 @@
                 { route: "{{ route('auto.HinchinbrookShire') }}", message: "Scraping  Hinchinbrook Shire Council Jobs..." },
                 { route: "{{ route('auto.HornsbyShire') }}", message: "Scraping  Hornsby Shire Council Jobs..." },
                 { route: "{{ route('auto.LeetonShire') }}", message: "Scraping  Leeton Shire Council Jobs..." },
-                { route: "{{ route('auto.LivingstoneShire') }}", message: "Scraping  Livingstone ShireCouncil Jobs..." },
+                { route: "{{ route('auto.LivingstoneShire') }}", message: "Scraping  Livingstone Shire Council Jobs..." },
+                { route: "{{ route('auto.LoddonShire') }}", message: "Scraping  Loddon Shire Council Jobs..." },
+                { route: "{{ route('auto.MansfieldShire') }}", message: "Scraping  Mansfield Council Jobs..." },
 
 
 

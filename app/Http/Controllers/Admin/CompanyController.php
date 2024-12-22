@@ -6019,6 +6019,490 @@ class CompanyController extends Controller
     }
 
 
+    // LoddonShire
+
+    public function LoddonShire()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Loddon Shire Council')->first();
+        $allJobs = [];
+        $client = new Client();
+       
+        $mainUrl = 'https://www.loddon.vic.gov.au/Our-Council/Working-with-us/Current-vacancies'; // Your target URL
+        $crawler = $client->request('GET', $mainUrl);
+        
+        $allJobs = []; // Initialize an array to store the jobs
+        
+        // Select all job containers
+        $crawler->filter('.job-list-container .list-item-container')->each(function ($item) use (&$allJobs) {
+            try {
+                // Extract job title
+                $jobTitle = trim($item->filter('.list-item-title')->text());
+        
+                // Extract apply link
+                $applyLink = trim($item->filter('a')->attr('href'));
+        
+                // Check for close date or use default
+                $closeDateText = $item->filter('.applications-closing')->count() 
+                    ? trim($item->filter('.applications-closing')->text()) 
+                    : null;
+        
+                if ($closeDateText && preg_match('/Applications closing on (.+)$/', $closeDateText, $matches)) {
+                    $closeDate = $matches[1];
+                    $formattedCloseDate = Carbon::createFromFormat('l, j F Y', $closeDate)->format('Y-m-d');
+                } else {
+                    $formattedCloseDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
+                }
+        
+                // Append the job details to the array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => $applyLink,
+                    'expires' => $formattedCloseDate,
+                ];
+            } catch (\Exception $e) {
+              
+            }
+        });
+        
+        
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = 'Loddon Shire Council';
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('.body-content'); // Exclude the last .fg element
+
+                    $jobDescription = $dataContainer->html();
+                    $stateFullName = 'Victoria';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Loddon Shire Council ',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 1,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Loddon Shire Council',
+        ]);
+    }
+
+    // MansfieldShire
+
+    public function MansfieldShire()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Mansfield Shire Council')->first();
+        $allJobs = [];
+        $client = new Client();
+       
+        $mainUrl = 'https://www.mansfield.vic.gov.au/Council/Work-With-Us/Career-Job-Opportunities'; // Your target URL
+        $crawler = $client->request('GET', $mainUrl);
+        $allJobs = []; // Initialize an array to store the jobs
+
+        // Select all job containers
+        // Select all job containers
+        $crawler->filter('.list-item-container')->each(function ($item) use (&$allJobs) {
+            try {
+                // Extract job title
+                $jobTitle = trim($item->filter('h2.list-item-title')->text());
+
+                // Extract apply link
+                $applyLink = trim($item->filter('a')->attr('href'));
+
+                // Extract close date
+                $closeDateText = $item->filter('p.applications-closing')->count()
+                    ? trim($item->filter('p.applications-closing')->text())
+                    : null;
+
+                if ($closeDateText && preg_match('/Applications closing on (.+)$/', $closeDateText, $matches)) {
+                    $closeDate = $matches[1];
+                    $formattedCloseDate = Carbon::createFromFormat('l, j F Y', $closeDate)->format('Y-m-d');
+                } else {
+                    // Default close date to 4 weeks from today if not present
+                    $formattedCloseDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
+                }
+
+            
+                // Append the job details to the array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => $applyLink,
+                    'expires' => $formattedCloseDate,
+                ];
+            } catch (\Exception $e) {
+                // Handle errors gracefully
+                // error_log("Error parsing job: " . $e->getMessage());
+            }
+        });
+
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = 'Mansfield Shire Council';
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('.body-content'); // Exclude the last .fg element
+
+                    $jobDescription = $dataContainer->html();
+                    $stateFullName = 'Victoria';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Mansfield Shire Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Mansfield Shire Council',
+        ]);
+    }
+
+
+    // MaribyrnongCity
+
+    public function MidCoastCouncil()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'MidCoast Council')->first();
+        $allJobs = [];
+        $client = new Client();
+       
+        $mainUrl = 'https://www.midcoast.nsw.gov.au/Your-Council/Working-with-us/Current-vacancies'; // Your target URL
+        $crawler = $client->request('GET', $mainUrl);
+        $allJobs = []; // Initialize an array to store the jobs
+        // not work
+        dd($crawler->html());
+       // Select all table rows
+        $crawler->filter('tr')->each(function ($row) use (&$allJobs) {
+            try {
+                // Extract title and apply link
+                $titleElement = $row->filter('a.job_title');
+                $jobTitle = $titleElement->count() ? trim($titleElement->text()) : 'No title available';
+                $applyLink = $titleElement->count() ? trim($titleElement->attr('href')) : 'No link available';
+
+                // Extract close date
+                $closeDateText = $row->filter('span.expires_at')->count()
+                    ? trim($row->filter('span.expires_at')->text())
+                    : null;
+
+                if ($closeDateText && preg_match('/Applications closing on (.+)/', $closeDateText, $matches)) {
+                    $closeDate = $matches[1];
+                    $formattedCloseDate = Carbon::createFromFormat('d F Y h:i A', $closeDate)->format('Y-m-d H:i:s');
+                } else {
+                    $formattedCloseDate = Carbon::now()->addWeeks(4)->format('Y-m-d H:i:s');
+                }
+
+                // Append job details
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => $applyLink,
+                    'expires' => $formattedCloseDate,
+                ];
+            } catch (\Exception $e) {
+                // Handle errors gracefully
+            }
+        });
+
+        dd($allJobs);
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = 'Mansfield Shire Council';
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('.body-content'); // Exclude the last .fg element
+
+                    $jobDescription = $dataContainer->html();
+                    $stateFullName = 'Victoria';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Mansfield Shire Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Mansfield Shire Council',
+        ]);
+    }
 
 
     private function extractTextFromPdfForBlueMountain($pdfUrl)
