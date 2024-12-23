@@ -370,8 +370,11 @@
 
 
 
-                // You can add more routes here in the future
+
             ];
+
+            let errorCouncils = []; // Array to store councils that encounter errors
+
 
             // Function to start scraping tasks
             function scrapeJobs(index) {
@@ -380,7 +383,7 @@
                     $('#resultMessage').text(scrapingRoutes[index].message);
                     $('#resultMessage').show();
 
-                    // First AJAX request for the current route
+                    // AJAX request for the current route
                     $.ajax({
                         url: scrapingRoutes[index].route,  // The current scraping route
                         method: 'GET',
@@ -394,16 +397,28 @@
                             }, 3000);  // Optional delay before starting the next scraping
                         },
                         error: function(xhr, status, error) {
-                            // Hide loading indicator and show error message
-                            $('#loadingIndicator').hide();
-                            $('#resultMessage').text('An error occurred while scraping the jobs.');
-                            $('#resultMessage').show();
+                            // Log the council name with an error
+                            errorCouncils.push(scrapingRoutes[index].message);
+
+                            // Continue to the next scraping task
+                            setTimeout(function() {
+                                scrapeJobs(index + 1);  // Move to the next route
+                            }, 3000);  // Optional delay
                         }
                     });
                 } else {
                     // All scraping tasks are completed
                     $('#loadingIndicator').hide();
-                    $('#resultMessage').text('All scraping tasks completed!');
+
+                    // Display summary message
+                    if (errorCouncils.length > 0) {
+                        $('#resultMessage').html(
+                            'Scraping completed with errors. The following councils encountered issues:<br>' +
+                            errorCouncils.join('<br>')
+                        );
+                    } else {
+                        $('#resultMessage').text('All scraping tasks completed successfully!');
+                    }
                 }
             }
 
