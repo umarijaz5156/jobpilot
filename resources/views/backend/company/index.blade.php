@@ -361,6 +361,11 @@
                 { route: "{{ route('auto.LivingstoneShire') }}", message: "Scraping  Livingstone Shire Council Jobs..." },
                 { route: "{{ route('auto.LoddonShire') }}", message: "Scraping  Loddon Shire Council Jobs..." },
                 { route: "{{ route('auto.MansfieldShire') }}", message: "Scraping  Mansfield Council Jobs..." },
+                { route: "{{ route('auto.MountAlexanderShire') }}", message: "Scraping  MountAlexander Shire Council Jobs..." },
+                { route: "{{ route('auto.MurrayRiver') }}", message: "Scraping  Murray River Council Jobs..." },
+                { route: "{{ route('auto.MurrindindiShire') }}", message: "Scraping  Murrindindi Shire Council Jobs..." },
+                { route: "{{ route('auto.MuswellbrookShire') }}", message: "Scraping  Muswellbrook Shire Council Jobs..." },
+                { route: "{{ route('auto.NorthernBeaches') }}", message: "Scraping  Northern Beaches Council Jobs..." },
 
 
 

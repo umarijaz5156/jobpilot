@@ -154,7 +154,15 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-LivingstoneShire', [CompanyController::class, 'LivingstoneShire'])->name('auto.LivingstoneShire');
         Route::get('/auto-get-LoddonShire', [CompanyController::class, 'LoddonShire'])->name('auto.LoddonShire');
         Route::get('/auto-get-MansfieldShire', [CompanyController::class, 'MansfieldShire'])->name('auto.MansfieldShire');
-        Route::get('/auto-get-MidCoastCouncil', [CompanyController::class, 'MidCoastCouncil'])->name('auto.MidCoastCouncil');
+
+
+
+        // 23 to 29 dec
+        Route::get('/auto-get-MountAlexanderShire', [CompanyController::class, 'MountAlexanderShire'])->name('auto.MountAlexanderShire');
+        Route::get('/auto-get-MurrayRiver', [CompanyController::class, 'MurrayRiver'])->name('auto.MurrayRiver');
+        Route::get('/auto-get-MurrindindiShire', [CompanyController::class, 'MurrindindiShire'])->name('auto.MurrindindiShire');
+        Route::get('/auto-get-MuswellbrookShire', [CompanyController::class, 'MuswellbrookShire'])->name('auto.MuswellbrookShire');
+        Route::get('/auto-get-NorthernBeaches', [CompanyController::class, 'NorthernBeaches'])->name('auto.NorthernBeaches');
 
 
 
