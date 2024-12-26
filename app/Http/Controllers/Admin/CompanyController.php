@@ -7147,6 +7147,667 @@ class CompanyController extends Controller
     }
 
 
+    // ParkesShire
+    public function ParkesShire()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Parkes Shire Council')->first();
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://parkes.applynow.net.au'; // Your target URL
+        $crawler = $client->request('GET', $mainUrl);
+        $crawler->filter('#joblist > div.jobblock')->each(function ($row) use (&$allJobs) {
+            try {
+                // Extract Job Title from `data-title`
+                $jobTitle = $row->attr('data-title') ?? 'No title available';
+
+                // Extract Apply Link from `data-url`
+                $applyLink = $row->attr('data-url') ?? 'No link available';
+
+
+                $expiresText = $row->attr('data-expires_at');
+
+                if ($expiresText) {
+                    try {
+                        // Parse and format the expiration date
+                        $formattedExpireDate = Carbon::parse($expiresText)->format('Y-m-d');
+                    } catch (\Exception $e) {
+                        // Default to 4 weeks from today on parsing failure
+                        $formattedExpireDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
+                    }
+                } else {
+                    // Default to 4 weeks from today if no expiration date is provided
+                    $formattedExpireDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
+                }
+
+                // Append job details
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => $applyLink,
+                    'expires' => $formattedExpireDate,
+                ];
+            } catch (\Exception $e) {
+                // Handle exceptions gracefully
+                // Optionally log or debug
+            }
+        });
+
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = 'Parkes Shire Council';
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('#description'); // Exclude the last .fg element
+
+                    $jobDescription = $dataContainer->html();
+                    $stateFullName = 'New South Wales';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Parkes Shire Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Parkes Shire Council',
+        ]);
+    }
+
+    // ParooShire
+    public function ParooShire()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Paroo Shire Council')->first();
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://www.paroo.qld.gov.au/council/employment'; // Your target URL
+        $crawler = $client->request('GET', $mainUrl);
+      // Locate the specific <p> tag with job listings and extract <a> links
+        $crawler->filter('p')->each(function ($paragraph) use (&$allJobs) {
+            try {
+                // Check if the paragraph contains job links
+                $links = $paragraph->filter('a');
+
+                if ($links->count() > 0) {
+                    $links->each(function ($link) use (&$allJobs) {
+                        // Extract Job Title from the link text
+                        $jobTitle = trim($link->text()) ?? 'No title available';
+
+                        // Extract Apply Link from the href attribute
+                        $applyLink = trim($link->attr('href')) ?? 'No link available';
+
+                        // Calculate expiration date as 4 weeks from today
+                        $formattedExpireDate = Carbon::now()->addWeeks(6)->format('Y-m-d');
+
+                        // Append job details
+                        $allJobs[] = [
+                            'title' => $jobTitle,
+                            'url' => $applyLink,
+                            'expires' => $formattedExpireDate,
+                        ];
+                    });
+                }
+            } catch (\Exception $e) {
+                // Handle exceptions gracefully
+                // Optionally log or debug
+            }
+        });
+
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = 'Paroo Shire Council';
+
+                    $categoryId = 3;
+
+                    $jobDescription = '<div class="editor">
+
+
+                            <p><strong>About Paroo Shire Council:</strong></p>
+
+                            <p>A Paroo Shire Council career goes beyond business as usual. You ll find exciting development pathways rich in opportunity. Our thriving and engaged culture-first workplace is built on the passion and talent of people who proudly deliver vital services and exciting projects to a community they care about.&nbsp;Our organisation comprises of a multicultural workplace of around 89 full-time, part-time and casual employees, all benefiting from great flexibility, work/life sway, study support, health and wellbeing initiatives and ongoing learning.&nbsp;Paroo Shire Council has a close-knit culture, with networking encouraged to support all teams. &nbsp;</p>
+
+                            <p><strong>Why You’ll Like Working Here:&nbsp;</strong>&nbsp;</p>
+
+                            <p>At Paroo Shire Council, we are committed to our community and its environment and provide our employees with the same level of commitment and care. As a member of a close-knit team, you will experience a connected and supportive environment. The team you will join is welcoming and knowledgeable and ready to collaborate to continually improve our systems and processes.&nbsp;We offer diverse and rewarding work, ongoing training and development opportunities, and genuine work-life balance. Additionally, our staff have the opportunity to deliver on initiatives that have a tangible impact on the daily lives of residents.&nbsp;</p>
+
+                            <p><strong>We will offer you:</strong></p>
+
+                            <ul>
+                                <li>Competitive remuneration packaging and allowances</li>
+                                <li>Partly furnished accommodation where you can create a home may be considered</li>
+                                <li>Relocation expenses considered on application</li>
+                                <li>Time to relax with family and friends with 4 weeks annual leave and 17.5% loading</li>
+                                <li>A nine (9) day fortnight to enjoy a leisurely long weekend</li>
+                                <li>Uniforms so that you never need to find something to wear.</li>
+                            </ul>
+
+                            <p>If you see yourself working and living in the Paroo Shire, a great way to start is to connect with us. We are here to listen and accept Expressions of Interest and Casual Pool applicants at any time.&nbsp;We have Traineeships and Apprenticeship opportunities, so let us know what your field/interest is so we can then arrange a meet and greet here at our Council Headquarters.&nbsp;If you are interested in attending a recruitment open day, please email Human Resources Manager Denise O’Brien on hr@paroo.qld.gov.au<br>
+                            See you in 2025 for the start to YOUR New beginnings</p>
+                            </div>';
+                    $stateFullName = 'Queensland';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Paroo Shire Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Paroo Shire Council',
+        ]);
+    }
+
+    // RichmondValley
+    public function RichmondValley()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Richmond Valley Council')->first();
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://richmondvalleycouncil.applynow.net.au'; // Your target URL
+        $crawler = $client->request('GET', $mainUrl);
+        $crawler->filter('#joblist > div.jobblock')->each(function ($row) use (&$allJobs) {
+            try {
+                // Extract Job Title from `data-title`
+                $jobTitle = $row->attr('data-title') ?? 'No title available';
+
+                // Extract Apply Link from `data-url`
+                $applyLink = $row->attr('data-url') ?? 'No link available';
+
+                // Extract Expiration Date from `data-expires_at`
+                $expiresText = $row->attr('data-expires_at');
+
+                // Parse and format the expiration date
+                if ($expiresText) {
+                    try {
+                        $formattedExpireDate = Carbon::parse($expiresText)->format('Y-m-d');
+                    } catch (\Exception $e) {
+                        // Default to 4 weeks from today on parsing failure
+                        $formattedExpireDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
+                    }
+                } else {
+                    // Default to 4 weeks from today if no expiration date is provided
+                    $formattedExpireDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
+                }
+
+                // Append job details
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => $applyLink,
+                    'expires' => $formattedExpireDate,
+                ];
+            } catch (\Exception $e) {
+                // Handle exceptions gracefully
+                // Optionally log or debug the error
+            }
+        });
+
+
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = 'Richmond Valley';
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('#description'); // Exclude the last .fg element
+
+                    $jobDescription = $dataContainer->html();
+                    $stateFullName = 'New South Wales';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Richmond Valley',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Richmond Valley',
+        ]);
+    }
+
+    // RuralCityWangaratta
+    public function RuralCityWangaratta()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Rural City of Wangaratta')->first();
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://candidate.aurion.cloud/wangaratta/production'; // Your target URL
+        $crawler = $client->request('GET', $mainUrl);
+      // Filter the table rows and extract job data
+        $crawler->filter('tbody > tr.table-clickable-row')->each(function ($row) use (&$allJobs) {
+            try {
+                // Extract job position
+                $jobTitle = trim($row->filter('td[data-th="Position"]')->text());
+
+                // Extract closing date from the `data-order` attribute
+                $closingDate = $row->filter('td[data-th="Closing"]')->attr('data-order') ?? null;
+
+                if ($closingDate) {
+                    // Format closing date
+                    try {
+                        $formattedCloseDate = Carbon::parse($closingDate)->format('Y-m-d');
+                    } catch (\Exception $e) {
+                        $formattedCloseDate = Carbon::now()->addWeeks(4)->format('Y-m-d'); // Default to 4 weeks from today
+                    }
+                } else {
+                    $formattedCloseDate = Carbon::now()->addWeeks(4)->format('Y-m-d'); // Default if no closing date
+                }
+
+                // Extract the URL from the `data-url` attribute
+                $applyLink = $row->attr('data-url') ?? 'No link available';
+
+                // Append job details to the array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'expires' => $formattedCloseDate,
+                    'url' => 'https://candidate.aurion.cloud/wangaratta/production/' . $applyLink,
+                ];
+            } catch (\Exception $e) {
+                // Handle exceptions gracefully
+                // Optionally log or debug the error
+            }
+        });
+
+        // Output the extracted job data
+
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = 'Rural City of Wangaratta';
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('.form-control-plaintext'); // Exclude the last .fg element
+                    $packageValue = $jobCrawler->filter('input[id*="VACANCY_PACKAGE"]')->attr('value');
+                    if($packageValue){
+                        $salary = $packageValue;
+                    }else{
+                        $salary = 'Competitive';
+                    }
+
+                    $jobDescription = $dataContainer->html();
+                    $stateFullName = 'Victoria';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Rural City of Wangaratta',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 3,
+                        'custom_salary' => $salary,
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Rural City of Wangaratta',
+        ]);
+    }
+
 
     private function extractTextFromPdfForBlueMountain($pdfUrl)
     {

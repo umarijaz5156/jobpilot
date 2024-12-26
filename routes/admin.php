@@ -163,7 +163,10 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-MurrindindiShire', [CompanyController::class, 'MurrindindiShire'])->name('auto.MurrindindiShire');
         Route::get('/auto-get-MuswellbrookShire', [CompanyController::class, 'MuswellbrookShire'])->name('auto.MuswellbrookShire');
         Route::get('/auto-get-NorthernBeaches', [CompanyController::class, 'NorthernBeaches'])->name('auto.NorthernBeaches');
-
+        Route::get('/auto-get-ParkesShire', [CompanyController::class, 'ParkesShire'])->name('auto.ParkesShire');
+        Route::get('/auto-get-ParooShire', [CompanyController::class, 'ParooShire'])->name('auto.ParooShire');
+        Route::get('/auto-get-RichmondValley', [CompanyController::class, 'RichmondValley'])->name('auto.RichmondValley');
+        Route::get('/auto-get-RuralCityWangaratta', [CompanyController::class, 'RuralCityWangaratta'])->name('auto.RuralCityWangaratta');
 
 
 

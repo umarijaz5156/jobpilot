@@ -366,6 +366,10 @@
                 { route: "{{ route('auto.MurrindindiShire') }}", message: "Scraping  Murrindindi Shire Council Jobs..." },
                 { route: "{{ route('auto.MuswellbrookShire') }}", message: "Scraping  Muswellbrook Shire Council Jobs..." },
                 { route: "{{ route('auto.NorthernBeaches') }}", message: "Scraping  Northern Beaches Council Jobs..." },
+                { route: "{{ route('auto.ParkesShire') }}", message: "Scraping  Parkes Shire Council Jobs..." },
+                { route: "{{ route('auto.ParooShire') }}", message: "Scraping  Paroo Shire Council Jobs..." },
+                { route: "{{ route('auto.RichmondValley') }}", message: "Scraping  Richmond Valley Council Jobs..." },
+                { route: "{{ route('auto.RuralCityWangaratta') }}", message: "Scraping  Rural City Wangaratta Council Jobs..." },
 
 
 
