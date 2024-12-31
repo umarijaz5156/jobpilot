@@ -168,6 +168,12 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-RichmondValley', [CompanyController::class, 'RichmondValley'])->name('auto.RichmondValley');
         Route::get('/auto-get-RuralCityWangaratta', [CompanyController::class, 'RuralCityWangaratta'])->name('auto.RuralCityWangaratta');
 
+        // 30dec to 5 jan
+        Route::get('/auto-get-RoperGulfRegional', [CompanyController::class, 'RoperGulfRegional'])->name('auto.RoperGulfRegional');
+        Route::get('/auto-get-ShireAugustaMargaretRiver', [CompanyController::class, 'ShireAugustaMargaretRiver'])->name('auto.ShireAugustaMargaretRiver');
+        Route::get('/auto-get-ShireEastPilbara', [CompanyController::class, 'ShireEastPilbara'])->name('auto.ShireEastPilbara');
+
+
 
 
 

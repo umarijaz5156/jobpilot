@@ -370,6 +370,9 @@
                 { route: "{{ route('auto.ParooShire') }}", message: "Scraping  Paroo Shire Council Jobs..." },
                 { route: "{{ route('auto.RichmondValley') }}", message: "Scraping  Richmond Valley Council Jobs..." },
                 { route: "{{ route('auto.RuralCityWangaratta') }}", message: "Scraping  Rural City Wangaratta Council Jobs..." },
+                { route: "{{ route('auto.RoperGulfRegional') }}", message: "Scraping  Roper Gulf Regional Council Jobs..." },
+                { route: "{{ route('auto.ShireAugustaMargaretRiver') }}", message: "Scraping  Shire Augusta Margaret River Council Jobs..." },
+                { route: "{{ route('auto.ShireEastPilbara') }}", message: "Scraping  Shire East Pilbara Council Jobs..." },
 
 
 

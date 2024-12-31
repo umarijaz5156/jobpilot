@@ -7808,6 +7808,547 @@ class CompanyController extends Controller
         ]);
     }
 
+    //         Roper Gulf Regional Council
+    public function RoperGulfRegional()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Roper Gulf Regional Council')->first();
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://ropergulf.nt.gov.au/jobs/job-vacancies'; // Your target URL
+        $crawler = $client->request('GET', $mainUrl); // Assuming $client is a configured HTTP client
+
+        $allJobs = []; // Array to hold extracted job data
+
+        // Filter for job listings
+        $crawler->filter('.item-list')->each(function (Crawler $node) use (&$allJobs) {
+            try {
+                // Extract the job title
+                $jobTitle = $node->filter('h3 > a')->text();
+
+                // Extract the apply link
+                $applyLink = $node->filter('h3 > a')->attr('href');
+                $applyLink = 'https://ropergulf.nt.gov.au' . $applyLink; // Ensure full URL
+
+                // Extract the closing date
+                $closingDate = $node->filter('time')->attr('datetime');
+
+                // Format the closing date
+                try {
+                    $formattedCloseDate = Carbon::parse($closingDate)->format('Y-m-d');
+                } catch (\Exception $e) {
+                    $formattedCloseDate = Carbon::now()->addWeeks(4)->format('Y-m-d'); // Default to 4 weeks from today
+                }
+
+                // Append extracted job data to the array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'expires' => $formattedCloseDate,
+                    'url' => $applyLink,
+                ];
+            } catch (\Exception $e) {
+                // Handle exceptions gracefully (e.g., log the error)
+            }
+        });
+
+
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = 'Roper Gulf Region';
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    // Select the container that holds the job details
+                    $dataContainer = $jobCrawler->filter('.node--type-vacancy');
+
+                        $dom = $dataContainer->getNode(0);
+
+                        // Remove the "Apply Now" button
+                        $applyNowButton = (new Crawler($dom))->filter('a.button');
+                        foreach ($applyNowButton as $button) {
+                            $button->parentNode->removeChild($button);
+                        }
+
+                        // Remove the "content-date" element
+                        $contentDate = (new Crawler($dom))->filter('.content-date');
+                        foreach ($contentDate as $date) {
+                            $date->parentNode->removeChild($date);
+                        }
+
+                        // Convert the updated DOM back to HTML
+                        $jobDescription = (new Crawler($dom))->html();
+
+                        // Output or process the cleaned HTML
+
+                        $salary = 'Competitive';
+
+
+                    $stateFullName = 'Northern Territory';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Roper Gulf Regional Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 3,
+                        'custom_salary' => $salary,
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Roper Gulf Regional Council',
+        ]);
+    }
+
+    // ShireAugustaMargaretRiver
+    public function ShireAugustaMargaretRiver()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Shire of Augusta Margaret River')->first();
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://www.amrshire.wa.gov.au/shire-and-council/jobs-careers-and-tenders/current-job-vacancies'; // Your target URL
+        $crawler = $client->request('GET', $mainUrl); // Assuming $client is a configured HTTP client
+
+        $allJobs = []; // Array to hold extracted job data
+
+        // Filter for job listings
+        // Filter for job listings
+        $crawler->filter('.landing-hotboxes .col-12')->each(function (Crawler $node) use (&$allJobs) {
+            try {
+                // Extract the job title
+                $jobTitle = $node->filter('.news-content h2')->text();
+
+                // Extract the apply link
+                $applyLink = $node->filter('a')->attr('href');
+                $applyLink = 'https://www.amrshire.wa.gov.au' . $applyLink; // Ensure full URL
+
+                // Extract the salary (if present in the description paragraph)
+                $description = $node->filter('.news-content p')->text();
+                preg_match('/\$\d{1,3}(,\d{3})*(\.\d{2})? - \$\d{1,3}(,\d{3})*(\.\d{2})?/', $description, $matches);
+                $salary = $matches[0] ?? 'Not specified';
+
+                // Append extracted job data to the array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => $applyLink,
+                    'salary' => $salary,
+                ];
+            } catch (\Exception $e) {
+                // Handle exceptions gracefully (e.g., log the error)
+            }
+        });
+
+
+
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $location = 'Shire of Augusta Margaret River';
+
+                    if($job['salary']){
+                        $salary = $job['salary'];
+
+                    }else{
+                        $salary = 'Competitive';
+
+                    }
+
+                    $categoryId = 3;
+
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                            $dataContainer = $jobCrawler->filter('.aw-layout .container');
+
+                            $dom = $dataContainer->getNode(0);
+
+                            // Remove unwanted elements
+                            $applyNowButton = (new Crawler($dom))->filter('a.button');
+                            foreach ($applyNowButton as $button) {
+                                $button->parentNode->removeChild($button);
+                            }
+
+                            $contentDate = (new Crawler($dom))->filter('.content-date');
+                            foreach ($contentDate as $date) {
+                                $date->parentNode->removeChild($date);
+                            }
+
+                            // Convert the updated DOM back to HTML for the job description
+                            $jobDescription = (new Crawler($dom))->html();
+
+                            // Extract the closing date and format it
+                            $closingDateText = $dataContainer->filter('h3:contains("Applications close") + p')->text();
+                            try {
+                                $formattedExpiryDate = Carbon::parse($closingDateText)->format('Y-m-d');
+                            } catch (\Exception $e) {
+                                $formattedExpiryDate = Carbon::now()->addWeeks(4)->format('Y-m-d'); // Default fallback
+                            }
+
+                            $jobDescription = $dataContainer->html();
+
+
+
+
+
+
+                    $stateFullName = 'Western Australia';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Shire of Augusta Margaret River',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => $salary,
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Shire of Augusta Margaret River',
+        ]);
+    }
+
+    // ShireEastPilbara
+
+    public function ShireEastPilbara()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Shire of East Pilbara')->first();
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://www.eastpilbara.wa.gov.au/employment'; // Your target URL
+        $crawler = $client->request('GET', $mainUrl); // Assuming $client is a configured HTTP client
+        $allJobs = []; // Array to hold extracted job data
+
+       // Filter for job listings
+        $crawler->filter('#jobsContainer .job-item-container')->each(function (Crawler $node) use (&$allJobs) {
+
+                $jobTitle = $node->filter('.job-title')->text();
+
+                // Extract the apply link
+                $applyLink = $node->filter('a')->attr('href');
+                $applyLink = 'https://www.eastpilbara.wa.gov.au' . $applyLink; // Ensure full URL
+                // Extract the location
+                $location = $node->filter('.job-location')->text();
+
+                $closingDateText = $node->filter('.job-closing-date b')->text();
+
+                $cleanedDateText = str_replace(['Closing Date:', 'W. Australia Standard Time'], '', $closingDateText);
+                $cleanedDateText = trim($cleanedDateText); // Result: "1/04/2025 4:00 PM"
+
+                // Parse the cleaned date
+                $formattedClosingDate = Carbon::createFromFormat('d/m/Y h:i A', $cleanedDateText)->format('Y-m-d');
+
+
+                // Append extracted job data to the array
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => $applyLink,
+                    'location' => $location,
+                    'closing_date' => $formattedClosingDate,
+                ];
+
+        });
+
+
+
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $location = 'Shire of East Pilbara';
+
+
+                        $salary = 'Competitive';
+                        $formattedExpiryDate = $job['closing_date'];
+
+
+                        $categoryId = 3;
+
+                        $jobCrawler = $client->request('GET', $jobUrl);
+
+                            $dataContainer = $jobCrawler->filter('.pulse-details-container');
+
+
+                            $jobDescription = $dataContainer->html();
+
+
+
+
+
+                    $stateFullName = 'Western Australia';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Shire of East Pilbara',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => $salary,
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Shire of East Pilbara',
+        ]);
+    }
+
+
+
 
     private function extractTextFromPdfForBlueMountain($pdfUrl)
     {
