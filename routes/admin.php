@@ -174,6 +174,10 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-ShireEastPilbara', [CompanyController::class, 'ShireEastPilbara'])->name('auto.ShireEastPilbara');
         Route::get('/auto-get-ShireNgaanyatjarraku', [CompanyController::class, 'ShireNgaanyatjarraku'])->name('auto.ShireNgaanyatjarraku');
         Route::get('/auto-get-SomersetRegional', [CompanyController::class, 'SomersetRegional'])->name('auto.SomersetRegional');
+        Route::get('/auto-get-SouthernDownsRegional', [CompanyController::class, 'SouthernDownsRegional'])->name('auto.SouthernDownsRegional');
+
+
+
 
 
         // Candidate Route

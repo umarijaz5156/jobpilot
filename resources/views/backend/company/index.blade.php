@@ -375,6 +375,7 @@
                 { route: "{{ route('auto.ShireEastPilbara') }}", message: "Scraping  Shire East Pilbara Council Jobs..." },
                 { route: "{{ route('auto.ShireNgaanyatjarraku') }}", message: "Scraping  Shire Ngaanyatjarraku Council Jobs..." },
                 { route: "{{ route('auto.SomersetRegional') }}", message: "Scraping  Somerset Regional Council Jobs..." },
+                { route: "{{ route('auto.SouthernDownsRegional') }}", message: "Scraping  Southern Downs Regional Council Jobs..." },
 
 
 

@@ -8725,6 +8725,167 @@ class CompanyController extends Controller
         ]);
     }
 
+    // SouthernDownsRegional
+    public function SouthernDownsRegional()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+
+        $user = User::where('name', 'Southern Downs Regional Council')->first();
+        $allJobs = [];
+        $client = new Client();
+
+        $mainUrl = 'https://sdrc.elmogov.com.au/careers/careers/jobs?layout=iframe'; // Your target URL
+        $crawler = $client->request('GET', $mainUrl);
+
+        $crawler->filter('.list-group-item')->each(function ($row) use (&$allJobs) {
+
+                // Extract Job Title
+                $jobTitle = $row->filter('a.e-clickable')->text() ?? 'No title available';
+
+                // Extract Apply Link
+                $applyLink = $row->filter('a.e-clickable')->attr('href') ?? 'No link available';
+
+
+                // Extract Expiration Date
+                $row->filter('.glyphicon-calendar')->each(function ($node) use (&$expiryDate) {
+                    $parent = $node->closest('.row'); // Locate the parent `.row` element
+                    if ($parent) {
+                        $rawDate = trim($parent->filter('.col-md-10, .col-sm-10, .col-xs-10')->text());
+                        $expiryDate = \DateTime::createFromFormat('d/m/Y', $rawDate)->format('Y-m-d');
+                    }else{
+                        $expiryDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
+
+                    }
+                });
+
+                // Append job details
+                $allJobs[] = [
+                    'title' => $jobTitle,
+                    'url' => 'https://sdrc.elmogov.com.au' . $applyLink,
+                    'expires' => $expiryDate,
+                ];
+
+        });
+
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = 'Southern Downs Regional Council';
+
+                    $categoryId = 3;
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('.portal_content .e-padding-10');
+
+
+                        $jobDescription = $dataContainer->outerHtml();
+
+
+
+
+
+                    $stateFullName = 'Queensland';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Southern Downs Regional Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Southern Downs Regional Council',
+        ]);
+    }
+
+
 
 
 
