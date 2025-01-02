@@ -172,9 +172,8 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-RoperGulfRegional', [CompanyController::class, 'RoperGulfRegional'])->name('auto.RoperGulfRegional');
         Route::get('/auto-get-ShireAugustaMargaretRiver', [CompanyController::class, 'ShireAugustaMargaretRiver'])->name('auto.ShireAugustaMargaretRiver');
         Route::get('/auto-get-ShireEastPilbara', [CompanyController::class, 'ShireEastPilbara'])->name('auto.ShireEastPilbara');
-
-
-
+        Route::get('/auto-get-ShireNgaanyatjarraku', [CompanyController::class, 'ShireNgaanyatjarraku'])->name('auto.ShireNgaanyatjarraku');
+        Route::get('/auto-get-SomersetRegional', [CompanyController::class, 'SomersetRegional'])->name('auto.SomersetRegional');
 
 
         // Candidate Route

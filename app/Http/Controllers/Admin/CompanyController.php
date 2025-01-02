@@ -8347,6 +8347,384 @@ class CompanyController extends Controller
         ]);
     }
 
+    // ShireNgaanyatjarraku
+
+    public function ShireNgaanyatjarraku()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Shire of Ngaanyatjarraku')->first();
+        $allJobs = [];
+        $client = new Client();
+
+            $mainUrl = 'https://www.ngaanyatjarraku.wa.gov.au/our-shire/work-with-us/employment.aspx'; // Target URL
+            $crawler = $client->request('GET', $mainUrl); // Fetch the page
+            $allJobs = []; // Array to hold extracted job data
+
+            // Select rows from the table (skipping the header row)
+            $crawler->filter('table[title="Content Table"] tr')->each(function (Crawler $row, $index) use (&$allJobs) {
+                // Skip the header row
+                if ($index === 0) {
+                    return;
+                }
+
+                try {
+                    $jobTitle = $row->filter('td:nth-child(1)')->text();
+
+                    $positionDescriptionLink = $row->filter('td:nth-child(2) a')->attr('href');
+                    $positionDescriptionLink = 'https://www.ngaanyatjarraku.wa.gov.au/' . ltrim($positionDescriptionLink, '/');
+
+                    $closingDateText = $row->filter('td:nth-child(3)')->text();
+                    $formattedClosingDate = $closingDateText === '-'
+                        ? Carbon::now()->addWeeks(4)->format('Y-m-d') // 4 weeks from today
+                        : Carbon::createFromFormat('d/m/Y', trim($closingDateText))->format('Y-m-d');
+
+
+                    $allJobs[] = [
+                        'title' => $jobTitle,
+                        'url' => $positionDescriptionLink,
+                        'closing_date' => $formattedClosingDate,
+                    ];
+                } catch (\Exception $e) {
+
+                }
+            });
+
+
+
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $location = 'Shire of Ngaanyatjarraku';
+
+
+                        $salary = 'Competitive';
+                        $formattedExpiryDate = $job['closing_date'];
+
+
+                        $categoryId = 3;
+
+                        // $jobCrawler = $client->request('GET', $jobUrl);
+
+                        //     $dataContainer = $jobCrawler->filter('.pulse-details-container');
+
+
+                        //     $jobDescription = $dataContainer->html();
+                        $jobDescription = '<div class="col-xs-12 col-md-8 col-lg-9 cp-placeholder">
+
+
+            <h1>Who We Are</h1>
+        <p>The Shire of Ngaanyatjarraku is responsible for the provision of "mainstream" local government and delivery of services to the ten communities and visitors within its boundaries.</p>
+        <p>The Shire encompasses an area of 159,948 square kilometres and is located approximately 1542km from Perth. The region itself is diverse in natural beauty from the magnificent Rawlinson ranges to the red sandy plains of the Gibson Desert.</p>
+        <p>The Shire Offices are located in the Tjulyuru Cultural and Civic Centre in Warburton.</p>
+        <p><img alt="shire offices" src="https://www.ngaanyatjarraku.wa.gov.au/Profiles/shire/Assets/ClientData/Images/Page_Centre/new_tjulyru_image.jpg" width="325" height="216"></p>
+        <p><img alt="ngaanyatjarraku boundary" src="https://www.ngaanyatjarraku.wa.gov.au/Profiles/shire/Assets/ClientData/Images/Page_Centre/Shire_of_Ngaanyatjarraku_Boundary.jpg" width="640" height="480"></p>
+
+                    </div>';
+
+
+
+
+
+                    $stateFullName = 'Western Australia';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Shire of Ngaanyatjarraku',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => $salary,
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    // Add to allJobs array
+            }
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Shire of Ngaanyatjarraku',
+        ]);
+    }
+
+
+    // SomersetRegional
+
+    public function SomersetRegional()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Somerset Regional Council')->first();
+        $allJobs = [];
+        $client = new Client();
+
+            $mainUrl = 'https://www.somerset.qld.gov.au/your-council/employment';
+            $crawler = $client->request('GET', $mainUrl);
+
+            $allJobs = []; // Array to hold extracted job data
+            // Iterate over each job entry
+            $crawler->filter('.editor table tbody tr')->each(function ($node) use (&$allJobs) {
+
+                    // Extract the job title and apply link
+                    $titleNode = $node->filter('td:nth-child(1) a');
+                    $jobTitle = $titleNode->text();
+                    $applyLink = $titleNode->attr('href');
+                    if (!str_starts_with($applyLink, 'http')) {
+                        $applyLink = 'https://www.somerset.qld.gov.au' . $applyLink; // Ensure full URL
+                    }
+
+                    $closingDate = $node->filter('td:nth-child(4)')->text();
+
+                    // If closing date is not provided, set it to 4 weeks from today
+                    if (empty($closingDate) || stripos($closingDate, 'Applications will be reviewed as they are received') !== false) {
+                        // Calculate 4 weeks from today
+                        $closingDate = \Carbon\Carbon::now()->addWeeks(4)->format('Y-m-d');
+                    } else {
+                        $closingDate = str_replace('pm', '', $closingDate);
+                        $closingDate = \Carbon\Carbon::parse($closingDate)->format('Y-m-d');
+                    }
+                    // Append extracted job data to the array
+                    $allJobs[] = [
+                        'title' => $jobTitle,
+                        'closing_date' => $closingDate,
+                        'url' => $applyLink,
+                    ];
+
+            });
+
+
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['closing_date'];
+
+                    $location = 'Somerset Regional Council';
+
+
+                        $salary = 'Competitive';
+
+
+
+                    $categoryId = 3;
+
+
+
+                            $jobDescription = '<div class="editor">
+                                    <p>&nbsp;</p>
+
+                                <p>Somerset Regional Council was formed on 15 March 2008 following an amalgamation of the Councils of Esk Shire and Kilcoy Shire.</p>
+
+                                <p>SRC has a Mayor and six Councillors, each is elected by their constituents&nbsp;and serve a four-year term.</p>
+
+                                <p>Please visit our <a href="http://www.somerset.qld.gov.au/councillor-profiles">Councillor Profiles page</a> for more information about our current Mayor and Councillors.</p>
+
+                                <p>This regional local government is an hour west of Brisbane and is the fastest growing local government area in south east Queensland. It has strong agricultural, environmental, heritage and tourism values. It contains important vegetation and forest, areas of high scenic and landscape amenity and significantly, the key water catchments for southeast Queensland.</p>
+
+                                <p>The Somerset region has an area of 5382 sq km and includes five major townships, Esk, Fernvale, Kilcoy, Lowood and Toogoolawah. The region is home to approximately 25,000 people and is expected to grow to an estimated 34,500 by 2031.</p>
+
+                                <p>Somersets neighbouring local governments are Lockyer Valley, Ipswich City, Brisbane City, Moreton Bay, Sunshine Coast, Gympie, South Burnett and Toowoomba.</p>
+
+                                <p>Somerset Regional Councils logo represents the regions two major dams, with the larger body of water representing Wivenhoe and the smaller body being Somerset. The overall shape of the icon with the water flowing from Somerset to Wivenhoe creates the shape of a clear "S", which uniquely identifies this water graphic to be that of Somerset Regional Council.</p>
+
+                                <p>The previous Esk and Kilcoy Shire Councils had adopted floral and faunal emblems. The continued use of these emblems is symbolic, given that none of these emblems are reflected in the logo. On 19 December 2008 Council adopted the following emblems:</p>
+
+                                <p>Floral:</p>
+
+                                <ul>
+                                    <li>Weeping bottlebrush (Callistemon viminalis)</li>
+                                    <li>Native frangipani (Hymenosporum flavum)</li>
+                                </ul>
+
+                                <p>Fauna:</p>
+
+                                <ul>
+                                    <li>Red deer (Cervus elaphus)</li>
+                                </ul>
+
+                                <p>Deer were first introduced into Queensland in September 1873 when two stags and four hinds were released at Scrub Creek, Cressbrook Station. These deer were from Windsor Great Park and were a gift from Queen Victoria to the Acclimatisation Society of Queensland. Today, the descendants of the original release are well entrenched in the ranges of the Brisbane and Mary Valleys.</p>
+
+                                <p>Somerset Regional Council covers the largest land area of all south east Queensland Councils and currently has the smallest rate base. In spite of the challenges, the region continues to develop in an economically, environmentally and socially sustainable manner and will continue to attract new residents because of the community, lifestyle and amenity on offer.</p>
+                                </div>';
+
+
+
+
+
+
+                    $stateFullName = 'Queensland';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Somerset Regional Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => $salary,
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+            }
+
+        };
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Somerset Regional Council',
+        ]);
+    }
+
 
 
 

@@ -373,6 +373,8 @@
                 { route: "{{ route('auto.RoperGulfRegional') }}", message: "Scraping  Roper Gulf Regional Council Jobs..." },
                 { route: "{{ route('auto.ShireAugustaMargaretRiver') }}", message: "Scraping  Shire Augusta Margaret River Council Jobs..." },
                 { route: "{{ route('auto.ShireEastPilbara') }}", message: "Scraping  Shire East Pilbara Council Jobs..." },
+                { route: "{{ route('auto.ShireNgaanyatjarraku') }}", message: "Scraping  Shire Ngaanyatjarraku Council Jobs..." },
+                { route: "{{ route('auto.SomersetRegional') }}", message: "Scraping  Somerset Regional Council Jobs..." },
 
 
 
