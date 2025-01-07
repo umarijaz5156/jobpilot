@@ -177,7 +177,9 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-SouthernDownsRegional', [CompanyController::class, 'SouthernDownsRegional'])->name('auto.SouthernDownsRegional');
 
 
-
+        // 6 jan to 12 jan
+        Route::get('/auto-get-SurfCoastShire', [CompanyController::class, 'SurfCoastShire'])->name('auto.SurfCoastShire');
+        Route::get('/auto-get-VictoriaDalyRegional', [CompanyController::class, 'VictoriaDalyRegional'])->name('auto.VictoriaDalyRegional');
 
 
         // Candidate Route
