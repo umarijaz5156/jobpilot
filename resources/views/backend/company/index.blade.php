@@ -378,7 +378,8 @@
                 { route: "{{ route('auto.SouthernDownsRegional') }}", message: "Scraping  Southern Downs Regional Council Jobs..." },
                 { route: "{{ route('auto.SurfCoastShire') }}", message: "Scraping  Surf Coast Shire Council Jobs..." },
                 { route: "{{ route('auto.VictoriaDalyRegional') }}", message: "Scraping  Victoria Daly Regional Council Jobs..." },
-
+                { route: "{{ route('auto.WesternDownsRegional') }}", message: "Scraping  Western Downs Regional Council Jobs..." },
+                { route: "{{ route('auto.WollondillyShire') }}", message: "Scraping  Wollondilly Shire Council Jobs..." },
 
 
 

@@ -180,6 +180,8 @@ Route::prefix('admin')->group(function () {
         // 6 jan to 12 jan
         Route::get('/auto-get-SurfCoastShire', [CompanyController::class, 'SurfCoastShire'])->name('auto.SurfCoastShire');
         Route::get('/auto-get-VictoriaDalyRegional', [CompanyController::class, 'VictoriaDalyRegional'])->name('auto.VictoriaDalyRegional');
+        Route::get('/auto-get-WesternDownsRegional', [CompanyController::class, 'WesternDownsRegional'])->name('auto.WesternDownsRegional');
+        Route::get('/auto-get-WollondillyShire', [CompanyController::class, 'WollondillyShire'])->name('auto.WollondillyShire');
 
 
         // Candidate Route
