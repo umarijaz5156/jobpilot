@@ -80,17 +80,7 @@
                                             @enderror
                                         </div>
 
-                                        <div class="col-sm-12 col-md-12 d-none mt-2" id="apply_email_div">
-                                            <x-forms.label name="apply_email" for="apply_email" :required="true" />
-                                            <input id="apply_email" type="email" name="apply_email"
-                                                placeholder="{{ __('apply_email') }}"
-                                                class="form-control @error('apply_email') is-invalid @enderror">
-                                            @error('apply_email')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ __($message) }}</strong>
-                                                </span>
-                                            @enderror
-                                        </div>
+                                     
 
 
                                         <div class="col-sm-12 form-group hidden" id="company_name_container">
@@ -635,6 +625,17 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-sm-12 col-md-12 d-none mt-2" id="apply_email_div">
+                                            <x-forms.label name="apply_email" for="apply_email" :required="true" />
+                                            <input id="apply_email" type="email" name="apply_email"
+                                                placeholder="{{ __('apply_email') }}"
+                                                class="form-control @error('apply_email') is-invalid @enderror">
+                                            @error('apply_email')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ __($message) }}</strong>
+                                                </span>
+                                            @enderror
+                          </div>
                         <div class="section pt-3" id="promote">
                             <div class="card mb-0">
                                 <div class="card-header">

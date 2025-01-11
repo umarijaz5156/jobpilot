@@ -20,6 +20,12 @@
                                 <div class="card-header">
                                     <div class="card-title">{{ __('job_details') }}</div>
                                 </div>
+                                @if ($errors->has('error'))
+                                    <div class="alert alert-danger">
+                                        {{ $errors->first('error') }}
+                                    </div>
+                                @endif
+
                                 <div class="card-body">
                                     <div class="row form-group">
                                         <div class="col-12">
@@ -200,6 +206,25 @@
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ __($message) }}</strong>
                                             </span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="row p-3 form-group">
+                                    <div class="col-md-12">
+                                        <label for="city_id">
+                                            {{ __('City') }}
+                                            <span class="text-red font-weight-bold">*</span>
+                                        </label>
+                                        <select required name="city_id"
+                                                class="form-control select2bs4 @error('city_id') is-invalid @enderror"
+                                                id="city_id" required>
+                                            <option value=""> {{ __('Select City') }}</option>
+                                        </select>
+                                        @error('city_id')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ __($message) }}</strong>
+                                        </span>
                                         @enderror
                                     </div>
                                 </div>
@@ -637,6 +662,135 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="section pt-3" id="description">
+                            <div class="card mb-0">
+                                <div class="card-header">
+                                    <div class="card-title">{{ __('Other sites Approval') }}</div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <!-- Hidden input to ensure false is sent if checkbox is unchecked -->
+                                                <input type="hidden" name="ispost_waterland" value="false">
+                                                <input value="true" name="ispost_waterland" type="checkbox" class="form-check-input" id="">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at landandwaterjobs site?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_engineeringjobshub" value="false">
+                                                <input value="true" name="ispost_engineeringjobshub" type="checkbox" class="form-check-input" id="">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Engineering Jobs Hub site?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_planningjobs" value="false">
+                                                <input value="true" name="ispost_planningjobs" type="checkbox" class="form-check-input" id="">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Planning Jobs Hub site?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_carejobs" value="false">
+                                                <input value="true" name="ispost_carejobs" type="checkbox" class="form-check-input" id="">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Care Worker Jobs  site?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @if($job->essapi_job_id == null)
+                                    <div class="col-sm-12 form-group"> 
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_govjobs" value="false">
+                                                <input value="true" name="ispost_govjobs" type="checkbox" class="form-check-input" id="">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Gov Jobs Hub site?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endif
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_facebook" value="false">
+                                                <input value="true" name="ispost_facebook" type="checkbox" class="form-check-input" id="">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Facebook page of council direct?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_facebook_WL" value="false">
+                                                <input value="true" name="ispost_facebook_WL" type="checkbox" class="form-check-input" id="">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Facebook page of Water land?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_facebook_EH" value="false">
+                                                <input value="true" name="ispost_facebook_EH" type="checkbox" class="form-check-input" id="">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Facebook page of Engineering jobs hub?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_facebook_PJ" value="false">
+                                                <input value="true" name="ispost_facebook_PJ" type="checkbox" class="form-check-input" id="">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Facebook page of Plannin jobs?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_facebook_CR" value="false">
+                                                <input value="true" name="ispost_facebook_CR" type="checkbox" class="form-check-input" id="">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Facebook page of Care Worker jobs?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_linkedin_cd" value="false">
+                                                <input value="true" name="ispost_linkedin_cd" type="checkbox" class="form-check-input" id="ispost_linkedin_cd">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Linkedin page of council direct?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_linkedin_wl" value="false">
+                                                <input value="true" name="ispost_linkedin_wl" type="checkbox" class="form-check-input" id="ispost_linkedin_wl">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Linkedin page of Water land?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_linkedin_cw" value="false">
+                                                <input value="true" name="ispost_linkedin_cw" type="checkbox" class="form-check-input" id="ispost_linkedin_cw">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Linkedin page of Care Worker?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="section pt-3">
                             <button type="submit"
                                 class="btn bg-success d-flex align-items-center justify-content-center">
@@ -800,6 +954,42 @@
         });
     });
 </script>
+<script>
+    $(document).ready(function() {
+        // Function to load cities based on the state
+        function loadCities(stateId) {
+            if (stateId) {
+                $.ajax({
+                    url: '{{ route('cities.byState') }}',
+                    type: 'GET',
+                    data: { state_id: stateId },
+                    success: function(response) {
+                        $('#city_id').empty();
+                        $('#city_id').append('<option value=""> {{ __('Select City') }}</option>');
+                        $.each(response.cities, function(key, city) {
+                            var selected = (city.id == '{{ old('city_id', $job->city_id) }}') ? 'selected' : '';
+                            $('#city_id').append('<option value="' + city.id + '" ' + selected + '>' + city.name + '</option>');
+                        });
+                    }
+                });
+            } else {
+                $('#city_id').empty();
+                $('#city_id').append('<option value=""> {{ __('Select City') }}</option>');
+            }
+        }
+
+        // Trigger city load when the state changes
+        $('#state_id').change(function() {
+            var stateId = $(this).val();
+            loadCities(stateId);
+        });
+
+        // Load cities if a state is already selected when the page loads (for editing)
+        var selectedStateId = $('#state_id').val();
+        loadCities(selectedStateId);
+    });
+</script>
+
     @livewireScripts
     <script>
         $(document).ready(function() {

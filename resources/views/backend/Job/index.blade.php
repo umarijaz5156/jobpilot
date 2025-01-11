@@ -45,6 +45,11 @@
                     </div>
                 </div>
 
+                @if ($errors->has('error'))
+                                    <div class="alert alert-danger">
+                                        {{ $errors->first('error') }}
+                                    </div>
+                                @endif
                 {{-- Filter  --}}
                 <form id="formSubmit" action="{{ route('job.index') }}" method="GET" onchange="this.submit();">
                     <div class="card-body border-bottom row">

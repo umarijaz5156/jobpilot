@@ -99,6 +99,8 @@ class JobCreateService
         updateMap($jobCreated);
         $jobCreated->selectedCategories()->sync($request->categories);
 
+    
+
         if ($request->ispost_waterland === 'true') {
             $this->sendJobToSecondWebsite($jobCreated, $request->categories);
         }
@@ -146,10 +148,12 @@ class JobCreateService
         }
 
 
+        
         if ($request->ispost_govjobs === 'true') {
-            $this->sendJobToGovJobs($jobCreated, $request->categories);
+          
+                $this->sendJobToGovJobs($jobCreated, $request->categories);
         }
-
+      
 
         return $jobCreated;
     }
@@ -515,24 +519,18 @@ class JobCreateService
             $vacancyId = $response['Data']['Vacancy']['VacancyId'];
             $job->essapi_job_id = $vacancyId;
             $job->save();
-            // dd($job);
-            // dd($vacancyId, $response);
+          
             return $response;
-        } catch (\Exception $e) {
-            $request = $e->getRequest();
-            $response = $e->getResponse();
+          
+        } catch (Exception $e) {
 
-            $logData = [
-                'request'  => (string) $request->getBody(),
-                'response' => (string) $response->getBody(),
-            ];
-            // dd($logData);
+              
+            flashError('Error on Work Force Australia. The selected city does not have a valid postcode or Job expiry date must be at least 31 days from today.');
+    
+            return redirect()->route('job.edit', $job->id)->withErrors(['error' => 'Error on Work Force Australia. The selected city does not have a valid postcode or Job expiry date must be at least 31 days from today.']);
 
-        // Log or print the error details
-            // dd($logData);/
-            // \Log::error('Error sending job to GovJobs: ' . $e->getMessage());
-            return null;
-        }
+            }
+            
     }
 
 
@@ -1003,10 +1001,6 @@ class JobCreateService
             dd('General Error: ' . $e->getMessage());
         }
     }
-
-
-
-
 
 
      // linkined
