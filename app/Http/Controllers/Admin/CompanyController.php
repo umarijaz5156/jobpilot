@@ -3882,7 +3882,8 @@ class CompanyController extends Controller
         $crawler->filter('#joblist > div')->each(function (Crawler $item) use (&$allJobs) {
             try {
                 // Extract job title from jobid (use this if job title is inside jobid)
-                $jobTitle = trim($item->filter('.location')->text());
+                $jobTitle = trim($item->filter('a')->text());
+
                 // Extract apply link (assuming it's part of jobid)
                 $applyLink = trim($item->filter('a')->attr('href'));
 
