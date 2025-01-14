@@ -104,10 +104,10 @@
             <div class="auth-right-sidebar order-lg-1 order-0">
                 <div class="sidebar-bg" style="background-image: url({{ asset($cms_setting->login_page_image) }})">
                     <div class="sidebar-content">
-                        <h4 class="text-gray-10 rt-mb-50">{{ openJobs() }} {{ __('open_jobs_waiting_for_you') }}
-                        </h4>
+                        <h4 class="text-gray-10 rt-mb-50">{{ companies() }} {{ __('Companies jobs waiting for you') }}</h4>
+                    </h4>
                         <div class="d-flex">
-                            <div class="flex-grow-1 rt-mb-24">
+                            {{-- <div class="flex-grow-1 rt-mb-24">
                                 <div class="card jobcardStyle1 counterbox4">
                                     <div class="card-body">
                                         <div class="rt-single-icon-box icon-center2">
@@ -124,7 +124,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="flex-grow-1  rt-mb-24">
                                 <div class="card jobcardStyle1 counterbox4">
                                     <div class="card-body">
@@ -144,7 +144,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex-grow-1 rt-mb-24">
+                            {{-- <div class="flex-grow-1 rt-mb-24">
                                 <div class="card jobcardStyle1 counterbox4">
                                     <div class="card-body">
                                         <div class="rt-single-icon-box icon-center2">
@@ -162,7 +162,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>
