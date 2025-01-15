@@ -102,7 +102,7 @@ class JobUpdateService
         updateMap($job);
         $job->selectedCategories()->sync($request->categories);
 
-        
+
         if ($request->ispost_waterland === 'true') {
             $this->sendJobToSecondWebsite($job, $request->categories);
         }
@@ -150,9 +150,9 @@ class JobUpdateService
         }
 
 
-        
+
         if ($request->ispost_govjobs === 'true') {
-          
+
                 $this->sendJobToGovJobs($job, $request->categories);
         }
 
@@ -520,18 +520,18 @@ class JobUpdateService
             $vacancyId = $response['Data']['Vacancy']['VacancyId'];
             $job->essapi_job_id = $vacancyId;
             $job->save();
-          
+
             return $response;
-          
+
         } catch (Exception $e) {
 
-              
+
             flashError('Error on Work Force Australia. The selected city does not have a valid postcode or Job expiry date must be at least 31 days from today.');
-    
+
             return redirect()->route('job.edit', $job->id)->withErrors(['error' => 'Error on Work Force Australia. The selected city does not have a valid postcode or Job expiry date must be at least 31 days from today.']);
 
             }
-            
+
     }
 
 
@@ -1007,10 +1007,8 @@ class JobUpdateService
      // linkined
      protected function sendJobToLinkedInCD($job)
      {
-
-        //  try {
+         try {
              $characterLimit = env('LINKEDIN_JOB_DESCRIPTION_CHAR_LIMIT', 300); // LinkedIn allows longer posts
-
              $description = strip_tags($job->description); // Remove HTML tags
              $description = trim($description); // Trim leading and trailing whitespace
 
@@ -1020,11 +1018,10 @@ class JobUpdateService
              }
              $seeMoreLink = 'https://councildirect.com.au/job/' . $job->slug;
 
-            //  $seeMoreLink = "https://councildirect.com.au/job/environmental-project-officer-sustainability-1720304684-6689c42c4c4e3";
              // Format the message
              $message = $job->title . "\n\n"; // Job title on the first line
-            $message .= $description . "\n\n"; // Truncated description
-            $message .= "Click here to see more: " . $seeMoreLink; // Add the link
+             $message .= $description . "\n\n"; // Truncated description
+             $message .= "Click here to see more: " . $seeMoreLink; // Add the link
 
              $setting = Setting::first();
              $accessToken = $setting->linkedin_access_token;
@@ -1033,13 +1030,9 @@ class JobUpdateService
              $company = Company::find($job->company_id);
              $imagePath = public_path($company->logo);
 
-
-
              $company_id = "urn:li:organization:$organizationId";
              $post_title = trim($message); // Ensure no excess whitespace
-            //  dd($post_title);
-            //  $post_title = "hello this is text post";
-             //  dd($imagePath);
+
              $register_image_request = [
                  "registerUploadRequest" => [
                      "recipes" => [
@@ -1057,10 +1050,20 @@ class JobUpdateService
 
              $register_post = Http::post("https://api.linkedin.com/v2/assets?action=registerUpload&oauth2_access_token=$accessToken", $register_image_request);
              $register_post = json_decode($register_post, true);
+
+             if (!isset($register_post['value']['uploadMechanism'])) {
+                 throw new \Exception("Failed to register upload with LinkedIn.");
+             }
+
              $upload_url = $register_post['value']['uploadMechanism']['com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest']['uploadUrl'];
              $upload_assets = $register_post['value']['asset'];
 
              $response = Http::withHeaders(['Authorization' => "Bearer $accessToken"])->withBody(file_get_contents($imagePath), '')->put($upload_url);
+
+             if ($response->failed()) {
+                 throw new \Exception("Failed to upload image to LinkedIn.");
+             }
+
              $request = [
                  "author" => "$company_id",
                  "lifecycleState" => "PUBLISHED",
@@ -1082,35 +1085,25 @@ class JobUpdateService
                      "com.linkedin.ugc.MemberNetworkVisibility" => "PUBLIC",
                  ]
              ];
+
              $post_url = "https://api.linkedin.com/v2/ugcPosts?oauth2_access_token=" . $accessToken;
              $post = Http::post($post_url, $request);
 
+             if ($post->failed()) {
+                 throw new \Exception("Failed to post content to LinkedIn.");
+             }
+
              return true;
 
-             //  if ($post->successful()) {
-            //     // Display the successful response
-            //     $responseData = $post->json(); // Convert response to array
-            //     dd('Post successful:', $responseData);
-            // } else {
-            //     // Display the error message
-            //     $errorMessage = $post->body(); // Get the body of the response
-            //     $errorStatus = $post->status(); // Get the status code
-            //     dd('Post failed with status ' . $errorStatus . ':', $errorMessage);
-            // }
+         } catch (\Exception $e) {
+             // Log the error for debugging
+             \Log::error('Error sending job to LinkedIn: ' . $e->getMessage());
 
-
-        //  } catch (\GuzzleHttp\Exception\RequestException $e) {
-        //     dd($e->getMessage());
-        //      // Handle Guzzle-specific request exceptions
-        //      return 'Request Error: ' . $e->getMessage();
-        //  } catch (\Exception $e) {
-        //     dd($e->getMessage());
-        //      // Handle any other general exceptions
-        //      return 'General Error: ' . $e->getMessage();
-        //  }
-
-        //  dd('none');
+             // Return or throw the error for handling in the calling code
+             return response()->json(['error' => $e->getMessage()], 500);
+         }
      }
+
 
      protected function sendJobToLinkedInWL($job)
      {
