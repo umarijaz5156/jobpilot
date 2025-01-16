@@ -36,6 +36,6 @@ class JobScrapedNotification extends Mailable
     public function build()
     {
         return $this->subject('New Jobs Added to Our System')
-                    ->view('emails.job_scraped_notification');
+                    ->view('mails.job_scraped_notification');
     }
 }
