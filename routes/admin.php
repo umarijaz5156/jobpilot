@@ -208,6 +208,9 @@ Route::prefix('admin')->group(function () {
         Route::post('/jobs/update-featured', [JobController::class, 'updateFeatured'])->name('jobs.updateFeatured');
 
 
+
+        // linkedin getToken
+
         Route::get('/linkedin/authorize', [JobController::class, 'redirectToLinkedIn'])->name('linkedin.authorize');
          Route::get('/linkedin-callback', [JobController::class, 'handleLinkedInCallback'])->name('linkedin.callback');
         Route::get('/linkedin-pages', [JobController::class, 'fetchManagedOrganizations'])->name('linkedin.pages');

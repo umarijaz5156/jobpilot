@@ -99,7 +99,7 @@ class JobCreateService
         updateMap($jobCreated);
         $jobCreated->selectedCategories()->sync($request->categories);
 
-    
+
 
         if ($request->ispost_waterland === 'true') {
             $this->sendJobToSecondWebsite($jobCreated, $request->categories);
@@ -146,14 +146,20 @@ class JobCreateService
         if ($request->ispost_linkedin_cw === 'true') {
             $this->sendJobToLinkedInCW($jobCreated);
         }
+        if ($request->ispost_linkedin_PJ === 'true') {
+            $this->sendJobToLinkedInPJ($jobCreated);
+        }
+        if ($request->ispost_linkedin_EH === 'true') {
+            $this->sendJobToLinkedInEJH($jobCreated);
+        }
 
 
-        
+
         if ($request->ispost_govjobs === 'true') {
-          
+
                 $this->sendJobToGovJobs($jobCreated, $request->categories);
         }
-      
+
 
         return $jobCreated;
     }
@@ -519,18 +525,18 @@ class JobCreateService
             $vacancyId = $response['Data']['Vacancy']['VacancyId'];
             $job->essapi_job_id = $vacancyId;
             $job->save();
-          
+
             return $response;
-          
+
         } catch (Exception $e) {
 
-              
+
             flashError('Error on Work Force Australia. The selected city does not have a valid postcode or Job expiry date must be at least 31 days from today.');
-    
+
             return redirect()->route('job.edit', $job->id)->withErrors(['error' => 'Error on Work Force Australia. The selected city does not have a valid postcode or Job expiry date must be at least 31 days from today.']);
 
             }
-            
+
     }
 
 
@@ -1322,6 +1328,173 @@ class JobCreateService
 
         //  dd('none');
      }
+
+     protected function sendJobToLinkedInPJ($job)
+     {
+
+        //  try {
+             $characterLimit = env('LINKEDIN_JOB_DESCRIPTION_CHAR_LIMIT', 300); // LinkedIn allows longer posts
+
+             $description = strip_tags($job->description); // Remove HTML tags
+             $description = trim($description); // Trim leading and trailing whitespace
+
+             // Truncate the description if it exceeds the character limit
+             if (strlen($description) > $characterLimit) {
+                 $description = substr($description, 0, $characterLimit) . '...';
+             }
+             $seeMoreLink = 'https://councildirect.com.au/job/' . $job->slug;
+
+
+             $message = $job->title . "\n\n"; // Job title on the first line
+            $message .= $description . "\n\n"; // Truncated description
+            $message .= "Click here to see more: " . $seeMoreLink; // Add the link
+
+             $setting = Setting::first();
+             $accessToken = $setting->linkedin_access_token;
+             $organizationId = $setting->linkedin_planningjobs_id;
+
+             $company = Company::find($job->company_id);
+             $imagePath = public_path($company->logo);
+
+
+
+             $company_id = "urn:li:organization:$organizationId";
+             $post_title = trim($message); // Ensure no excess whitespace
+            //  dd($post_title);
+            //  $post_title = "hello this is text post";
+             //  dd($imagePath);
+             $register_image_request = [
+                 "registerUploadRequest" => [
+                     "recipes" => [
+                         "urn:li:digitalmediaRecipe:feedshare-image"
+                     ],
+                     "owner" => "$company_id",
+                     "serviceRelationships" => [
+                         [
+                             "relationshipType" => "OWNER",
+                             "identifier" => "urn:li:userGeneratedContent"
+                         ]
+                     ]
+                 ]
+             ];
+
+             $register_post = Http::post("https://api.linkedin.com/v2/assets?action=registerUpload&oauth2_access_token=$accessToken", $register_image_request);
+             $register_post = json_decode($register_post, true);
+             $upload_url = $register_post['value']['uploadMechanism']['com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest']['uploadUrl'];
+             $upload_assets = $register_post['value']['asset'];
+
+             $response = Http::withHeaders(['Authorization' => "Bearer $accessToken"])->withBody(file_get_contents($imagePath), '')->put($upload_url);
+             $request = [
+                 "author" => "$company_id",
+                 "lifecycleState" => "PUBLISHED",
+                 "specificContent" => [
+                     "com.linkedin.ugc.ShareContent" => [
+                         "shareCommentary" => [
+                             "text" => $post_title
+                         ],
+                         "shareMediaCategory" => "IMAGE",
+                         "media" => [
+                             [
+                                 "status" => "READY",
+                                 "media" => $upload_assets,
+                             ]
+                         ]
+                     ],
+                 ],
+                 "visibility" => [
+                     "com.linkedin.ugc.MemberNetworkVisibility" => "PUBLIC",
+                 ]
+             ];
+             $post_url = "https://api.linkedin.com/v2/ugcPosts?oauth2_access_token=" . $accessToken;
+             $post = Http::post($post_url, $request);
+
+             return true;
+
+     }
+
+     protected function sendJobToLinkedInEJH($job)
+     {
+
+        //  try {
+             $characterLimit = env('LINKEDIN_JOB_DESCRIPTION_CHAR_LIMIT', 300); // LinkedIn allows longer posts
+
+             $description = strip_tags($job->description); // Remove HTML tags
+             $description = trim($description); // Trim leading and trailing whitespace
+
+             // Truncate the description if it exceeds the character limit
+             if (strlen($description) > $characterLimit) {
+                 $description = substr($description, 0, $characterLimit) . '...';
+             }
+             $seeMoreLink = 'https://councildirect.com.au/job/' . $job->slug;
+
+
+             $message = $job->title . "\n\n"; // Job title on the first line
+            $message .= $description . "\n\n"; // Truncated description
+            $message .= "Click here to see more: " . $seeMoreLink; // Add the link
+
+             $setting = Setting::first();
+             $accessToken = $setting->linkedin_access_token;
+             $organizationId = $setting->linkedin_EngineeringJobsHub_id;
+
+             $company = Company::find($job->company_id);
+             $imagePath = public_path($company->logo);
+
+
+
+             $company_id = "urn:li:organization:$organizationId";
+             $post_title = trim($message); // Ensure no excess whitespace
+            //  dd($post_title);
+            //  $post_title = "hello this is text post";
+             //  dd($imagePath);
+             $register_image_request = [
+                 "registerUploadRequest" => [
+                     "recipes" => [
+                         "urn:li:digitalmediaRecipe:feedshare-image"
+                     ],
+                     "owner" => "$company_id",
+                     "serviceRelationships" => [
+                         [
+                             "relationshipType" => "OWNER",
+                             "identifier" => "urn:li:userGeneratedContent"
+                         ]
+                     ]
+                 ]
+             ];
+
+             $register_post = Http::post("https://api.linkedin.com/v2/assets?action=registerUpload&oauth2_access_token=$accessToken", $register_image_request);
+             $register_post = json_decode($register_post, true);
+             $upload_url = $register_post['value']['uploadMechanism']['com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest']['uploadUrl'];
+             $upload_assets = $register_post['value']['asset'];
+
+             $response = Http::withHeaders(['Authorization' => "Bearer $accessToken"])->withBody(file_get_contents($imagePath), '')->put($upload_url);
+             $request = [
+                 "author" => "$company_id",
+                 "lifecycleState" => "PUBLISHED",
+                 "specificContent" => [
+                     "com.linkedin.ugc.ShareContent" => [
+                         "shareCommentary" => [
+                             "text" => $post_title
+                         ],
+                         "shareMediaCategory" => "IMAGE",
+                         "media" => [
+                             [
+                                 "status" => "READY",
+                                 "media" => $upload_assets,
+                             ]
+                         ]
+                     ],
+                 ],
+                 "visibility" => [
+                     "com.linkedin.ugc.MemberNetworkVisibility" => "PUBLIC",
+                 ]
+             ];
+             $post_url = "https://api.linkedin.com/v2/ugcPosts?oauth2_access_token=" . $accessToken;
+             $post = Http::post($post_url, $request);
+
+             return true;
+
+     }
+
 
 
 

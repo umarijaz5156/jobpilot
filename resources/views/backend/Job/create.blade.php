@@ -80,7 +80,7 @@
                                             @enderror
                                         </div>
 
-                                     
+
 
 
                                         <div class="col-sm-12 form-group hidden" id="company_name_container">
@@ -765,7 +765,10 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-sm-12 form-group">
+                                    <div class="card-header">
+                                        <div class="card-title">{{ __('Facebook Approval') }}</div>
+                                    </div>
+                                    <div class="col-sm-12 mt-3 form-group">
                                         <div class="form-check">
                                             <div class="d-inline">
                                                 <input type="hidden" name="ispost_facebook" value="false">
@@ -810,7 +813,10 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-sm-12 form-group">
+                                    <div class="card-header">
+                                        <div class="card-title">{{ __('linkedin Approval') }}</div>
+                                    </div>
+                                    <div class="col-sm-12 mt-3 form-group">
                                         <div class="form-check">
                                             <div class="d-inline">
                                                 <input type="hidden" name="ispost_linkedin_cd" value="false">
@@ -834,6 +840,24 @@
                                                 <input type="hidden" name="ispost_linkedin_cw" value="false">
                                                 <input value="true" name="ispost_linkedin_cw" type="checkbox" class="form-check-input" id="ispost_linkedin_cw">
                                                 <label class="form-check-label mr-5" for="">{{ __('Post job at Linkedin page of Care Worker?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_linkedin_PJ" value="false">
+                                                <input value="true" name="ispost_linkedin_PJ" type="checkbox" class="form-check-input" id="ispost_linkedin_PJ">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Linkedin page of Planning jobs?') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 form-group">
+                                        <div class="form-check">
+                                            <div class="d-inline">
+                                                <input type="hidden" name="ispost_linkedin_EH" value="false">
+                                                <input value="true" name="ispost_linkedin_EH" type="checkbox" class="form-check-input" id="ispost_linkedin_EH">
+                                                <label class="form-check-label mr-5" for="">{{ __('Post job at Linkedin page of Engineering Jobs Hub jobs?') }}</label>
                                             </div>
                                         </div>
                                     </div>
