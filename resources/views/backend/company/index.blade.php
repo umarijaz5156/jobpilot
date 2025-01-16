@@ -324,7 +324,6 @@
             $('#loadingIndicator').show();
             $('#resultMessage').hide();  // Hide any previous messages
 
-            // Define routes and their respective display messages
             const scrapingRoutes = [
                 { route: "{{ route('auto.centralCoast') }}", message: "Scraping Central Coast Jobs..." },
                 { route: "{{ route('auto.CanterburyBankstown') }}", message: "Scraping Canterbury Bankstown Jobs..." },

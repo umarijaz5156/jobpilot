@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CompanyCreateFormRequest;
 use App\Http\Requests\CompanyUpdateFormRequest;
+use App\Mail\JobScrapedNotification;
 use App\Models\Company;
 use App\Models\IndustryType;
 use App\Models\OrganizationType;
@@ -622,7 +623,7 @@ class CompanyController extends Controller
         ini_set('max_execution_time', 300000000); // Set to 5 minutes
 
         $user = User::where('name', 'Central Coast Council')->first();
-
+        $savedJobs = [];
         $allJobs = [];
         $client = new Client();
         $iframeUrl = 'https://centralcoast.applynow.net.au';
@@ -634,7 +635,7 @@ class CompanyController extends Controller
             $jobBlocks = $crawler->filter('.jobblock');  // Adjust the selector based on actual HTML
 
 
-            $jobBlocks->each(function ($jobBlock) use (&$allJobs, $client, $user) {
+            $jobBlocks->each(function ($jobBlock) use (&$allJobs, &$savedJobs, $client, $user) {
 
             $url = $jobBlock->attr('data-url');
 
@@ -718,7 +719,6 @@ class CompanyController extends Controller
 
                 // Save job into the database
                 $done = $this->createJobFromScrape($jobRequest);
-
                 $categories = [0 => "3"];
                 $done->selectedCategories()->sync($categories);
 
@@ -736,10 +736,17 @@ class CompanyController extends Controller
                 ]);
 
                 $allJobs[] = $jobRequest;
+                $savedJobs[] = $done->id; // Store the job ID
+
             }
         });
 
-        // dd($allJobs); // If you want to inspect the final result after the loop
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
+
         return response()->json([
             'message' => count($allJobs) . ' job(s) scraped from Central Coast',
         ]);
