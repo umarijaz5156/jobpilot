@@ -18,5 +18,6 @@
 </p>
 
 Best regards,<br>
-{{ config('app.name') }}
+Council Direct Team
+{{-- {{ config('app.name') }} --}}
 @endcomponent
