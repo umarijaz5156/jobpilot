@@ -743,9 +743,9 @@ class CompanyController extends Controller
 
         $detailedJobs = Job::whereIn('id', $savedJobs)->get();
 
-        if (count($detailedJobs) > 0) {
-            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
-        }
+        // if (count($detailedJobs) > 0) {
+        //     Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        // }
 
         return response()->json([
             'message' => count($allJobs) . ' job(s) scraped from Central Coast',
