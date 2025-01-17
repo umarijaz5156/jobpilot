@@ -743,9 +743,9 @@ class CompanyController extends Controller
 
         $detailedJobs = Job::whereIn('id', $savedJobs)->get();
 
-        // if (count($detailedJobs) > 0) {
-        //     Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
-        // }
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         return response()->json([
             'message' => count($allJobs) . ' job(s) scraped from Central Coast',
@@ -4083,7 +4083,6 @@ class CompanyController extends Controller
         });
 
 
-
         // Output the collected jobs
 
         // Print extracted jobs for debugging
@@ -4099,7 +4098,7 @@ class CompanyController extends Controller
 
                     $title = $job['title'];
                     $formattedExpiryDate = $job['expires'];
-                    $location = $job['location'];
+                    $location = $job['location'] . ', Queensland';
 
 
                     $categoryId = 3;
@@ -7042,7 +7041,6 @@ class CompanyController extends Controller
                 // Optionally log or debug
             }
         });
-
         $jobAdded = 0;
         foreach($allJobs as $job) {
 
