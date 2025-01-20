@@ -7012,28 +7012,11 @@ class CompanyController extends Controller
                     : 'No link available';
 
                  $applyLink = 'https://jobs.northernbeaches.nsw.gov.au' . $applyLink;
-                // Extract close date
-                $closeDate = $row->filter('span.jobDate')->count()
-                ? trim($row->filter('span.jobDate')->text())
-                : null;
 
-            if ($closeDate) {
-                // Try to parse and format the close date
-                try {
-                    $formattedCloseDate = Carbon::createFromFormat('d M Y', $closeDate)->format('Y-m-d');
-                } catch (\Exception $e) {
-                    // Handle parsing errors, fall back to a default
-                    $formattedCloseDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
-                }
-            } else {
-                // Default to 4 weeks from today if no date is available
-                $formattedCloseDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
-            }
 
                 // Append the extracted information
                 $allJobs[] = [
                     'title' => $jobTitle,
-                    'expires' => $formattedCloseDate,
                     'url' => $applyLink,
                 ];
             } catch (\Exception $e) {
@@ -7052,16 +7035,43 @@ class CompanyController extends Controller
                     $jobAdded++;
 
                     $title = $job['title'];
-                    $formattedExpiryDate = $job['expires'];
                     $location = 'Northern Beaches Council ';
 
                     $categoryId = 3;
 
                     $jobCrawler = $client->request('GET', $jobUrl);
+                    $html = '...'; // Replace with the HTML content of the job description
 
-                    $dataContainer = $jobCrawler->filter('.job'); // Exclude the last .fg element
+                    $crawler = new Crawler($html);
 
-                    $jobDescription = $dataContainer->html();
+                    // Extract the full job description
+                    $jobDescription = $jobCrawler->filter('.job')->html();
+
+                    // Extract the closing date
+                    $applicationsClose = $jobCrawler->filterXPath('//span[contains(text(), "Applications close on:")]')->text();
+
+                    // Process the closing date
+                    preg_match('/Applications close on:\s*(.+)/i', $applicationsClose, $matches);
+                    $closingDate = $matches[1] ?? 'Not found';
+
+                    // Output the results
+                    if ($closingDate !== 'Not found') {
+                        $closingDate = preg_replace('/\x{A0}/u', ' ', $closingDate);
+
+                        // Remove any trailing period or whitespace
+                        $closingDate = trim($closingDate, '. ');
+
+                        $dateObject = DateTime::createFromFormat('j F Y', trim($closingDate));
+
+                        if ($dateObject) {
+                            $formattedExpiryDate = $dateObject->format('Y-m-d');
+                        } else {
+                            $formattedExpiryDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
+                        }
+                    } else {
+                        $formattedExpiryDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
+                    }
+
                     $stateFullName = 'New South Wales';
                     $clientC = new ClientC();
                     $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
