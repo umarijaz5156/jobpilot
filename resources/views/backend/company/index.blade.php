@@ -379,6 +379,11 @@
                 { route: "{{ route('auto.VictoriaDalyRegional') }}", message: "Scraping  Victoria Daly Regional Council Jobs..." },
                 { route: "{{ route('auto.WesternDownsRegional') }}", message: "Scraping  Western Downs Regional Council Jobs..." },
                 { route: "{{ route('auto.WollondillyShire') }}", message: "Scraping  Wollondilly Shire Council Jobs..." },
+                { route: "{{ route('auto.ShireMorawa') }}", message: "Scraping  Shire of Morawa Council Jobs..." },
+                { route: "{{ route('auto.EurobodallaCouncil') }}", message: "Scraping  Eurobodalla Council  Jobs..." },
+                { route: "{{ route('auto.CowraShireCouncil') }}", message: "Scraping  Cowra Shire Council Council Jobs..." },
+                { route: "{{ route('auto.CityMoretonBay') }}", message: "Scraping  City Moreton Bay Council Jobs..." },
+                { route: "{{ route('auto.CityCharlesSturt') }}", message: "Scraping  City Charles Sturt Council Jobs..." },
 
 
 

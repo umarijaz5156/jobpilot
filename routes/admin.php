@@ -184,6 +184,17 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-WollondillyShire', [CompanyController::class, 'WollondillyShire'])->name('auto.WollondillyShire');
 
 
+        // uper is 53 now new start of ramaning
+        Route::get('/auto-get-ShireMorawa', [CompanyController::class, 'ShireMorawa'])->name('auto.ShireMorawa');
+        Route::get('/auto-get-EurobodallaCouncil', [CompanyController::class, 'EurobodallaCouncil'])->name('auto.EurobodallaCouncil');
+        Route::get('/auto-get-CowraShireCouncil', [CompanyController::class, 'CowraShireCouncil'])->name('auto.CowraShireCouncil');
+        Route::get('/auto-get-CityMoretonBay', [CompanyController::class, 'CityMoretonBay'])->name('auto.CityMoretonBay');
+        Route::get('/auto-get-CityCharlesSturt', [CompanyController::class, 'CityCharlesSturt'])->name('auto.CityCharlesSturt');
+
+
+
+
+
         // Candidate Route
         Route::resource('candidate', CandidateController::class);
         Route::get('/candidate/change/status', [CandidateController::class, 'statusChange'])->name('candidate.status.change');
