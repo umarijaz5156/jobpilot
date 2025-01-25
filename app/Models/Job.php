@@ -43,16 +43,27 @@ class Job extends Model
      */
     public function setTitleAttribute($value)
     {
+        // Set the title attribute
         $this->attributes['title'] = $value;
+
+        // If the slug already exists, do not update it
+        if (!empty($this->attributes['slug'])) {
+            return;
+        }
+
+        // Generate a slug only when it is not set
         $value_slug = Str::slug($value);
-        $is_exists = Job::whereSlug($value_slug)->where('id', '!=', $this->id)->exists();
+
+        // Check for uniqueness
+        $is_exists = Job::whereSlug($value_slug)->exists();
 
         if ($is_exists) {
-            $this->attributes['slug'] = $value_slug.'-'.time().'-'.uniqid();
+            $this->attributes['slug'] = $value_slug . '-' . time() . '-' . uniqid();
         } else {
             $this->attributes['slug'] = $value_slug;
         }
     }
+
 
     public function scopeOngoingFirst($query)
     {
@@ -63,7 +74,7 @@ class Job extends Model
             END
         ")->orderBy('deadline', 'desc'); // Change to 'desc' for descending order
     }
-    
+
 
     /**
      * Get the highlight attribute

@@ -6720,7 +6720,6 @@ class CompanyController extends Controller
                 // Optionally log or debug
             }
         });
-
         $jobAdded = 0;
         foreach($allJobs as $job) {
 
@@ -6739,9 +6738,11 @@ class CompanyController extends Controller
 
                     $jobCrawler = $client->request('GET', $jobUrl);
 
+
                     $dataContainer = $jobCrawler->filter('.body-content'); // Exclude the last .fg element
 
                     $jobDescription = $dataContainer->html();
+
                     $stateFullName = 'Victoria';
                     $clientC = new ClientC();
                     $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
@@ -6760,7 +6761,7 @@ class CompanyController extends Controller
                 if (!empty($nominatimData)) {
                     $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
                     $lng = $nominatimData[0]['lon'] ?? '145.372664';
-                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+                    $exact_location = 'Murrindindi Shire Council, 28 Perkins Street, Alexandra VIC 3714';
 
                 } else {
                     $lat = '18.65060012243828' ;
