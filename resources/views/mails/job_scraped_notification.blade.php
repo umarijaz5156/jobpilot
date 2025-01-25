@@ -56,8 +56,8 @@
         <strong>Council Direct Team</strong><br>
         <i>Email:</i> <a href="mailto:support@councildirect.com.au">support@councildirect.com.au</a><br>
         <i>Website:</i> <a href="https://www.councildirect.com.au/" target="_blank">www.councildirect.com.au</a>
-        <img style="margin-top: 10px;" src="{{ asset('signature.png') }}" alt="Signature">
-
     </p>
+    <img style="margin-top: 10px;" src="{{ asset('signature.png') }}" alt="Signature">
+
 </body>
 </html>
