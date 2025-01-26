@@ -766,6 +766,7 @@ class CompanyController extends Controller
         $allJobs = [];
         $client = new Client();
         $mainUrl = 'https://careers.cbcity.nsw.gov.au/search'; // Main job search page URL
+        $savedJobs = [];
 
         // Request the page with the job listings
         $crawler = $client->request('GET', $mainUrl);
@@ -773,7 +774,7 @@ class CompanyController extends Controller
         // Extract job rows from the search results table
         $jobRows = $crawler->filter('#searchresults .data-row');  // Loop through each job row
 
-        $jobRows->each(function ($jobRow) use (&$allJobs, $client, $user) {
+        $jobRows->each(function ($jobRow) use (&$allJobs, &$savedJobs, $client, $user) {
 
             $jobUrl = $jobRow->filter('.jobTitle-link')->attr('href');  // Get the relative job URL
             $title = $jobRow->filter('.jobTitle-link')->text(); // Get the job title
@@ -914,9 +915,17 @@ class CompanyController extends Controller
 
                     // Add to the allJobs array
                     $allJobs[] = $jobRequest;
+                    $savedJobs[] = $done->id; // Store the job ID
+
                 }
             }
         });
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs found
 
@@ -937,6 +946,7 @@ class CompanyController extends Controller
         $user = User::where('name', 'Byron Shire Council')->first();
         $allJobs = [];
         $client = new Client();
+        $savedJobs = [];
 
         // Step 1: Load the page that contains the iframe
         $mainUrl = 'https://www.byron.nsw.gov.au/Council/Jobs/Current-vacancies';
@@ -956,7 +966,7 @@ class CompanyController extends Controller
           // Debugging step to check if job cards are correctly extracted
 
         // Step 5: Iterate over each job card to extract job details
-        $jobCards->each(function (Crawler $node) use ($client, &$allJobs,$user) {
+        $jobCards->each(function (Crawler $node) use ($client,&$savedJobs, &$allJobs,$user) {
                 // Extract job data from the node's attributes
                 $title = $node->filter('.job_title')->text();
 
@@ -1087,9 +1097,17 @@ class CompanyController extends Controller
 
                     // Add to the allJobs array
                     $allJobs[] = $jobRequest;
+                    $savedJobs[] = $done->id; // Store the job ID
+
                 }
 
         });
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs found
         return response()->json([
@@ -1107,6 +1125,7 @@ class CompanyController extends Controller
         $user = User::where('name', 'Buloke Shire Council')->first();
         $allJobs = [];
         $client = new Client();
+        $savedJobs = [];
 
         $mainUrl = 'https://www.buloke.vic.gov.au/employment'; // Main job listing page
         $crawler = $client->request('GET', $mainUrl);
@@ -1116,7 +1135,7 @@ class CompanyController extends Controller
         $jobCards = $crawler->filter('.ArticleList li'); // 'li' inside '.ArticleList' contains the job links
 
         // Step 3: Iterate over each job listing
-        $jobCards->each(function ($node) use ($client, &$allJobs,$user) {
+        $jobCards->each(function ($node) use ($client,&$savedJobs, &$allJobs,$user) {
             // Extract job title and URL
             $title = $node->filter('.ArticleName')->text();
             $jobUrl = $node->filter('.ArticleName')->attr('href');
@@ -1247,9 +1266,17 @@ class CompanyController extends Controller
 
                     // Add to the allJobs array
                     $allJobs[] = $jobRequest;
+                    $savedJobs[] = $done->id; // Store the job ID
+
             }
 
         });
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs found
         return response()->json([
@@ -1268,6 +1295,7 @@ class CompanyController extends Controller
 
         $allJobs = [];
         $client = new Client();
+        $savedJobs = [];
 
         $mainUrl = 'https://www.boulia.qld.gov.au/Council/Employment-Opportunities'; // Updated job listing page
         $crawler = $client->request('GET', $mainUrl);
@@ -1276,7 +1304,7 @@ class CompanyController extends Controller
 
 
         // Step 2: Iterate over each row to extract position title and PDF link
-        $jobRows->each(function ($node) use ($client, &$allJobs, $user) {
+        $jobRows->each(function ($node) use ($client,&$savedJobs, &$allJobs, $user) {
             // Extract the position title and PDF link from the table row
             $title = $node->filter('td')->eq(0)->text();
             $title = preg_replace('/\xA0/', ' ', $title); // Replace non-breaking space with regular space
@@ -1387,11 +1415,19 @@ class CompanyController extends Controller
 
                     // Add to the allJobs array
                     $allJobs[] = $jobRequest;
+                    $savedJobs[] = $done->id; // Store the job ID
+
                 }
             }
         }
 
         });
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs found
         return response()->json([
@@ -1409,14 +1445,14 @@ class CompanyController extends Controller
         $user = User::where('name', 'Broken Hill City Council')->first();
         $allJobs = [];
         $client = new Client();
-
+        $savedJobs = [];
         $mainUrl = 'https://www.brokenhill.nsw.gov.au/Council/Careers/Positions-Vacant'; // Main job listing page
         $crawler = $client->request('GET', $mainUrl);
 
         // Extract job listings from the page
         $jobCards = $crawler->filter('.list-item-container'); // Assuming your class for job containers is .list-item-container
 
-        $jobCards->each(function ($node) use ($client, &$allJobs, $user) {
+        $jobCards->each(function ($node) use ($client,&$savedJobs, &$allJobs, $user) {
             // Extract job title
             $title = $node->filter('.list-item-title')->text();
             // Extract closing date, job type, and location
@@ -1531,8 +1567,15 @@ class CompanyController extends Controller
 
                 // Add to allJobs array
                 $allJobs[] = $jobRequest;
+                $savedJobs[] = $done->id;
             }
         });
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -1569,7 +1612,7 @@ class CompanyController extends Controller
 
         // Initialize an empty array to store job titles and URLs
         $jobs = [];
-
+        $$savedJobs = [];
         // Filter the content by the .field-middle-body .field class
         $crawler->filter('.field-middle-body .field')->each(function ($node) use (&$jobs) {
             // For each .field section, find the <h3> tag
@@ -1708,10 +1751,16 @@ class CompanyController extends Controller
 
                         // Add to the allJobs array
                         $allJobs[] = $jobRequest;
-
+                        $savedJobs[] = $done->id;
 
                  }
 
+        }
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
         }
 
         // Return the number of jobs found
@@ -1733,11 +1782,11 @@ class CompanyController extends Controller
         $client = new Client();
         $mainUrl = 'https://www.barkly.nt.gov.au/careers/current-vacancies'; // Main job listing page
         $crawler = $client->request('GET', $mainUrl);
-
+        $savedJobs = [];
         // Extract job listings from the page
         $jobListings = $crawler->filter('.small-listing'); // Assuming job listings are inside .small-listing
 
-        $jobListings->each(function ($node) use ($client, &$allJobs, $user) {
+        $jobListings->each(function ($node) use ($client,&$savedJobs, &$allJobs, $user) {
 
             $title = $node->filter('a')->text();
             $location = trim($node->filter('.medium-4.large-3.columns')->eq(1)->text());
@@ -1844,8 +1893,15 @@ class CompanyController extends Controller
 
                 // Add to allJobs array
                 $allJobs[] = $jobRequest;
+                $savedJobs[] = $done->id;
             }
         });
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -1864,6 +1920,7 @@ class CompanyController extends Controller
 
         $allJobs = [];
         $client = new Client();
+        $$savedJobs = [];
 
         $mainUrl = 'https://www.banana.qld.gov.au/jobs-council/job-vacancies-1'; // Job listing page URL
         $crawler = $client->request('GET', $mainUrl);
@@ -1872,7 +1929,7 @@ class CompanyController extends Controller
         $jobRows = $crawler->filter('.editor table tbody tr'); // Select rows in the table
 
         // Step 2: Iterate over each row to extract position title, location, job type, closing date, and PDF link
-        $jobRows->each(function ($node) use ($client, &$allJobs, $user) {
+        $jobRows->each(function ($node) use ($client,&$savedJobs, &$allJobs, $user) {
 
 
                // Extract the PDF link (assuming it's inside a link in the first column)
@@ -1992,11 +2049,18 @@ class CompanyController extends Controller
                     ]);
                     // Add to the allJobs array
                     $allJobs[] = $jobRequest;
+                    $savedJobs[] = $done->id;
 
 
         }
 
         });
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs found
         return response()->json([
@@ -2025,8 +2089,9 @@ class CompanyController extends Controller
         // Extract all job listing cards
         $jobCards = $crawler->filter('.jobs .grid-x .cell');  // Target individual job containers
         $allJobs = [];
+        $savedJobs = [];
         // Iterate over each job listing
-        $jobCards->each(function ($node) use ($client, &$allJobs, $user) {
+        $jobCards->each(function ($node) use ($client,&$savedJobs, &$allJobs, $user) {
             // Extract job title
             $jobUrl = $node->filter('.cell h3 a')->attr('href');
             $existingJob = Job::where('apply_url', $jobUrl)->first();
@@ -2134,11 +2199,17 @@ class CompanyController extends Controller
 
                     // Add to allJobs array
                     $allJobs[] = $jobRequest;
+                    $savedJobs[] = $done->id;
             }
 
 
         });
 
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
         // Return the number of jobs scraped
         return response()->json([
         'message' => count($allJobs) . ' job(s) scraped from Alice Springs Town Council',
@@ -2162,9 +2233,9 @@ class CompanyController extends Controller
         $crawler = $client->request('GET', $mainUrl);
 
         $jobCards = $crawler->filter('.page-central .adlogic_job_results .position');  // Target individual job containers
-        $allJobs = [];
+        $savedJobs = [];
 
-        $jobCards->each(function ($node) use ($client, &$allJobs, $user) {
+        $jobCards->each(function ($node) use ($client,&$savedJobs, &$allJobs, $user) {
 
 
             $jobUrl = $node->filter('.job-header-container h1 a')->attr('href');
@@ -2393,10 +2464,17 @@ class CompanyController extends Controller
 
                     // Add to allJobs array
                     $allJobs[] = $jobRequest;
+                    $savedJobs[] = $done->id;
             }
 
 
         });
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -2422,8 +2500,8 @@ class CompanyController extends Controller
         $crawler = $client->request('GET', $mainUrl);
 
         $jobCards = $crawler->filter('.nav-tabs li');  // Target individual job containers
-        $allJobs = [];
-        $jobCards->each(function ($node) use ($client, &$allJobs, $user) {
+        $savedJobs = [];
+        $jobCards->each(function ($node) use ($client,&$savedJobs, &$allJobs, $user) {
 
 
             $jobUrl = $node->filter('a')->attr('href'); // Extract 'href' from <a> tag
@@ -2573,10 +2651,17 @@ class CompanyController extends Controller
 
                     // Add to allJobs array
                     $allJobs[] = $jobRequest;
+                    $savedJobs[] = $done->id;
             }
 
 
         });
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -2597,7 +2682,7 @@ class CompanyController extends Controller
         $mainUrl = 'https://careers.ballarat.vic.gov.au/job/job_search_result.cfm';
         $client = new Client();
         $allJobs1 = []; // Array to store all job details
-
+        $savedJobs = [];
         function scrapeJobs($client, $mainUrl, &$allJobs) {
             $crawler = $client->request('GET', $mainUrl);
             do {
@@ -2731,7 +2816,14 @@ class CompanyController extends Controller
 
                 // Add to allJobs array
                 $allJobs1[] = $jobRequest;
+                $savedJobs[] = $done->id;
             }
+        }
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
         }
 
         // Return the number of jobs scraped
@@ -2756,7 +2848,7 @@ class CompanyController extends Controller
         $mainUrl = 'https://jobs.salisbury.sa.gov.au/job/job_search_result.cfm';
         $client = new Client();
         $allJobs1 = []; // Array to store all job details
-
+        $savedJobs = [];
         function scrapeJobsCitySalisbury($client, $mainUrl, &$allJobs) {
             $crawler = $client->request('GET', $mainUrl);
             do {
@@ -2888,7 +2980,14 @@ class CompanyController extends Controller
 
                 // Add to allJobs array
                 $allJobs1[] = $jobRequest;
+                $savedJobs[] = $done->id;
             }
+        }
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
         }
 
         // Return the number of jobs scraped
@@ -2911,10 +3010,10 @@ class CompanyController extends Controller
         $mainUrl = 'https://www.charterstowers.qld.gov.au/current-opportunities';
 
         $crawler = $client->request('GET', $mainUrl);
-
+        $savedJobs = [];
         $jobCards = $crawler->filter('.directory__list li');  // Target individual job containers
         $allJobs = [];
-        $jobCards->each(function ($node) use ($client, &$allJobs, $user) {
+        $jobCards->each(function ($node) use ($client,&$savedJobs, &$allJobs, $user) {
 
 
             $jobUrl = $node->filter('.directory__link')->attr('href'); // Extract 'href' from <a> tag
@@ -3017,10 +3116,18 @@ class CompanyController extends Controller
 
                     // Add to allJobs array
                     $allJobs[] = $jobRequest;
+                    $savedJobs [] = $done->id;
             }
 
 
         });
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
+
 
         // Return the number of jobs scraped
         return response()->json([
@@ -3045,7 +3152,7 @@ class CompanyController extends Controller
         $crawler = $client->request('GET', $mainUrl);
 
         $jobNodes = $crawler->filter('#joblist > div'); // Target job entries inside #joblist
-
+        $savedJobs = [];
 
         $jobNodes->each(function ($node) use (&$allJobs) {
             try {
@@ -3175,11 +3282,19 @@ class CompanyController extends Controller
                         'exact_location' => $exact_location,
                     ]);
 
+                    $savedJobs [] = $done->id;
                     // Add to allJobs array
             }
 
 
         };
+
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -3197,7 +3312,7 @@ class CompanyController extends Controller
         $user = User::where('name', 'City of Greater Dandenong')->first();
         $allJobs = [];
         $client = new Client();
-
+        $savedJobs = [];
         $mainUrl = 'https://jobs.greaterdandenong.vic.gov.au/jobs';
 
         $crawler = $client->request('GET', $mainUrl);
@@ -3347,11 +3462,20 @@ class CompanyController extends Controller
                         'exact_location' => $exact_location,
                     ]);
 
+                    $savedJobs [] = $done->id;
+
+
                     // Add to allJobs array
             }
 
 
         };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -3370,7 +3494,7 @@ class CompanyController extends Controller
         $user = User::where('name', 'City of Greater Geraldton')->first();
         $allJobs = [];
         $client = new Client();
-
+        $savedJobs = [];
         $mainUrl = 'https://www.cgg.wa.gov.au/employment';
 
         $crawler = $client->request('GET', $mainUrl);
@@ -3521,11 +3645,19 @@ class CompanyController extends Controller
                         'exact_location' => $exact_location,
                     ]);
 
+                    $savedJobs [] = $done->id;
                     // Add to allJobs array
             }
 
 
         };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
+
 
         // Return the number of jobs scraped
         return response()->json([
@@ -3553,7 +3685,7 @@ class CompanyController extends Controller
 
         $jobItems = $crawler->filter('.list-container .list-item-container');
 
-        $allJobs = []; // Initialize an array to store the jobs
+        $savedJobs = []; // Initialize an array to store the jobs
 
         // Iterate through each job item
         $jobItems->each(function ($item) use (&$allJobs) {
@@ -3692,11 +3824,18 @@ class CompanyController extends Controller
                         'exact_location' => $exact_location,
                     ]);
 
+                    $savedJobs [] = $done->id;
                     // Add to allJobs array
             }
 
 
         };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -3713,7 +3852,7 @@ class CompanyController extends Controller
         $user = User::where('name', 'City of Port Phillip')->first();
         $allJobs = [];
         $client = new Client();
-
+        $savedJobs = [];
      // Define the main URL
         $mainUrl = 'https://recruitment.portphillip.vic.gov.au';
 
@@ -3860,11 +3999,18 @@ class CompanyController extends Controller
                         'exact_location' => $exact_location,
                     ]);
 
+                    $savedJobs [] = $done->id;
                     // Add to allJobs array
             }
 
 
         };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -3884,7 +4030,7 @@ class CompanyController extends Controller
         $client = new Client();
         $mainUrl = 'https://clarencevalleycouncil.applynow.net.au';
         $crawler = $client->request('GET', $mainUrl);
-
+        $savedJobs = [];
 
         $crawler->filter('#joblist > div')->each(function (Crawler $item) use (&$allJobs) {
             try {
@@ -4022,11 +4168,18 @@ class CompanyController extends Controller
                         'exact_location' => $exact_location,
                     ]);
 
+                    $savedJobs [] = $done->id;
                     // Add to allJobs array
             }
 
 
         };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -4047,7 +4200,7 @@ class CompanyController extends Controller
         $crawler = $client->request('GET', $mainUrl);
 
         $jobItems = $crawler->filter('#joblist .jobblock'); // Select all job blocks
-        $allJobs = []; // Initialize an array to store the jobs
+        $savedJobs = []; // Initialize an array to store the jobs
 
         // Loop through each job item
         $jobItems->each(function ($item) use (&$allJobs) {
@@ -4188,12 +4341,18 @@ class CompanyController extends Controller
                         'exact_location' => $exact_location,
                     ]);
 
+                    $savedJobs [] = $done->id;
                     // Add to allJobs array
             }
 
 
         };
 
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
         // Return the number of jobs scraped
         return response()->json([
         'message' => $jobAdded . ' job(s) scraped from Cook Shire Council',
@@ -4216,7 +4375,7 @@ class CompanyController extends Controller
 
         // Select all job blocks inside the #joblist
         $jobItems = $crawler->filter('#joblist .jobblock');
-        $allJobs = []; // Initialize an array to store the jobs
+        $savedJobs = []; // Initialize an array to store the jobs
 
         // Loop through each job item
         $jobItems->each(function ($item) use (&$allJobs) {
@@ -4353,11 +4512,18 @@ class CompanyController extends Controller
                         'exact_location' => $exact_location,
                     ]);
 
+                    $savedJobs [] = $done->id;
                     // Add to allJobs array
             }
 
 
         };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -4377,7 +4543,7 @@ class CompanyController extends Controller
         $client = new Client();
         $baseUrl = 'https://www.fairfieldcity.nsw.gov.au/Your-Council/Working-for-Fairfield-City-Council/Job-Vacancies';
         $currentPage = 1;
-
+        $savedJobs = [];
         do {
             // Construct the URL for the current page
             $pageUrl = $baseUrl . '?page=' . $currentPage . '&dlv_OC%20CL%20Public%20Job%20Listing=(pageindex=' . $currentPage . ')';
@@ -4540,11 +4706,18 @@ class CompanyController extends Controller
                         'exact_location' => $exact_location,
                     ]);
 
+                    $savedJobs [] = $done->id;
                     // Add to allJobs array
             }
 
 
         };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -4565,7 +4738,7 @@ class CompanyController extends Controller
         $client = new Client();
         $crawler = $client->request('GET', $mainUrl);
 
-        $allJobs = []; // Initialize an array to store the jobs
+        $savedJobs = []; // Initialize an array to store the jobs
 
         // Select the table rows within the job listing table
         $jobRows = $crawler->filter('table tbody tr');
@@ -4716,11 +4889,18 @@ class CompanyController extends Controller
                         'exact_location' => $exact_location,
                     ]);
 
+                    $savedJobs [] = $done->id;
                     // Add to allJobs array
             }
 
 
         };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -4792,7 +4972,7 @@ class CompanyController extends Controller
             });
         });
 
-
+        $savedJobs = [];
         $jobAdded = 0;
         foreach($allJobs as $job) {
 
@@ -4894,11 +5074,18 @@ class CompanyController extends Controller
                         'exact_location' => $exact_location,
                     ]);
 
+                    $savedJobs [] = $done->id;
                     // Add to allJobs array
             }
 
 
         };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -4920,7 +5107,7 @@ class CompanyController extends Controller
         $crawler = $client->request('GET', $mainUrl);
 
         $jobItems = $crawler->filter('table tbody tr'); // Select all rows in the table body
-        $allJobs = []; // Initialize an array to store the jobs
+        $savedJobs = []; // Initialize an array to store the jobs
 
         // Loop through each job row
         $jobItems->each(function ($item) use (&$allJobs) {
@@ -5059,11 +5246,18 @@ class CompanyController extends Controller
                         'exact_location' => $exact_location,
                     ]);
 
+                    $savedJobs [] = $done->id;
                     // Add to allJobs array
             }
 
 
         };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -5085,7 +5279,7 @@ class CompanyController extends Controller
         $crawler = $client->request('GET', $mainUrl);
 
         $jobItems = $crawler->filter('table tbody tr'); // Select all rows in the table body
-        $allJobs = []; // Initialize an array to store the jobs
+        $savedJobs = []; // Initialize an array to store the jobs
 
         // Loop through each job row
         $jobItems->each(function ($item) use (&$allJobs, $mainUrl) {
@@ -5219,11 +5413,18 @@ class CompanyController extends Controller
                         'exact_location' => $exact_location,
                     ]);
 
+                    $savedJobs [] = $done->id;
                     // Add to allJobs array
             }
 
 
         };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -5244,7 +5445,7 @@ class CompanyController extends Controller
         $crawler = $client->request('GET', $mainUrl);
 
         $jobItems = $crawler->filter('.jobblock'); // Select all job divs with the class "jobblock"
-
+        $savedJobs = [];
         // Loop through each job div
         $jobItems->each(function ($item) use (&$allJobs) {
             try {
@@ -5376,11 +5577,18 @@ class CompanyController extends Controller
                         'exact_location' => $exact_location,
                     ]);
 
+                    $savedJobs = $done->id;
                     // Add to allJobs array
             }
 
 
         };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([

@@ -104,20 +104,16 @@ Route::prefix('admin')->group(function () {
             Route::post('/company/update-featured', [CompanyController::class, 'updateFeaturedC'])->name('company.updateFeatured');
 
 
-        // auto get council jobs
+        // auto get council jobs (13)
         Route::get('/auto-get-centralCoast', [CompanyController::class, 'centralCoast'])->name('auto.centralCoast');
         Route::get('/auto-get-Canterbury-Bankstown', [CompanyController::class, 'CanterburyBankstown'])->name('auto.CanterburyBankstown');
         Route::get('/auto-get-ByronShire', [CompanyController::class, 'ByronShire'])->name('auto.ByronShire');
         Route::get('/auto-get-BulokeShire', [CompanyController::class, 'BulokeShire'])->name('auto.BulokeShire');
-
         Route::get('/auto-get-BouliaShire', [CompanyController::class, 'BouliaShire'])->name('auto.BouliaShire');
         Route::get('/auto-get-BrokenHillCity', [CompanyController::class, 'BrokenHillCity'])->name('auto.BrokenHillCity');
         Route::get('/auto-get-BlueMountainsCity', [CompanyController::class, 'BlueMountainsCity'])->name('auto.BlueMountainsCity');
-
-
         Route::get('/auto-get-BarklyRegional', [CompanyController::class, 'BarklyRegional'])->name('auto.BarklyRegional');
         Route::get('/auto-get-BananaShire', [CompanyController::class, 'BananaShire'])->name('auto.BananaShire');
-
 
         Route::get('/auto-get-AliceSprings', [CompanyController::class, 'AliceSprings'])->name('auto.AliceSprings');
         Route::get('/auto-get-CardiniaShire', [CompanyController::class, 'CardiniaShire'])->name('auto.CardiniaShire');
@@ -125,7 +121,8 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-CityBallarat', [CompanyController::class, 'CityBallarat'])->name('auto.CityBallarat');
 
 
-        // 2dec to 8 dec
+
+        // 2dec to 8 dec (7)
         Route::get('/auto-get-CitySalisbury', [CompanyController::class, 'CitySalisbury'])->name('auto.CitySalisbury');
         Route::get('/auto-get-ChartersTowers', [CompanyController::class, 'ChartersTowers'])->name('auto.ChartersTowers');
         Route::get('/auto-get-GreaterBendigo', [CompanyController::class, 'GreaterBendigo'])->name('auto.GreaterBendigo');
@@ -134,7 +131,9 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-CityHobart', [CompanyController::class, 'CityHobart'])->name('auto.CityHobart');
         Route::get('/auto-get-CityPortPhillip', [CompanyController::class, 'CityPortPhillip'])->name('auto.CityPortPhillip');
 
-        // 9 dec 15 dec
+
+
+        // 9 dec 15 dec (9)
         Route::get('/auto-get-ClarenceValley', [CompanyController::class, 'ClarenceValley'])->name('auto.ClarenceValley');
         Route::get('/auto-get-CookShire', [CompanyController::class, 'CookShire'])->name('auto.CookShire');
         Route::get('/auto-get-CumberlandCity', [CompanyController::class, 'CumberlandCity'])->name('auto.CumberlandCity');
@@ -144,6 +143,8 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-GoulburnMulwaree', [CompanyController::class, 'GoulburnMulwaree'])->name('auto.GoulburnMulwaree');
         Route::get('/auto-get-GriffithCity', [CompanyController::class, 'GriffithCity'])->name('auto.GriffithCity');
         Route::get('/auto-get-GympieRegional', [CompanyController::class, 'GympieRegional'])->name('auto.GympieRegional');
+
+         // emails done on uper
 
 
         // 16 to 22 dec
