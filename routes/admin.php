@@ -114,7 +114,6 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-BlueMountainsCity', [CompanyController::class, 'BlueMountainsCity'])->name('auto.BlueMountainsCity');
         Route::get('/auto-get-BarklyRegional', [CompanyController::class, 'BarklyRegional'])->name('auto.BarklyRegional');
         Route::get('/auto-get-BananaShire', [CompanyController::class, 'BananaShire'])->name('auto.BananaShire');
-
         Route::get('/auto-get-AliceSprings', [CompanyController::class, 'AliceSprings'])->name('auto.AliceSprings');
         Route::get('/auto-get-CardiniaShire', [CompanyController::class, 'CardiniaShire'])->name('auto.CardiniaShire');
         Route::get('/auto-get-CentralLand', [CompanyController::class, 'CentralLand'])->name('auto.CentralLand');
@@ -144,11 +143,9 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-GriffithCity', [CompanyController::class, 'GriffithCity'])->name('auto.GriffithCity');
         Route::get('/auto-get-GympieRegional', [CompanyController::class, 'GympieRegional'])->name('auto.GympieRegional');
 
-         // emails done on uper
 
 
-        // 16 to 22 dec
-
+        // 16 to 22 dec (6)
         Route::get('/auto-get-HinchinbrookShire', [CompanyController::class, 'HinchinbrookShire'])->name('auto.HinchinbrookShire');
         Route::get('/auto-get-HornsbyShire', [CompanyController::class, 'HornsbyShire'])->name('auto.HornsbyShire');
         Route::get('/auto-get-LeetonShire', [CompanyController::class, 'LeetonShire'])->name('auto.LeetonShire');
@@ -158,7 +155,7 @@ Route::prefix('admin')->group(function () {
 
 
 
-        // 23 to 29 dec
+        // 23 to 29 dec (9)
         Route::get('/auto-get-MountAlexanderShire', [CompanyController::class, 'MountAlexanderShire'])->name('auto.MountAlexanderShire');
         Route::get('/auto-get-MurrayRiver', [CompanyController::class, 'MurrayRiver'])->name('auto.MurrayRiver');
         Route::get('/auto-get-MurrindindiShire', [CompanyController::class, 'MurrindindiShire'])->name('auto.MurrindindiShire');
@@ -169,7 +166,9 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-RichmondValley', [CompanyController::class, 'RichmondValley'])->name('auto.RichmondValley');
         Route::get('/auto-get-RuralCityWangaratta', [CompanyController::class, 'RuralCityWangaratta'])->name('auto.RuralCityWangaratta');
 
-        // 30dec to 5 jan
+
+
+        // 30dec to 5 jan (6)
         Route::get('/auto-get-RoperGulfRegional', [CompanyController::class, 'RoperGulfRegional'])->name('auto.RoperGulfRegional');
         Route::get('/auto-get-ShireAugustaMargaretRiver', [CompanyController::class, 'ShireAugustaMargaretRiver'])->name('auto.ShireAugustaMargaretRiver');
         Route::get('/auto-get-ShireEastPilbara', [CompanyController::class, 'ShireEastPilbara'])->name('auto.ShireEastPilbara');
@@ -178,14 +177,16 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-SouthernDownsRegional', [CompanyController::class, 'SouthernDownsRegional'])->name('auto.SouthernDownsRegional');
 
 
-        // 6 jan to 12 jan
+
+        // 6 jan to 12 jan (4)
         Route::get('/auto-get-SurfCoastShire', [CompanyController::class, 'SurfCoastShire'])->name('auto.SurfCoastShire');
         Route::get('/auto-get-VictoriaDalyRegional', [CompanyController::class, 'VictoriaDalyRegional'])->name('auto.VictoriaDalyRegional');
         Route::get('/auto-get-WesternDownsRegional', [CompanyController::class, 'WesternDownsRegional'])->name('auto.WesternDownsRegional');
         Route::get('/auto-get-WollondillyShire', [CompanyController::class, 'WollondillyShire'])->name('auto.WollondillyShire');
 
+        // emails done on uper
 
-        // uper is 53 now new start of ramaning
+        // uper is 53 now new start of ramaning (5)
         Route::get('/auto-get-ShireMorawa', [CompanyController::class, 'ShireMorawa'])->name('auto.ShireMorawa');
         Route::get('/auto-get-EurobodallaCouncil', [CompanyController::class, 'EurobodallaCouncil'])->name('auto.EurobodallaCouncil');
         Route::get('/auto-get-CowraShireCouncil', [CompanyController::class, 'CowraShireCouncil'])->name('auto.CowraShireCouncil');
