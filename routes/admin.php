@@ -192,6 +192,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-CowraShireCouncil', [CompanyController::class, 'CowraShireCouncil'])->name('auto.CowraShireCouncil');
         Route::get('/auto-get-CityMoretonBay', [CompanyController::class, 'CityMoretonBay'])->name('auto.CityMoretonBay');
         Route::get('/auto-get-CityCharlesSturt', [CompanyController::class, 'CityCharlesSturt'])->name('auto.CityCharlesSturt');
+        Route::get('/auto-get-pulsesoftware', [CompanyController::class, 'pulsesoftware'])->name('auto.pulsesoftware');
 
 
 

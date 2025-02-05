@@ -35,7 +35,9 @@ use PDF;
 use GuzzleHttp\Client as ClientC;
 use Symfony\Component\DomCrawler\Crawler;
 use Goutte\Client;
-
+use Spatie\Browsershot\Browsershot;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class CompanyController extends Controller
 {
@@ -10721,6 +10723,46 @@ class CompanyController extends Controller
         ]);
     }
 
+    public function fetchHTML($url)
+    {
+        ini_set('max_execution_time', 0);
+
+        $scriptPath = base_path('fetchHTML.js');
+        $process = new Process(['node', $scriptPath, $url]);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return $process->getOutput();
+    }
+
+    public function pulsesoftware()
+    {
+        $url = 'https://wingecarribee.pulsesoftware.com/Pulse/jobs';
+        $html = $this->fetchHTML($url);
+
+        $dom = new \DOMDocument();
+        @$dom->loadHTML($html);
+        $xpath = new \DOMXPath($dom);
+        $pulseContainers = $xpath->query('//div[contains(@class, "pulse-container")]');
+
+        $jobs = [];
+
+        foreach ($pulseContainers as $container) {
+            $jobs[] = [
+                'title' => trim($xpath->query('.//div[@class="job-title"]/span', $container)?->item(0)?->nodeValue ?? ''),
+                'closing_date' => trim($xpath->query('.//span[contains(text(),"Closing date:")]/following-sibling::span', $container)?->item(0)?->nodeValue ?? ''),
+                'location' => trim($xpath->query('.//span[contains(text(),"Location:")]/following-sibling::span', $container)?->item(0)?->nodeValue ?? ''),
+                'department' => trim($xpath->query('.//span[contains(text(),"Department:")]/following-sibling::span', $container)?->item(0)?->nodeValue ?? ''),
+                'compensation' => trim($xpath->query('.//span[contains(text(),"Compensation:")]/following-sibling::span', $container)?->item(0)?->nodeValue ?? ''),
+                'employment_type' => trim($xpath->query('.//span[contains(text(),"Employment type:")]/following-sibling::span', $container)?->item(0)?->nodeValue ?? ''),
+            ];
+        }
+
+        return response()->json(['jobs' => $jobs], 200);
+    }
 
 
     private function extractTextFromPdfForBlueMountain($pdfUrl)
