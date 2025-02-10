@@ -33,6 +33,12 @@
                             Start Scraping Jobs
                         </button>
 
+
+                        <button id="scrapeNewJobsButton" class="btn btn-secondary">
+                            Start Scraping New Councils (javascript)
+                        </button>
+
+
                         <!-- Loading indicator, initially hidden -->
                         <div id="loadingIndicator" style="display: none;color:rgb(24, 24, 104);">Loading...</div>
 
@@ -319,10 +325,10 @@
 <script>
     $(document).ready(function() {
         // When the button is clicked
-        $('#scrapeJobsButton').click(function() {
+        // $('#scrapeJobsButton').click(function() {
             // Show loading indicator
-            $('#loadingIndicator').show();
-            $('#resultMessage').hide();  // Hide any previous messages
+            // $('#loadingIndicator').show();
+            // $('#resultMessage').hide();  // Hide any previous messages
 
             const scrapingRoutes = [
                 { route: "{{ route('auto.centralCoast') }}", message: "Scraping Central Coast Jobs..." },
@@ -390,58 +396,73 @@
 
             ];
 
+            const newScrapingRoutes = [
+                { route: "{{ route('auto.ShireEsperance') }}", message: "Scraping Shire Esperance Jobs..." },
+                { route: "{{ route('auto.NambuccaShire') }}", message: "Scraping Nambucca Shire Jobs..." },
+                { route: "{{ route('auto.MidCoastCouncil') }}", message: "Scraping MidCoast Council Jobs..." },
+                { route: "{{ route('auto.MeltonCityCouncil') }}", message: "Scraping Melton City Council Jobs..." },
+
+            ];
+
             let errorCouncils = []; // Array to store councils that encounter errors
 
 
             // Function to start scraping tasks
-            function scrapeJobs(index) {
-                if (index < scrapingRoutes.length) {
-                    // Show message for the current task
-                    $('#resultMessage').text(scrapingRoutes[index].message);
-                    $('#resultMessage').show();
+            function scrapeJobs(index, routes) {
+        if (index < routes.length) {
+            $('#resultMessage').text(routes[index].message);
+            $('#resultMessage').show();
 
-                    // AJAX request for the current route
-                    $.ajax({
-                        url: scrapingRoutes[index].route,  // The current scraping route
-                        method: 'GET',
-                        success: function(response) {
-                            // Show completion message for current job scraping
-                            $('#resultMessage').text(response.message + ' completed!');
-
-                            // Recursively trigger the next scraping task after a delay
-                            setTimeout(function() {
-                                scrapeJobs(index + 1);  // Move to the next route
-                            }, 3000);  // Optional delay before starting the next scraping
-                        },
-                        error: function(xhr, status, error) {
-                            // Log the council name with an error
-                            errorCouncils.push(scrapingRoutes[index].message);
-
-                            // Continue to the next scraping task
-                            setTimeout(function() {
-                                scrapeJobs(index + 1);  // Move to the next route
-                            }, 3000);  // Optional delay
-                        }
-                    });
-                } else {
-                    // All scraping tasks are completed
-                    $('#loadingIndicator').hide();
-
-                    // Display summary message
-                    if (errorCouncils.length > 0) {
-                        $('#resultMessage').html(
-                            'Scraping completed with errors. The following councils encountered issues:<br>' +
-                            errorCouncils.join('<br>')
-                        );
-                    } else {
-                        $('#resultMessage').text('All scraping tasks completed successfully!');
-                    }
+            $.ajax({
+                url: routes[index].route,
+                method: 'GET',
+                success: function(response) {
+                    $('#resultMessage').text(response.message + ' completed!');
+                    setTimeout(function() {
+                        scrapeJobs(index + 1, routes);
+                    }, 3000);
+                },
+                error: function(xhr, status, error) {
+                    errorCouncils.push(routes[index].message);
+                    setTimeout(function() {
+                        scrapeJobs(index + 1, routes);
+                    }, 3000);
                 }
+            });
+        } else {
+            // Scraping finished, hide the loading indicator and re-enable the buttons
+            $('#loadingIndicator').hide();
+
+            // Display completion message
+            if (errorCouncils.length > 0) {
+                $('#resultMessage').html('Scraping completed with errors. The following councils encountered issues:<br>' + errorCouncils.join('<br>'));
+            } else {
+                $('#resultMessage').text('All scraping tasks completed successfully!');
             }
 
-            // Start scraping from the first route
-            scrapeJobs(0);
-        });
+            // Enable the buttons after scraping is done
+            $('#scrapeJobsButton').prop('disabled', false);
+            $('#scrapeNewJobsButton').prop('disabled', false);
+        }
+    }
+
+
+            $('#scrapeJobsButton').click(function() {
+                $('#loadingIndicator').show();
+                $('#resultMessage').hide();
+                errorCouncils = []; // Clear errorCouncils for new scraping task
+                scrapeJobs(0, scrapingRoutes);
+            });
+
+
+            // Button for new councils scraping
+            $('#scrapeNewJobsButton').click(function() {
+                $('#loadingIndicator').show();
+                $('#resultMessage').hide();
+                errorCouncils = [];
+                scrapeJobs(0, newScrapingRoutes);
+            });
+        // });
     });
 </script>
 

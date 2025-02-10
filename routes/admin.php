@@ -192,10 +192,26 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-CowraShireCouncil', [CompanyController::class, 'CowraShireCouncil'])->name('auto.CowraShireCouncil');
         Route::get('/auto-get-CityMoretonBay', [CompanyController::class, 'CityMoretonBay'])->name('auto.CityMoretonBay');
         Route::get('/auto-get-CityCharlesSturt', [CompanyController::class, 'CityCharlesSturt'])->name('auto.CityCharlesSturt');
+
+
+
+
+
+
+
+
+    //    try with js
         Route::get('/auto-get-pulsesoftware', [CompanyController::class, 'pulsesoftware'])->name('auto.pulsesoftware');
 
 
+        // working
+        Route::get('/auto-get-ShireEsperance', [CompanyController::class, 'ShireEsperance'])->name('auto.ShireEsperance');
+        Route::get('/auto-get-NambuccaShire', [CompanyController::class, 'NambuccaShire'])->name('auto.NambuccaShire');
+        Route::get('/auto-get-MidCoastCouncil', [CompanyController::class, 'MidCoastCouncil'])->name('auto.MidCoastCouncil');
+        Route::get('/auto-get-MeltonCityCouncil', [CompanyController::class, 'MeltonCityCouncil'])->name('auto.MeltonCityCouncil');
 
+
+        
 
 
         // Candidate Route
