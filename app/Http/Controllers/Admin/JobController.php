@@ -186,7 +186,7 @@ class JobController extends Controller
 
             $essApiJobDetails = null;
             if ($job->essapi_job_id) {
-                $endpoint = 'Live/Vacancy/api/v1/public/vacancies/' . $job->essapi_job_id;
+                $endpoint = 'vacancy/api/v1/public/vacancies/' . $job->essapi_job_id;
                 $apiResponse = $this->essApiService->callApi($endpoint, 'GET');
 
                 if (isset($apiResponse['Code']) && $apiResponse['Code'] === 200) {

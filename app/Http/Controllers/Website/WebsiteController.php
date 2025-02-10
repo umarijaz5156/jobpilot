@@ -234,7 +234,7 @@ class WebsiteController extends Controller
                 "VacancySpecialGroup" => [],
             ];
 
-            $response = $this->essApiService->callApi('Live/Vacancy/api/v1/public/vacancies', 'POST', $data);
+            $response = $this->essApiService->callApi('vacancy/api/v1/public/vacancies', 'POST', $data);
 
             return response()->json($response);
         } catch (\Exception $e) {
