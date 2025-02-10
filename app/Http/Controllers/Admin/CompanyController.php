@@ -10727,8 +10727,16 @@ class CompanyController extends Controller
     {
         ini_set('max_execution_time', 0);
 
+        $nodeLocalPath = base_path('node-local/bin/node');
         $scriptPath = base_path('fetchHTML.js');
-        $process = new Process(['node', $scriptPath, $url]);
+
+        if (!$this->isNodeAvailable($nodeLocalPath)) {
+            $this->installLocalNode();
+        }
+
+        $this->makeNodeExecutable($nodeLocalPath);
+
+        $process = new Process([$nodeLocalPath, $scriptPath, $url]);
         $process->run();
 
         if (!$process->isSuccessful()) {
@@ -10736,6 +10744,59 @@ class CompanyController extends Controller
         }
 
         return $process->getOutput();
+    }
+
+    private function isNodeAvailable($nodeLocalPath)
+    {
+        $process = new Process(['command', '-v', 'node']);
+        $process->run();
+        $globalNode = trim($process->getOutput());
+
+        return (!empty($globalNode) || file_exists($nodeLocalPath));
+    }
+
+    private function installLocalNode()
+    {
+        $nodeVersion = 'v18.17.1';
+        $nodeDir = base_path('node-local');
+
+        $os = php_uname('s');
+        if (strpos($os, 'Darwin') !== false) {
+            $downloadUrl = "https://nodejs.org/dist/{$nodeVersion}/node-{$nodeVersion}-darwin-x64.tar.gz";
+        } elseif (strpos($os, 'Linux') !== false) {
+            $downloadUrl = "https://nodejs.org/dist/{$nodeVersion}/node-{$nodeVersion}-linux-x64.tar.xz";
+        } else {
+            throw new \RuntimeException("Unsupported OS: $os");
+        }
+
+        if (!file_exists($nodeDir)) {
+            mkdir($nodeDir, 0777, true);
+        }
+
+        $commands = [
+            "curl -o node.tar.gz {$downloadUrl}",
+            "tar -xf node.tar.gz --strip-components=1 -C {$nodeDir}",
+            "rm node.tar.gz"
+        ];
+
+        foreach ($commands as $command) {
+            $process = Process::fromShellCommandline($command);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                throw new \RuntimeException("Failed to execute command: $command\nError: " . $process->getErrorOutput());
+            }
+        }
+
+        $this->makeNodeExecutable(base_path('node-local/bin/node'));
+    }
+
+    private function makeNodeExecutable($nodeLocalPath)
+    {
+        if (file_exists($nodeLocalPath)) {
+            $process = new Process(["chmod", "+x", $nodeLocalPath]);
+            $process->run();
+        }
     }
 
     public function pulsesoftware()
