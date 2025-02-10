@@ -519,7 +519,9 @@ class JobCreateService
         ];
 
         try {
-            $response = (new EssapiService())->callApi('Live/Vacancy/api/v1/public/vacancies', 'POST', $data);
+            //
+            $response = (new EssapiService())->callApi('vacancy/api/v1/public/vacancies', 'POST', $data);
+            // $response = (new EssapiService())->callApi('Live/Vacancy/api/v1/public/vacancies', 'POST', $data);
             \Log::info('Success posting job to GovJobs: ');
             \Log::info($response);
             $vacancyId = $response['Data']['Vacancy']['VacancyId'];
