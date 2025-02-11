@@ -401,6 +401,10 @@
                 { route: "{{ route('auto.NambuccaShire') }}", message: "Scraping Nambucca Shire Jobs..." },
                 { route: "{{ route('auto.MidCoastCouncil') }}", message: "Scraping MidCoast Council Jobs..." },
                 { route: "{{ route('auto.MeltonCityCouncil') }}", message: "Scraping Melton City Council Jobs..." },
+                { route: "{{ route('auto.MacDonnellRegionalCouncil') }}", message: "Scraping MacDonnell Regional Council Jobs..." },
+                { route: "{{ route('auto.HorshamRuralCity') }}", message: "Scraping Horsham Rural City Jobs..." },
+                { route: "{{ route('auto.CityofRockingham') }}", message: "Scraping City of Rockingham Jobs..." },
+                { route: "{{ route('auto.CityofJoondalup') }}", message: "Scraping City of Joondalup Jobs..." },
 
             ];
 

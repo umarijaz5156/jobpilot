@@ -10729,7 +10729,7 @@ class CompanyController extends Controller
     // ShireEsperance
     public function ShireEsperance()
     {
-        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+        ini_set('max_execution_time', 300000000000000000000000000); // Set maximum execution time (5 minutes)
         $user = User::where('name', 'Shire of Esperance')->first();
         $allJobs = [];
         $savedJobs = [];
@@ -10902,9 +10902,9 @@ class CompanyController extends Controller
 
         $detailedJobs = Job::whereIn('id', $savedJobs)->get();
 
-        // if (count($detailedJobs) > 0) {
-        //     Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
-        // }
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -10916,7 +10916,7 @@ class CompanyController extends Controller
     // NambuccaShire
     public function NambuccaShire()
     {
-        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+        ini_set('max_execution_time', 300000000000000000000000000); // Set maximum execution time (5 minutes)
         $user = User::where('name', 'Nambucca Valley Council')->first();
         $allJobs = [];
         $savedJobs = [];
@@ -11096,9 +11096,9 @@ class CompanyController extends Controller
 
         $detailedJobs = Job::whereIn('id', $savedJobs)->get();
 
-        // if (count($detailedJobs) > 0) {
-        //     Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
-        // }
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -11110,7 +11110,7 @@ class CompanyController extends Controller
     // MidCoastCouncil
     public function MidCoastCouncil()
     {
-        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+        ini_set('max_execution_time', 300000000000000000000000000); // Set maximum execution time (5 minutes)
         $user = User::where('name', 'MidCoast Council')->first();
         $allJobs = [];
         $savedJobs = [];
@@ -11286,9 +11286,9 @@ class CompanyController extends Controller
 
         $detailedJobs = Job::whereIn('id', $savedJobs)->get();
 
-        // if (count($detailedJobs) > 0) {
-        //     Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
-        // }
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -11300,7 +11300,7 @@ class CompanyController extends Controller
     // MeltonCityCouncil
     public function MeltonCityCouncil()
     {
-        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+        ini_set('max_execution_time', 300000000000000000000000000); // Set maximum execution time (5 minutes)
         $user = User::where('name', 'Melton City Council')->first();
         $allJobs = [];
         $savedJobs = [];
@@ -11480,9 +11480,9 @@ class CompanyController extends Controller
 
         $detailedJobs = Job::whereIn('id', $savedJobs)->get();
 
-        // if (count($detailedJobs) > 0) {
-        //     Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
-        // }
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
 
         // Return the number of jobs scraped
         return response()->json([
@@ -11491,62 +11491,747 @@ class CompanyController extends Controller
     }
 
 
-
-
-    // pulsesoftware
-    public function pulsesoftware()
+    // MacDonnellRegionalCouncil
+    public function MacDonnellRegionalCouncil()
     {
-        $url = 'https://wingecarribee.pulsesoftware.com/Pulse/jobs';
+        ini_set('max_execution_time', 300000000000000000000000000); // Set maximum execution time (5 minutes)
+        $user = User::where('name', 'MacDonnell Regional Council')->first();
+        $allJobs = [];
+        $savedJobs = [];
+
+        $url = 'https://macdonnell.recruitmenthub.com.au/Vacancies/';
         $html = $this->fetchHTML($url);
-        // Log::info($html);
+
         $dom = new \DOMDocument();
         @$dom->loadHTML($html);
 
 
         $xpath = new \DOMXPath($dom);
-        $pulseContainers = $xpath->query('//div[contains(@class, "pulse-container")]');
         $jobs = [];
 
-        foreach ($pulseContainers as $container) {
-            // Extract job details
-            $title = trim($xpath->query('.//div[contains(@class, "job-title")]/span', $container)?->item(0)?->nodeValue ?? '');
-            $closing_date = trim($xpath->query('.//div[contains(@class, "info-section")]//b[contains(text(), "Closing date:")]/following::span[1]', $container)?->item(0)?->nodeValue ?? '');
-            $location = trim($xpath->query('.//div[contains(@class, "info-section")]//b[contains(text(), "Location:")]/following::span[1]', $container)?->item(0)?->nodeValue ?? '');
-            $department = trim($xpath->query('.//div[contains(@class, "info-section")]//b[contains(text(), "Department:")]/following::span[1]', $container)?->item(0)?->nodeValue ?? '');
-            $compensation = trim($xpath->query('.//div[contains(@class, "info-section")]//b[contains(text(), "Compensation:")]/following::span[1]', $container)?->item(0)?->nodeValue ?? '');
+        $jobCards = $xpath->query('//div[contains(@class, "apply-desc")]'); // Select all job list divs
 
+        foreach ($jobCards as $card) {
+            // Get the job title and URL
+            $titleNode = $xpath->query('.//a[contains(@class, "title")]', $card);
+            $title = $titleNode->length > 0 ? trim($titleNode->item(0)->nodeValue) : '';
+            $jobLink = $titleNode->length > 0 ? $titleNode->item(0)->getAttribute('href') : '';
 
-            $jobLinkId = ''; // Default to empty string
-            $jobTitle = ''; // Default to empty string
+            // Get the location
+            $locationNode = $xpath->query('.//span[contains(@title, "Australia")]', $card);
+            $location = $locationNode->length > 0 ? trim($locationNode->item(0)->nodeValue) : 'MacDonnell Regional Council';
 
-            // Check if the job title exists in the container
-            $jobTitleNode = $xpath->query('.//div[contains(@class, "job-title")]/span', $container)?->item(0);
-            if ($jobTitleNode) {
-                $jobTitle = trim($jobTitleNode->nodeValue);
+            // Get the closing date
+            $closingDateNode = $xpath->query('.//span[contains(text(), "| Closing Date:")]/following-sibling::span', $card);
+            $closingDate = $closingDateNode->length > 0 ? trim($closingDateNode->item(0)->nodeValue) : '';
+
+            try {
+                if ($closingDate) {
+                    $closingDate = Carbon::createFromFormat('d M Y', $closingDate)->format('Y-m-d');
+                } else {
+                    $closingDate = Carbon::now()->addWeeks(4)->format('Y-m-d'); // Default to 4 weeks from now
+                }
+            } catch (\Exception $e) {
+                $closingDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
             }
 
-            // Look for data attributes or inline JavaScript that could contain the LinkId
-            $linkDataNode = $xpath->query('.//div[contains(@class, "pulse-container")]/@data-linkid', $container)?->item(0);
-            if ($linkDataNode) {
-                $jobLinkId = trim($linkDataNode->nodeValue);
-            }
-
-            // Add job details to the jobs array
+            // Store the job details
             $jobs[] = [
                 'title' => $title,
-                'closing_date' => $closing_date,
+                'url' => 'https://macdonnell.recruitmenthub.com.au' . $jobLink,
                 'location' => $location,
-                'department' => $department,
-                'compensation' => $compensation,
-                'job_link_id' => $jobLinkId, // Add LinkId
-                'job_title' => $jobTitle, // Add Job Title
-                            ];
+                'expires' => $closingDate,
+            ];
         }
 
-        dd($jobs);
 
-        return response()->json(['jobs' => $jobs], 200);
+        $allJobs = $jobs;
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = $job['location'];
+                    $salary = 'Competitive';
+
+                    $categoryId = 3;
+
+                    $jobDescription = '';
+                    $jobHtml = $this->fetchHTML($jobUrl);
+
+                    if ($jobHtml) {
+                        $dom = new \DOMDocument();
+                        @$dom->loadHTML($jobHtml);
+
+                        $xpath = new \DOMXPath($dom);
+                        $jobDetailNode = $xpath->query('//div[contains(@class, "job_content")]');
+                        $htmlContent = '';
+                        if ($jobDetailNode->length > 0) {
+                            $htmlContent = $dom->saveHTML($jobDetailNode->item(0));
+                        }
+
+                        $jobDescription = $htmlContent;
+                    }
+
+                    $stateFullName = 'Northern Territory';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'MacDonnell Regional Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => $salary ?? 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    $savedJobs [] = $done->id;
+
+                    // Add to allJobs array
+            }
+
+        };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from MacDonnell Regional Council',
+        ]);
     }
+
+
+    // HorshamRuralCity
+    public function HorshamRuralCity()
+    {
+        ini_set('max_execution_time', 300000000000000000000000000); // Set maximum execution time (5 minutes)
+        $user = User::where('name', 'Horsham Rural City Council')->first();
+        $allJobs = [];
+        $savedJobs = [];
+
+        $url = 'https://hrcc.recruitmenthub.com.au/Vacancies/';
+        $html = $this->fetchHTML($url);
+
+        $dom = new \DOMDocument();
+        @$dom->loadHTML($html);
+
+
+        $xpath = new \DOMXPath($dom);
+        $jobs = [];
+
+        $jobCards = $xpath->query('//div[contains(@class, "apply-desc")]'); // Select all job list divs
+
+        foreach ($jobCards as $card) {
+            // Get the job title and URL
+            $titleNode = $xpath->query('.//a[contains(@class, "title")]', $card);
+            $title = $titleNode->length > 0 ? trim($titleNode->item(0)->nodeValue) : '';
+            $jobLink = $titleNode->length > 0 ? $titleNode->item(0)->getAttribute('href') : '';
+
+            // Get the location
+            $locationNode = $xpath->query('.//span[contains(@title, "Australia")]', $card);
+            $location = $locationNode->length > 0 ? trim($locationNode->item(0)->nodeValue) . ' Australia' : 'Horsham Rural City Council';
+
+            // Get the closing date
+            $closingDateNode = $xpath->query('.//span[contains(text(), "| Closing Date:")]/following-sibling::span', $card);
+            $closingDate = $closingDateNode->length > 0 ? trim($closingDateNode->item(0)->nodeValue) : '';
+
+            try {
+                if ($closingDate) {
+                    $closingDate = Carbon::createFromFormat('d M Y', $closingDate)->format('Y-m-d');
+                } else {
+                    $closingDate = Carbon::now()->addWeeks(4)->format('Y-m-d'); // Default to 4 weeks from now
+                }
+            } catch (\Exception $e) {
+                $closingDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
+            }
+
+            // Store the job details
+            $jobs[] = [
+                'title' => $title,
+                'url' => 'https://hrcc.recruitmenthub.com.au' . $jobLink,
+                'location' => $location,
+                'expires' => $closingDate,
+            ];
+        }
+
+
+        $allJobs = $jobs;
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = $job['location'];
+                    $salary = 'Competitive';
+
+                    $categoryId = 3;
+
+                    $jobDescription = '';
+                    $jobHtml = $this->fetchHTML($jobUrl);
+
+                    if ($jobHtml) {
+                        $dom = new \DOMDocument();
+                        @$dom->loadHTML($jobHtml);
+
+                        $xpath = new \DOMXPath($dom);
+                        $jobDetailNode = $xpath->query('//div[contains(@class, "job_content")]');
+                        $htmlContent = '';
+                        if ($jobDetailNode->length > 0) {
+                            $htmlContent = $dom->saveHTML($jobDetailNode->item(0));
+                        }
+
+                        $jobDescription = $htmlContent;
+                    }
+
+                    $stateFullName = 'Victoria';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'Horsham Rural City Council',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => $salary ?? 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    $savedJobs [] = $done->id;
+
+                    // Add to allJobs array
+            }
+
+        };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from Horsham Rural City Council',
+        ]);
+    }
+
+
+
+    // CityofRockingham
+    public function CityofRockingham()
+    {
+        ini_set('max_execution_time', 300000000000000000000000000); // Set maximum execution time (5 minutes)
+        $user = User::where('name', 'City of Rockingham')->first();
+        $allJobs = [];
+        $savedJobs = [];
+
+        $url = 'https://rockingham.bigredsky.com/page.php?pageID=106';
+        $html = $this->fetchHTML($url);
+        $dom = new \DOMDocument();
+        @$dom->loadHTML($html);
+
+        $xpath = new \DOMXPath($dom);
+        $jobs = [];
+
+        $jobRows = $xpath->query('//tr[contains(@class, "evenrow") or contains(@class, "oddrow")]');
+
+        foreach ($jobRows as $row) {
+            // Get the job title and URL
+            $titleNode = $xpath->query('.//td[1]/a', $row);
+            $title = $titleNode->length > 0 ? trim($titleNode->item(0)->nodeValue) : '';
+            $jobLink = $titleNode->length > 0 ? $titleNode->item(0)->getAttribute('href') : '';
+
+            // Get the location (assuming it's the same for all)
+            $location = 'City of Rockingham';
+
+            // Set a default closing date (assuming it's not available)
+            $closingDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
+
+            // Store the job details
+            $jobs[] = [
+                'title' => $title,
+                'url' => 'https://rockingham.bigredsky.com/' . $jobLink, // Append domain if needed
+                'location' => $location,
+                'expires' => $closingDate,
+            ];
+        }
+
+
+        $allJobs = $jobs;
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = $job['location'];
+                    $salary = 'Competitive';
+
+                    $categoryId = 3;
+
+                    $jobDescription = '';
+                    $jobHtml = $this->fetchHTML($jobUrl);
+
+                    if ($jobHtml) {
+                        $dom = new \DOMDocument();
+                        @$dom->loadHTML($jobHtml);
+
+                        $xpath = new \DOMXPath($dom);
+                        $jobDetailNode = $xpath->query('//div[contains(@class, "templatetext")]');
+                        $htmlContent = '';
+                        if ($jobDetailNode->length > 0) {
+                            $htmlContent = $dom->saveHTML($jobDetailNode->item(0));
+                        }
+
+                        $jobDescription = $htmlContent;
+                    }
+
+                    $stateFullName = 'Western Australia';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'City of Rockingham',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => $salary ?? 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    $savedJobs [] = $done->id;
+
+                    // Add to allJobs array
+            }
+
+        };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from City of Rockingham',
+        ]);
+    }
+
+
+    // CityofJoondalup
+    public function CityofJoondalup()
+    {
+        ini_set('max_execution_time', 300000000000000000000000000); // Set maximum execution time (5 minutes)
+        $user = User::where('name', 'City of Joondalup')->first();
+        $allJobs = [];
+        $savedJobs = [];
+
+        $url = 'https://www.joondalup.wa.gov.au/city-and-council/career-opportunities/current-job-vacancies';
+        $html = $this->fetchHTML($url);
+        $dom = new \DOMDocument();
+        @$dom->loadHTML($html);
+
+        $xpath = new \DOMXPath($dom);
+        $jobs = [];
+
+        $jobItems = $xpath->query("//div[contains(@class, 'document-item')]");
+
+        foreach ($jobItems as $jobItem) {
+            // Extract Job Title
+            $jobTitleNode = $xpath->query(".//div[contains(@class, 'document-item-row')][1]//div[contains(@class, 'document-item-value')]", $jobItem);
+            $jobTitle = trim($jobTitleNode->length > 0 ? $jobTitleNode->item(0)->nodeValue : '');
+
+            // Extract Close Date
+            $closeDateNode = $xpath->query(".//div[contains(@class, 'document-item-row')][3]//div[contains(@class, 'document-item-value')]", $jobItem);
+            $closeDate = trim($closeDateNode->length > 0 ? $closeDateNode->item(0)->nodeValue : '');
+            if ($closeDate) {
+                $closeDate = \DateTime::createFromFormat('d F Y', $closeDate) ? \DateTime::createFromFormat('d F Y', $closeDate)->format('Y-m-d') : $closeDate;
+            }
+            // Extract More Info Link
+            $moreInfoLinkNode = $xpath->query(".//div[contains(@class, 'document-item-row')][4]//div[contains(@class, 'document-item-value')]//a", $jobItem);
+            $moreInfoLink = $moreInfoLinkNode->length > 0 ? $moreInfoLinkNode->item(0)->getAttribute("href") : "#";
+
+            if($jobTitle){
+                $jobs[] = [
+                    'title' => $jobTitle,
+                    'expires' => $closeDate,
+                    'url' => $moreInfoLink,
+                ];
+            }
+
+        }
+
+
+        $allJobs = $jobs;
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['expires'];
+                    $location = 'City of Joondalup';
+                    $salary = 'Competitive';
+
+                    $categoryId = 3;
+
+                    $jobDescription = '';
+                    $jobHtml = $this->fetchHTML($jobUrl);
+
+                    if ($jobHtml) {
+                        $dom = new \DOMDocument();
+                        @$dom->loadHTML($jobHtml);
+
+                        $xpath = new \DOMXPath($dom);
+
+                        $salaryNode = $xpath->query('//input[contains(@id, "T303F290_VACANCY_PACKAGE")]');
+                        $salary = '';
+                        if ($salaryNode->length > 0) {
+                            $salary = trim($salaryNode->item(0)->getAttribute('value'));
+                        }
+
+
+
+                        $jobDetailNode = $xpath->query('//div[contains(@class, "form-control-plaintext")]');
+                        $htmlContent = '';
+                        if ($jobDetailNode->length > 0) {
+                            $htmlContent = $dom->saveHTML($jobDetailNode->item(0));
+                        }
+
+                        $jobDescription = $htmlContent;
+                    }
+                    $stateFullName = 'Western Australia';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' => 'City of Joondalup',
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => $salary ?? 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    $savedJobs [] = $done->id;
+
+                    // Add to allJobs array
+            }
+
+        };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from City of Joondalup',
+        ]);
+    }
+
+
 
 
     public function fetchHTML($url)

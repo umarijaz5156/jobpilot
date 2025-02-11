@@ -201,17 +201,20 @@ Route::prefix('admin')->group(function () {
 
 
     //    try with js
-        Route::get('/auto-get-pulsesoftware', [CompanyController::class, 'pulsesoftware'])->name('auto.pulsesoftware');
 
-
-        // working
         Route::get('/auto-get-ShireEsperance', [CompanyController::class, 'ShireEsperance'])->name('auto.ShireEsperance');
         Route::get('/auto-get-NambuccaShire', [CompanyController::class, 'NambuccaShire'])->name('auto.NambuccaShire');
         Route::get('/auto-get-MidCoastCouncil', [CompanyController::class, 'MidCoastCouncil'])->name('auto.MidCoastCouncil');
         Route::get('/auto-get-MeltonCityCouncil', [CompanyController::class, 'MeltonCityCouncil'])->name('auto.MeltonCityCouncil');
 
+        Route::get('/auto-get-MacDonnellRegionalCouncil', [CompanyController::class, 'MacDonnellRegionalCouncil'])->name('auto.MacDonnellRegionalCouncil');
+        Route::get('/auto-get-HorshamRuralCity', [CompanyController::class, 'HorshamRuralCity'])->name('auto.HorshamRuralCity');
+        Route::get('/auto-get-CityofRockingham', [CompanyController::class, 'CityofRockingham'])->name('auto.CityofRockingham');
+        Route::get('/auto-get-CityofJoondalup', [CompanyController::class, 'CityofJoondalup'])->name('auto.CityofJoondalup');
 
-        
+
+
+
 
 
         // Candidate Route
