@@ -213,6 +213,11 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-CityofJoondalup', [CompanyController::class, 'CityofJoondalup'])->name('auto.CityofJoondalup');
 
 
+        Route::get('/auto-get-CentralDarlingShireCouncil', [CompanyController::class, 'CentralDarlingShireCouncil'])->name('auto.CentralDarlingShireCouncil');
+        Route::get('/auto-get-BurdekinShireCouncil', [CompanyController::class, 'BurdekinShireCouncil'])->name('auto.BurdekinShireCouncil');
+        Route::get('/auto-get-BlacktownCityCouncil', [CompanyController::class, 'BlacktownCityCouncil'])->name('auto.BlacktownCityCouncil');
+        Route::get('/auto-get-AlburyCityCouncil', [CompanyController::class, 'AlburyCityCouncil'])->name('auto.AlburyCityCouncil');
+
 
 
 

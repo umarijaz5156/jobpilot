@@ -405,6 +405,10 @@
                 { route: "{{ route('auto.HorshamRuralCity') }}", message: "Scraping Horsham Rural City Jobs..." },
                 { route: "{{ route('auto.CityofRockingham') }}", message: "Scraping City of Rockingham Jobs..." },
                 { route: "{{ route('auto.CityofJoondalup') }}", message: "Scraping City of Joondalup Jobs..." },
+                { route: "{{ route('auto.CentralDarlingShireCouncil') }}", message: "Scraping Central Darling Shire Council Jobs..." },
+                { route: "{{ route('auto.BurdekinShireCouncil') }}", message: "Scraping Burdekin Shire Council Jobs..." },
+                { route: "{{ route('auto.BlacktownCityCouncil') }}", message: "Scraping Black town City Council Jobs..." },
+                { route: "{{ route('auto.AlburyCityCouncil') }}", message: "Scraping Albury City Council Jobs..." },
 
             ];
 

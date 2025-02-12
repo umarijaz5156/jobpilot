@@ -10577,7 +10577,6 @@ class CompanyController extends Controller
         $crawler->filter('.current-job-box')->each(function ($node) use (&$allJobs) {
             $title = $node->filter('h4.job_title a')->text('No title available');
             $link = $node->filter('h4.job_title a')->attr('href');
-            $description = $node->filter('.current-job-text-description')->text('No description available');
 
             // Extract location
             $locations = [];
@@ -12228,6 +12227,747 @@ class CompanyController extends Controller
         // Return the number of jobs scraped
         return response()->json([
         'message' => $jobAdded . ' job(s) scraped from City of Joondalup',
+        ]);
+    }
+
+
+    // CentralDarlingShireCouncil
+    public function CentralDarlingShireCouncil()
+    {
+        ini_set('max_execution_time', 300000000000000000000000000); // Set maximum execution time (5 minutes)
+        $companyName = 'Central Darling Shire Council';
+        $user = User::where('name',  $companyName)->first();
+        $allJobs = [];
+        $savedJobs = [];
+
+
+        $url = 'https://www.centraldarling.nsw.gov.au/Council/Careers-and-Jobs/Careers';
+        $html = $this->fetchHTML($url);
+        $dom = new \DOMDocument();
+        @$dom->loadHTML($html);
+
+        $xpath = new \DOMXPath($dom);
+        $jobs = [];
+
+        $jobCards = $xpath->query("//div[contains(@class, 'list-item-container')]");
+
+        foreach ($jobCards as $jobCard) {
+            $jobTitleNode = $xpath->query(".//h2[contains(@class, 'list-item-title')]", $jobCard);
+            $jobTitle = trim($jobTitleNode->length > 0 ? $jobTitleNode->item(0)->nodeValue : '');
+
+            $jobLinkNode = $xpath->query(".//a", $jobCard);
+            $jobLink = $jobLinkNode->length > 0 ? $jobLinkNode->item(0)->getAttribute("href") : '#';
+
+
+            $closingDateNode = $xpath->query(".//p[contains(@class, 'applications-closing')]", $jobCard);
+            $closingDate = trim($closingDateNode->length > 0 ? $closingDateNode->item(0)->nodeValue : '');
+
+            if (preg_match('/(\d{1,2} [A-Za-z]+ \d{4})/', $closingDate, $matches)) {
+                $closingDate = $matches[1];
+            } else {
+                $closingDate = null;
+            }
+
+            if ($closingDate) {
+                $closingDateObj = \DateTime::createFromFormat('d F Y', $closingDate);
+                if ($closingDateObj) {
+                    $closingDate = $closingDateObj->format('Y-m-d');
+                }
+            } else {
+                $closingDate = (new DateTime('now'))->modify('+4 weeks')->format('Y-m-d');
+            }
+
+            if ($jobTitle) {
+                $jobs[] = [
+                    'title' => $jobTitle,
+                    'link' => $jobLink,
+                    'applications_closing' => $closingDate,
+                ];
+            }
+        }
+
+
+        $allJobs = $jobs;
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['link'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['applications_closing'];
+
+                    $location =  $companyName;
+                    $salary = 'Competitive';
+
+                    $categoryId = 3;
+
+                    $jobDescription = '';
+                    $client = new Client();
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('.body-content');
+
+                    $jobDescription = $dataContainer->html();
+
+
+                    $stateFullName = 'New South Wales';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' =>  $companyName,
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => $salary ?? 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    $savedJobs [] = $done->id;
+
+                    // Add to allJobs array
+            }
+
+        };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        // if (count($detailedJobs) > 0) {
+        //     Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        // }
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from ' .  $companyName,
+        ]);
+    }
+
+
+
+    // BurdekinShireCouncil
+    public function BurdekinShireCouncil()
+    {
+        ini_set('max_execution_time', 300000000000000000000000000); // Set maximum execution time (5 minutes)
+        $companyName = 'Burdekin Shire Council';
+        $user = User::where('name',  $companyName)->first();
+        $allJobs = [];
+        $savedJobs = [];
+
+
+
+        $url = 'https://www.burdekin.qld.gov.au/employment';
+        $html = $this->fetchHTML($url);
+
+        $dom = new \DOMDocument();
+        @$dom->loadHTML($html);
+
+        $xpath = new \DOMXPath($dom);
+        $jobs = [];
+
+        $jobItems = $xpath->query("//ul[contains(@class, 'article-list')]/li[contains(@class, 'article-list-item')]");
+
+        foreach ($jobItems as $jobItem) {
+            // Extract Job Title
+            $jobTitleNode = $xpath->query(".//a[contains(@class, 'article-link')]", $jobItem);
+            $jobTitle = trim($jobTitleNode->length > 0 ? $jobTitleNode->item(0)->nodeValue : '');
+
+            // Extract Job Link
+            $jobLink = $jobTitleNode->length > 0 ? $jobTitleNode->item(0)->getAttribute("href") : '#';
+
+            // Filter job title (remove everything before "- ")
+            $filteredTitle = preg_replace('/^.*?-\s*/', '', $jobTitle);
+
+            if ($filteredTitle) {
+                $jobs[] = [
+                    'title' => $filteredTitle,
+                    'link' => 'https://www.burdekin.qld.gov.au' . $jobLink, // Ensure full URL
+                ];
+            }
+        }
+
+
+        $allJobs = $jobs;
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['link'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = (new DateTime('now'))->modify('+4 weeks')->format('Y-m-d');
+
+                    $location =  $companyName;
+                    $salary = 'Competitive';
+
+                    $categoryId = 3;
+
+                    $jobDescription = '';
+                    $client = new Client();
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('.editor');
+
+                    $jobDescription = $dataContainer->html();
+
+
+                    $stateFullName = 'New South Wales';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' =>  $companyName,
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => $salary ?? 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    $savedJobs [] = $done->id;
+
+                    // Add to allJobs array
+            }
+
+        };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        // if (count($detailedJobs) > 0) {
+        //     Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        // }
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from ' .  $companyName,
+        ]);
+    }
+
+
+    // BlacktownCityCouncil
+    public function BlacktownCityCouncil()
+    {
+        ini_set('max_execution_time', 300000000000000000000000000); // Set maximum execution time (5 minutes)
+        $companyName = 'Blacktown City Council';
+        $user = User::where('name',  $companyName)->first();
+        $allJobs = [];
+        $savedJobs = [];
+
+
+
+        $url = 'https://blacktowncitycouncil.applynow.net.au';
+        $html = $this->fetchHTML($url);
+
+        $dom = new \DOMDocument();
+        @$dom->loadHTML($html);
+
+        $xpath = new \DOMXPath($dom);
+        $jobs = [];
+
+        // Target each row in the job table
+        $jobRows = $xpath->query("//div[@id='table']//table[contains(@class, 'table-list')]/tbody/tr");
+
+        foreach ($jobRows as $jobRow) {
+            // Extract Job Title
+            $jobTitleNode = $xpath->query(".//td[@class='align-middle']/a[contains(@class, 'job_title')]", $jobRow);
+            $jobTitle = trim($jobTitleNode->length > 0 ? $jobTitleNode->item(0)->nodeValue : '');
+
+            // Extract Job Link
+            $jobLink = $jobTitleNode->length > 0 ? $jobTitleNode->item(0)->getAttribute("href") : '#';
+
+            // Extract Closing Date
+            $closingDateNode = $xpath->query(".//td[@class='align-middle']/span[contains(@class, 'expires')]", $jobRow);
+            $closingDateText = trim($closingDateNode->length > 0 ? $closingDateNode->item(0)->nodeValue : '');
+
+            // Extract only the date part (assumes format: "Application Closing Date: 14 Feb 2025 AEDT")
+            preg_match('/(\d{1,2}) (\w{3}) (\d{4})/', $closingDateText, $matches);
+
+            if (!empty($matches)) {
+                $day = $matches[1];
+                $month = $matches[2];
+                $year = $matches[3];
+
+                // Convert month abbreviation to full date format
+                $closingDateObj = \DateTime::createFromFormat('j M Y', "$day $month $year");
+
+                if ($closingDateObj) {
+                    $closingDate = $closingDateObj->format('Y-m-d'); // Convert to Y-m-d format
+                } else {
+                    $closingDate = (new DateTime('now'))->modify('+4 weeks')->format('Y-m-d');
+                }
+            } else {
+                $closingDate = (new DateTime('now'))->modify('+4 weeks')->format('Y-m-d');
+            }
+
+            if ($jobTitle) {
+                $jobs[] = [
+                    'title' => $jobTitle,
+                    'link' => $jobLink, // Already a full URL
+                    'closing_date' => $closingDate,
+                ];
+            }
+        }
+
+
+        $allJobs = $jobs;
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['link'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['closing_date'];
+
+                    $location =  $companyName;
+                    $salary = 'Competitive';
+
+                    $categoryId = 3;
+
+                    $jobDescription = '';
+                    $client = new Client();
+                    $jobCrawler = $client->request('GET', $jobUrl);
+
+                    $dataContainer = $jobCrawler->filter('#description');
+
+                    $jobDescription = $dataContainer->html();
+
+
+                    $stateFullName = 'New South Wales';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' =>  $companyName,
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => $salary ?? 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    $savedJobs [] = $done->id;
+
+                    // Add to allJobs array
+            }
+
+        };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        // if (count($detailedJobs) > 0) {
+        //     Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        // }
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from ' .  $companyName,
+        ]);
+    }
+
+
+    // AlburyCityCouncil
+    public function AlburyCityCouncil()
+    {
+        ini_set('max_execution_time', 300000000000000000000000000); // Set maximum execution time (5 minutes)
+        $companyName = 'Albury City Council';
+        $user = User::where('name',  $companyName)->first();
+        $allJobs = [];
+        $savedJobs = [];
+
+
+
+        $url = 'https://fa-ewfo-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/requisitions';
+        $html = $this->fetchHTML($url);
+
+        $dom = new \DOMDocument();
+        @$dom->loadHTML($html);
+
+        $xpath = new \DOMXPath($dom);
+        $jobs = [];
+
+        // Target each job listing
+        $jobRows = $xpath->query("//ul[contains(@class, 'jobs-grid__list')]/li[@data-qa='searchResultItem']");
+
+        foreach ($jobRows as $jobRow) {
+            // Extract Job Title
+            $jobTitleNode = $xpath->query(".//span[contains(@class, 'job-tile__title')]", $jobRow);
+            $jobTitle = trim($jobTitleNode->length > 0 ? $jobTitleNode->item(0)->nodeValue : '');
+
+            // Extract Job Link
+            $jobLinkNode = $xpath->query(".//a[contains(@class, 'job-grid-item__link')]", $jobRow);
+            $jobLink = $jobLinkNode->length > 0 ? $jobLinkNode->item(0)->getAttribute("href") : '#';
+
+            $closingDateNode = $xpath->query(".//div[contains(@class, 'job-list-item__job-info-label--posting-date')]/following-sibling::div[contains(@class, 'job-list-item__job-info-value-container')]/div[contains(@class, 'job-list-item__job-info-value')]", $jobRow);
+            $closingDateText = trim($closingDateNode->length > 0 ? $closingDateNode->item(0)->nodeValue : '');
+
+            $closingDateObj = \DateTime::createFromFormat('m/d/Y', $closingDateText);
+            $closingDate = $closingDateObj ? $closingDateObj->format('Y-m-d') : Carbon::now()->addWeeks(4)->format('Y-m-d');
+
+            if ($jobTitle) {
+                $jobs[] = [
+                    'title' => $jobTitle,
+                    'link' => $jobLink,
+                    'closing_date' => $closingDate,
+                ];
+            }
+        }
+
+
+        $allJobs = $jobs;
+
+        $jobAdded = 0;
+        foreach($allJobs as $job) {
+
+            $jobUrl = $job['link'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                    $jobAdded++;
+
+                    $title = $job['title'];
+                    $formattedExpiryDate = $job['closing_date'];
+
+                    $location =  $companyName;
+                    $salary = 'Competitive';
+
+                    $categoryId = 3;
+
+
+                    $jobDescription = '<div class="job-details__description-content basic-formatter" data-bind="html: pageData().job.corporateDescription"><div style="border-style: none; padding: 0px 5px; box-sizing: border-box">
+                        <div>
+                        <p style="margin-bottom: 0px"><b>Our Organisation</b>:<b>&nbsp; </b>We are the facilitator of a thriving, resilient and liveable city full of opportunities and the custodians of an environment like no other. We consistently deliver best-in-class leadership, services, facilities and experiences, providing exceptional living for our local community.</p>
+                        <p style="margin-bottom: 0px">&nbsp;</p>
+                        <p style="margin-bottom: 0px"><b>Our Values</b>:<b>&nbsp;</b>We are a values driven organisation and these underpin everything we do.</p>
+                        <ul>
+                        <li><b>Working Together</b>:<b>&nbsp;</b>I respect, listen to and value the contributions of others and celebrate our achievements.</li>
+                        <li><b>Integrity</b>:<b>&nbsp;</b>I am trustworthy, honest, accountable, open and consistent in all that I do.</li>
+                        <li><b>Courage and Passion</b>:<b>&nbsp;</b>I am enthusiastic and have the confidence to speak up for the betterment of AlburyCity.</li>
+                        <li><b>Innovation</b>:&nbsp;I seek to increase my knowledge through new ideas and continuous improvement.</li>
+                        <li><b>Loyalty</b>:<b>&nbsp;</b>I am supportive of others and committed to AlburyCity and the community.</li>
+                        </ul>
+                        <p style="margin-bottom: 0px"><b>Live Well Work Well</b>:&nbsp;The health and safety of our people is more than a priority, it’s a commitment embedded within our values.&nbsp;Unlike priorities which change over time, our values form the basis for all that we do; they define our purpose and what we stand for. We seek to have a positive impact by developing a holistic wellbeing culture that empowers everyone to be their healthiest and happiest version, resulting in a more engaged and productive workforce with lower incidence of illness and injury.</p>
+                        <p style="margin-bottom: 0px">It is, and always will be, our goal to have a workplace free from harm.</p>
+                        <p style="margin-bottom: 0px"><b>Two Cities One Community:&nbsp;</b>On&nbsp;13&nbsp;October&nbsp;2017&nbsp;AlburyCity&nbsp;and The City of Wodonga&nbsp;entered&nbsp;into an historic partnership between the two cities. In August 2022 both Councils worked together to review and re-commit to the Partnership Agreement.</p>
+                        <p style="margin-bottom: 16px">This partnership is a unique opportunity to develop a way forward that benefits our community as a whole with the aim of improving integration, productivity and social and economic development. It will focus on future growth that will continue to add value to both cities.&nbsp;Through&nbsp;this&nbsp;combined&nbsp;focus,&nbsp;underpinned&nbsp;by&nbsp;four&nbsp;key&nbsp;pillars of; leadership, economy, environment and community, we will unleash our potential and drive innovation for the benefit of the region and the nation.</p>
+                        <p style="margin-bottom: 16px">Our Mission is to work together to achieve our community goals now and into the future. We understand that we are stronger together&nbsp;and&nbsp;can&nbsp;achieve&nbsp;more&nbsp;when&nbsp;working&nbsp;in&nbsp;collaboration.&nbsp;We will build on our current partnerships and shared values for thebetterment&nbsp;of&nbsp;Albury&nbsp;and&nbsp;Wodonga.</p>
+                        <p class="MsoNormal" style="margin-bottom: 0in"><span class="ui-provider eb axn axo axp axq axr axs axt axu axv axw axx axy axz aya ayb ayc ayd aye ayf ayg ayh ayi ayj ayk ayl aym ayn ayo ayp ayq ayr ays ayt ayu"></span></p>
+                        <p style="margin-bottom: 16px"><b>Child Safety: </b>AlburyCity is committed to being a child safe organisation and our people support, listen to and empower children and young people. We create safe environments that minimise the risk of harm and we have ZERO tolerance for child abuse, violence and neglect.</p>
+                        </div>
+                        </div></div>';
+
+
+
+                    $stateFullName = 'New South Wales';
+                    $clientC = new ClientC();
+                    $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                    $nominatimResponse = $clientC->get($nominatimUrl, [
+                        'query' => [
+                            'q' => $location,
+                            'format' => 'json',
+                            'limit' => 1
+                        ],
+                        'headers' => [
+                            'User-Agent' => 'YourAppName/1.0'
+                        ]
+                    ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455' ;
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+
+                } else {
+                    $lat = '18.65060012243828' ;
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if($stateId){
+                    $sId = $stateId->id;
+                }else{
+                    $sId = 3909;
+                }
+
+                    // Prepare job data for insertion
+                    $jobRequest = [
+                        'title' => $title,
+                        'category_id' => $categoryId,
+                        'company_id' => $user->company->id,
+                        'company_name' =>  $companyName,
+                        'apply_on' => 'custom_url',
+                        'apply_url' => $jobUrl,
+                        'description' => $jobDescription,
+                        'state_id' => $sId,
+                        'vacancies' => 1,
+                        'deadline' => $formattedExpiryDate,
+                        'salary_mode' => 'custom',
+                        'salary_type_id' => 1,
+                        'custom_salary' => $salary ?? 'Competitive',
+                        'job_type_id' => 1,
+                        'role_id' => 1,
+                        'education_id' => 2,
+                        'experience_id' => 4,
+                        'featured' => 0,
+                        'highlight' => 0,
+                        'status' => 'active',
+                        'ongoing' => 0,
+                    ];
+                    // Save the job to the database
+                    $done = $this->createJobFromScrape($jobRequest);
+
+                    // Update categories
+                    $categories = [0 => $categoryId];
+                    $done->selectedCategories()->sync($categories);
+
+                    $done->update([
+                        'address' => $exact_location,
+                        'neighborhood' => $exact_location,
+                        'locality' => $exact_location,
+                        'place' => $exact_location,
+                        'country' => 'Australia',
+                        'district' => $stateFullName, // Assuming state is NSW
+                        'region' => $stateFullName, // Assuming state is NSW
+                        'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                        'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                        'exact_location' => $exact_location,
+                    ]);
+
+                    $savedJobs [] = $done->id;
+
+                    // Add to allJobs array
+            }
+
+        };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        // if (count($detailedJobs) > 0) {
+        //     Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        // }
+
+        // Return the number of jobs scraped
+        return response()->json([
+        'message' => $jobAdded . ' job(s) scraped from ' .  $companyName,
         ]);
     }
 
