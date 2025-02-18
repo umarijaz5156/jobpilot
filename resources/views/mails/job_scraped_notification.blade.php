@@ -27,7 +27,7 @@
     </style>
 </head>
 <body>
-    <h1>Hi {{ $user->name }},</h1>
+    <p>Hello Recruitment Team,</p>
     <p>We hope this message finds you well.</p>
 
     <h2>New Jobs Added for {{ $user->name }}</h2>

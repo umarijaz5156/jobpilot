@@ -35,7 +35,7 @@ class JobScrapedNotification extends Mailable
 
     public function build()
     {
-        return $this->subject('New Jobs Added to Our System')
+        return $this->subject('Council Direct Listing Confirmation')
                     ->view('mails.job_scraped_notification');
     }
 }
