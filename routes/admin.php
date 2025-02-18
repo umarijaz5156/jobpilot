@@ -100,8 +100,12 @@ Route::prefix('admin')->group(function () {
         Route::get('/send-email-test', [CompanyController::class, 'sendEmail'])->name('send.email.test');
 
 
-            Route::get('/feature/companies', [CompanyController::class, 'featureCompany'])->name('admin.feature.company');
-            Route::post('/company/update-featured', [CompanyController::class, 'updateFeaturedC'])->name('company.updateFeatured');
+        Route::get('/feature/companies', [CompanyController::class, 'featureCompany'])->name('admin.feature.company');
+        Route::post('/company/update-featured', [CompanyController::class, 'updateFeaturedC'])->name('company.updateFeatured');
+
+
+
+        // scrape council jobs
 
 
         // auto get council jobs (13)
@@ -121,7 +125,7 @@ Route::prefix('admin')->group(function () {
 
 
 
-        // 2dec to 8 dec (7)
+        // 2dec to 8 dec (16)
         Route::get('/auto-get-CitySalisbury', [CompanyController::class, 'CitySalisbury'])->name('auto.CitySalisbury');
         Route::get('/auto-get-ChartersTowers', [CompanyController::class, 'ChartersTowers'])->name('auto.ChartersTowers');
         Route::get('/auto-get-GreaterBendigo', [CompanyController::class, 'GreaterBendigo'])->name('auto.GreaterBendigo');
@@ -129,10 +133,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-GreaterGeraldton', [CompanyController::class, 'GreaterGeraldton'])->name('auto.GreaterGeraldton');
         Route::get('/auto-get-CityHobart', [CompanyController::class, 'CityHobart'])->name('auto.CityHobart');
         Route::get('/auto-get-CityPortPhillip', [CompanyController::class, 'CityPortPhillip'])->name('auto.CityPortPhillip');
-
-
-
-        // 9 dec 15 dec (9)
+        // 9 dec 15 dec
         Route::get('/auto-get-ClarenceValley', [CompanyController::class, 'ClarenceValley'])->name('auto.ClarenceValley');
         Route::get('/auto-get-CookShire', [CompanyController::class, 'CookShire'])->name('auto.CookShire');
         Route::get('/auto-get-CumberlandCity', [CompanyController::class, 'CumberlandCity'])->name('auto.CumberlandCity');
@@ -145,17 +146,14 @@ Route::prefix('admin')->group(function () {
 
 
 
-        // 16 to 22 dec (6)
+        // 16 to 22 dec (15)
         Route::get('/auto-get-HinchinbrookShire', [CompanyController::class, 'HinchinbrookShire'])->name('auto.HinchinbrookShire');
         Route::get('/auto-get-HornsbyShire', [CompanyController::class, 'HornsbyShire'])->name('auto.HornsbyShire');
         Route::get('/auto-get-LeetonShire', [CompanyController::class, 'LeetonShire'])->name('auto.LeetonShire');
         Route::get('/auto-get-LivingstoneShire', [CompanyController::class, 'LivingstoneShire'])->name('auto.LivingstoneShire');
         Route::get('/auto-get-LoddonShire', [CompanyController::class, 'LoddonShire'])->name('auto.LoddonShire');
         Route::get('/auto-get-MansfieldShire', [CompanyController::class, 'MansfieldShire'])->name('auto.MansfieldShire');
-
-
-
-        // 23 to 29 dec (9)
+        // 23 to 29 dec
         Route::get('/auto-get-MountAlexanderShire', [CompanyController::class, 'MountAlexanderShire'])->name('auto.MountAlexanderShire');
         Route::get('/auto-get-MurrayRiver', [CompanyController::class, 'MurrayRiver'])->name('auto.MurrayRiver');
         Route::get('/auto-get-MurrindindiShire', [CompanyController::class, 'MurrindindiShire'])->name('auto.MurrindindiShire');
@@ -168,25 +166,18 @@ Route::prefix('admin')->group(function () {
 
 
 
-        // 30dec to 5 jan (6)
+        // 30dec to 5 jan (15)
         Route::get('/auto-get-RoperGulfRegional', [CompanyController::class, 'RoperGulfRegional'])->name('auto.RoperGulfRegional');
         Route::get('/auto-get-ShireAugustaMargaretRiver', [CompanyController::class, 'ShireAugustaMargaretRiver'])->name('auto.ShireAugustaMargaretRiver');
         Route::get('/auto-get-ShireEastPilbara', [CompanyController::class, 'ShireEastPilbara'])->name('auto.ShireEastPilbara');
         Route::get('/auto-get-ShireNgaanyatjarraku', [CompanyController::class, 'ShireNgaanyatjarraku'])->name('auto.ShireNgaanyatjarraku');
         Route::get('/auto-get-SomersetRegional', [CompanyController::class, 'SomersetRegional'])->name('auto.SomersetRegional');
         Route::get('/auto-get-SouthernDownsRegional', [CompanyController::class, 'SouthernDownsRegional'])->name('auto.SouthernDownsRegional');
-
-
-
-        // 6 jan to 12 jan (4)
+        // 6 jan to 12 jan
         Route::get('/auto-get-SurfCoastShire', [CompanyController::class, 'SurfCoastShire'])->name('auto.SurfCoastShire');
         Route::get('/auto-get-VictoriaDalyRegional', [CompanyController::class, 'VictoriaDalyRegional'])->name('auto.VictoriaDalyRegional');
         Route::get('/auto-get-WesternDownsRegional', [CompanyController::class, 'WesternDownsRegional'])->name('auto.WesternDownsRegional');
         Route::get('/auto-get-WollondillyShire', [CompanyController::class, 'WollondillyShire'])->name('auto.WollondillyShire');
-
-        // emails done on uper
-
-        // uper is 53 now new start of ramaning (5)
         Route::get('/auto-get-ShireMorawa', [CompanyController::class, 'ShireMorawa'])->name('auto.ShireMorawa');
         Route::get('/auto-get-EurobodallaCouncil', [CompanyController::class, 'EurobodallaCouncil'])->name('auto.EurobodallaCouncil');
         Route::get('/auto-get-CowraShireCouncil', [CompanyController::class, 'CowraShireCouncil'])->name('auto.CowraShireCouncil');
@@ -195,31 +186,57 @@ Route::prefix('admin')->group(function () {
 
 
 
-
-
-
-
-
-    //    try with js
+    //    try with js (19)
 
         Route::get('/auto-get-ShireEsperance', [CompanyController::class, 'ShireEsperance'])->name('auto.ShireEsperance');
         Route::get('/auto-get-NambuccaShire', [CompanyController::class, 'NambuccaShire'])->name('auto.NambuccaShire');
         Route::get('/auto-get-MidCoastCouncil', [CompanyController::class, 'MidCoastCouncil'])->name('auto.MidCoastCouncil');
         Route::get('/auto-get-MeltonCityCouncil', [CompanyController::class, 'MeltonCityCouncil'])->name('auto.MeltonCityCouncil');
-
         Route::get('/auto-get-MacDonnellRegionalCouncil', [CompanyController::class, 'MacDonnellRegionalCouncil'])->name('auto.MacDonnellRegionalCouncil');
         Route::get('/auto-get-HorshamRuralCity', [CompanyController::class, 'HorshamRuralCity'])->name('auto.HorshamRuralCity');
         Route::get('/auto-get-CityofRockingham', [CompanyController::class, 'CityofRockingham'])->name('auto.CityofRockingham');
         Route::get('/auto-get-CityofJoondalup', [CompanyController::class, 'CityofJoondalup'])->name('auto.CityofJoondalup');
-
-
         Route::get('/auto-get-CentralDarlingShireCouncil', [CompanyController::class, 'CentralDarlingShireCouncil'])->name('auto.CentralDarlingShireCouncil');
         Route::get('/auto-get-BurdekinShireCouncil', [CompanyController::class, 'BurdekinShireCouncil'])->name('auto.BurdekinShireCouncil');
         Route::get('/auto-get-BlacktownCityCouncil', [CompanyController::class, 'BlacktownCityCouncil'])->name('auto.BlacktownCityCouncil');
         Route::get('/auto-get-AlburyCityCouncil', [CompanyController::class, 'AlburyCityCouncil'])->name('auto.AlburyCityCouncil');
+        Route::get('/auto-get-EastGippslandWater', [CompanyController::class, 'EastGippslandWater'])->name('auto.EastGippslandWater');
+        Route::get('/auto-get-UpperHunterShire', [CompanyController::class, 'UpperHunterShire'])->name('auto.UpperHunterShire');
+        Route::get('/auto-get-WentworthShireCouncil', [CompanyController::class, 'WentworthShireCouncil'])->name('auto.WentworthShireCouncil');
+        Route::get('/auto-get-ShireofDundas', [CompanyController::class, 'ShireofDundas'])->name('auto.ShireofDundas');
+        Route::get('/auto-get-NorthernPeninsulaArea', [CompanyController::class, 'NorthernPeninsulaArea'])->name('auto.NorthernPeninsulaArea');
+        Route::get('/auto-get-MaribyrnongCityCouncil', [CompanyController::class, 'MaribyrnongCityCouncil'])->name('auto.MaribyrnongCityCouncil');
+        Route::get('/auto-get-LaneCoveCouncil', [CompanyController::class, 'LaneCoveCouncil'])->name('auto.LaneCoveCouncil');
 
 
 
+
+        // with js but apply link not found (4)
+        Route::get('/auto-get-WingecarribeeShireCouncil', [CompanyController::class, 'WingecarribeeShireCouncil'])->name('auto.WingecarribeeShireCouncil');
+        Route::get('/auto-get-CityKalgoorlieBoulder', [CompanyController::class, 'CityKalgoorlieBoulder'])->name('auto.CityKalgoorlieBoulder');
+        Route::get('/auto-get-CabonneCouncil', [CompanyController::class, 'CabonneCouncil'])->name('auto.CabonneCouncil');
+        Route::get('/auto-get-BanyuleCityCouncil', [CompanyController::class, 'BanyuleCityCouncil'])->name('auto.BanyuleCityCouncil');
+
+
+
+        // upper 82 councils are done
+
+
+
+        //    not possible (13)
+        //    Cairns Regional Council
+        //    Armidale Regional Council
+        //    Snowy Valleys Council
+        //    Glenelg Shire Council
+        //    Circular Head Council
+        //    City of Karratha
+        //    Central Desert Regional Council
+        //    Torres Shire Council
+        //    Shire of Menzies
+        //    Liverpool City Council
+        //    Diamantina Shire Council
+        //    Cootamundra Gundagai Regional Council
+        //    Hobsons Bay City Council (jobs not found)
 
 
         // Candidate Route

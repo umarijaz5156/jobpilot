@@ -30,12 +30,15 @@
                     </div>
                     <div class="p-3 text-right">
                         <button id="scrapeJobsButton" class="btn btn-primary">
-                            Start Scraping Jobs
+                            Scraping Councils Jobs (59)
                         </button>
 
-
                         <button id="scrapeNewJobsButton" class="btn btn-secondary">
-                            Start Scraping New Councils (javascript)
+                             Scraping Councils with javascript (19)
+                        </button>
+
+                        <button id="scrapeNewJobsButtonNoLink" class="btn btn-info">
+                            Scraping Councils with No link (4)
                         </button>
 
 
@@ -266,6 +269,7 @@
             </div>
         </div>
     </div>
+
 @endsection
 
 @section('style')
@@ -330,6 +334,7 @@
             // $('#loadingIndicator').show();
             // $('#resultMessage').hide();  // Hide any previous messages
 
+            // 59 councils to scrape
             const scrapingRoutes = [
                 { route: "{{ route('auto.centralCoast') }}", message: "Scraping Central Coast Jobs..." },
                 { route: "{{ route('auto.CanterburyBankstown') }}", message: "Scraping Canterbury Bankstown Jobs..." },
@@ -392,10 +397,9 @@
                 { route: "{{ route('auto.CityCharlesSturt') }}", message: "Scraping  City Charles Sturt Council Jobs..." },
 
 
-
-
             ];
 
+            // 18 councils to scrape
             const newScrapingRoutes = [
                 { route: "{{ route('auto.ShireEsperance') }}", message: "Scraping Shire Esperance Jobs..." },
                 { route: "{{ route('auto.NambuccaShire') }}", message: "Scraping Nambucca Shire Jobs..." },
@@ -409,8 +413,26 @@
                 { route: "{{ route('auto.BurdekinShireCouncil') }}", message: "Scraping Burdekin Shire Council Jobs..." },
                 { route: "{{ route('auto.BlacktownCityCouncil') }}", message: "Scraping Black town City Council Jobs..." },
                 { route: "{{ route('auto.AlburyCityCouncil') }}", message: "Scraping Albury City Council Jobs..." },
+                { route: "{{ route('auto.EastGippslandWater') }}", message: "Scraping East Gippsland Water Council Jobs..." },
+                { route: "{{ route('auto.UpperHunterShire') }}", message: "Scraping Upper Hunter Shire Jobs..." },
+                { route: "{{ route('auto.WentworthShireCouncil') }}", message: "Scraping Wentworth Shire Council Jobs..." },
+                { route: "{{ route('auto.ShireofDundas') }}", message: "Scraping Shire of Dundas Jobs..." },
+                { route: "{{ route('auto.NorthernPeninsulaArea') }}", message: "Scraping Northern Peninsula Area Council Jobs..." },
+                { route: "{{ route('auto.MaribyrnongCityCouncil') }}", message: "Scraping Maribyrnong City Council Jobs..." },
+                { route: "{{ route('auto.LaneCoveCouncil') }}", message: "Scraping Lane Cove Council Jobs..." },
+
 
             ];
+
+            // 4 councils to scrape
+            const newScrapingRoutesNoLink = [
+                { route: "{{ route('auto.WingecarribeeShireCouncil') }}", message: "Scraping Wingecarribee Shire Council Jobs..." },
+                { route: "{{ route('auto.CityKalgoorlieBoulder') }}", message: "Scraping City Kalgoorlie Boulder Jobs..." },
+                { route: "{{ route('auto.CabonneCouncil') }}", message: "Scraping Cabonne Council Jobs..." },
+                { route: "{{ route('auto.BanyuleCityCouncil') }}", message: "Scraping Banyule City Council Jobs..." },
+            ];
+
+            newScrapingRoutesNoLink
 
             let errorCouncils = []; // Array to store councils that encounter errors
 
@@ -451,6 +473,8 @@
             // Enable the buttons after scraping is done
             $('#scrapeJobsButton').prop('disabled', false);
             $('#scrapeNewJobsButton').prop('disabled', false);
+            $('#scrapeNewJobsButtonNoLink').prop('disabled', false);
+
         }
     }
 
@@ -470,6 +494,15 @@
                 errorCouncils = [];
                 scrapeJobs(0, newScrapingRoutes);
             });
+
+            $('#scrapeNewJobsButtonNoLink').click(function() {
+                $('#loadingIndicator').show();
+                $('#resultMessage').hide();
+                errorCouncils = [];
+                scrapeJobs(0, newScrapingRoutesNoLink);
+            });
+
+
         // });
     });
 </script>
