@@ -1297,13 +1297,16 @@ class CompanyController extends Controller
         $jobRows = $crawler->filter('.sc-responsive-table tbody tr'); // Select table rows
 
 
+
         // Step 2: Iterate over each row to extract position title and PDF link
         $jobRows->each(function ($node) use ($client, &$savedJobs, &$allJobs, $user) {
             // Extract the position title and PDF link from the table row
             $title = $node->filter('td')->eq(0)->text();
             $title = preg_replace('/\xA0/', ' ', $title); // Replace non-breaking space with regular space
             $title = utf8_encode($title); // Ensure the text is UTF-8 encoded
-
+            if (empty(trim($title))) {
+                return;
+            }
             $pdfLink = $node->filter('td')->eq(1)->filter('a')->attr('href'); // Assuming PDF link is in the second <td> and inside <a> tag
             if (strpos($pdfLink, 'http') === false) {
                 $pdfLink = 'https://www.boulia.qld.gov.au' . $pdfLink;
@@ -7155,7 +7158,7 @@ class CompanyController extends Controller
             }
         });
         $jobAdded = 0;
-        foreach ($allJobs as $job) {
+        foreach ($allJobs as $index => $job) { // Add index for debugging
 
             $jobUrl = $job['url'];
 
@@ -7165,7 +7168,7 @@ class CompanyController extends Controller
                 $jobAdded++;
 
                 $title = $job['title'];
-                $location = 'Northern Beaches Council ';
+                $location = 'Northern Beaches Council';
 
                 $categoryId = 3;
 
@@ -7175,32 +7178,42 @@ class CompanyController extends Controller
                 $crawler = new Crawler($html);
 
                 // Extract the full job description
-                $jobDescription = $jobCrawler->filter('.job')->html();
+                if ($jobCrawler->filter('.job')->count() > 0) {
+                    $jobDescription = $jobCrawler->filter('.job')->html();
+                } else {
+                    continue;
+                }
 
                 // Extract the closing date
-                $applicationsClose = $jobCrawler->filterXPath('//span[contains(text(), "Applications close on:")]')->text();
+             // Check if the closing date span exists before extracting text
+                    $applicationsCloseNode = $jobCrawler->filterXPath('//span[contains(text(), "Applications close on:")]');
 
-                // Process the closing date
-                preg_match('/Applications close on:\s*(.+)/i', $applicationsClose, $matches);
-                $closingDate = $matches[1] ?? 'Not found';
+                    if ($applicationsCloseNode->count() > 0) {
+                        $applicationsClose = $applicationsCloseNode->text();
 
-                // Output the results
-                if ($closingDate !== 'Not found') {
-                    $closingDate = preg_replace('/\x{A0}/u', ' ', $closingDate);
+                        // Process the closing date
+                        preg_match('/Applications close on:\s*(.+)/i', $applicationsClose, $matches);
+                        $closingDate = $matches[1] ?? 'Not found';
 
-                    // Remove any trailing period or whitespace
-                    $closingDate = trim($closingDate, '. ');
+                        if ($closingDate !== 'Not found') {
+                            $closingDate = preg_replace('/\x{A0}/u', ' ', $closingDate);
+                            $closingDate = trim($closingDate, '. '); // Remove any trailing period or whitespace
 
-                    $dateObject = DateTime::createFromFormat('j F Y', trim($closingDate));
+                            $dateObject = DateTime::createFromFormat('j F Y', trim($closingDate));
 
-                    if ($dateObject) {
-                        $formattedExpiryDate = $dateObject->format('Y-m-d');
+                            if ($dateObject) {
+                                $formattedExpiryDate = $dateObject->format('Y-m-d');
+                            } else {
+                                $formattedExpiryDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
+                            }
+                        } else {
+                            $formattedExpiryDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
+                        }
                     } else {
+                        // If no closing date is found, set a default expiry date
                         $formattedExpiryDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
                     }
-                } else {
-                    $formattedExpiryDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
-                }
+
 
                 $stateFullName = 'New South Wales';
                 $clientC = new ClientC();
@@ -7288,6 +7301,7 @@ class CompanyController extends Controller
         if (count($detailedJobs) > 0) {
             Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
         }
+        
         // Return the number of jobs scraped
         return response()->json([
             'message' => $jobAdded . ' job(s) scraped from Northern Beaches Council ',

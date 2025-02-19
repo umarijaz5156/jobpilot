@@ -239,6 +239,10 @@ Route::prefix('admin')->group(function () {
         //    Hobsons Bay City Council (jobs not found)
 
 
+        // CityMoretonBay, WollondillyShire, WesternDownsRegional,
+        // HornsbyShire, GriffithCity, GoulburnMulwaree, 
+
+
         // Candidate Route
         Route::resource('candidate', CandidateController::class);
         Route::get('/candidate/change/status', [CandidateController::class, 'statusChange'])->name('candidate.status.change');
