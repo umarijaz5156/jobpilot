@@ -7301,7 +7301,7 @@ class CompanyController extends Controller
         if (count($detailedJobs) > 0) {
             Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
         }
-        
+
         // Return the number of jobs scraped
         return response()->json([
             'message' => $jobAdded . ' job(s) scraped from Northern Beaches Council ',
@@ -14880,7 +14880,6 @@ class CompanyController extends Controller
 
         $nodeLocalPath = base_path('node-local/bin/node');
         $scriptPath = base_path('fetchHTML.js');
-
         if (!$this->isNodeAvailable($nodeLocalPath)) {
             $this->installLocalNode();
         }

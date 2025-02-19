@@ -1,14 +1,11 @@
 const puppeteer = require('puppeteer');
 
 async function getPageHTML(url) {
-    // const browser = await puppeteer.launch({
-    //     headless: "new",
-    //     args: ['--no-sandbox']
-    // });
     const browser = await puppeteer.launch({
-        headless: true,
-        executablePath: puppeteer.executablePath() // Ensures Puppeteer uses its own Chromium
+        headless: "new",
+        args: ['--no-sandbox']
     });
+
     const page = await browser.newPage();
 
     try {
