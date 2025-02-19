@@ -1,17 +1,22 @@
 const puppeteer = require('puppeteer');
 
 async function getPageHTML(url) {
-    const browser = await puppeteer.launch({ 
-        headless: "new",
-        args: ['--no-sandbox']
+    // const browser = await puppeteer.launch({
+    //     headless: "new",
+    //     args: ['--no-sandbox']
+    // });
+    const browser = await puppeteer.launch({
+        executablePath: '/usr/bin/chromium-browser', // Adjust this path if different
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
 
     try {
         await page.setDefaultNavigationTimeout(60000);
 
-        await page.goto(url, { 
-            waitUntil: ['networkidle2'] 
+        await page.goto(url, {
+            waitUntil: ['networkidle2']
         });
         await new Promise(resolve => setTimeout(resolve, 3000));
 
