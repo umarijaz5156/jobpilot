@@ -6,9 +6,8 @@ async function getPageHTML(url) {
     //     args: ['--no-sandbox']
     // });
     const browser = await puppeteer.launch({
-        executablePath: '/usr/bin/chromium-browser', // Adjust this path if different
         headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        executablePath: puppeteer.executablePath() // Ensures Puppeteer uses its own Chromium
     });
     const page = await browser.newPage();
 
