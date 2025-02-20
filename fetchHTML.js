@@ -1,9 +1,17 @@
 const puppeteer = require('puppeteer');
 
 async function getPageHTML(url) {
+    // const browser = await puppeteer.launch({
+    //     headless: "new",
+    //     args: ['--no-sandbox']
+    // });
     const browser = await puppeteer.launch({
-        headless: "new",
-        args: ['--no-sandbox']
+        executablePath: require('puppeteer').executablePath(), // Use Puppeteer's Chromium
+        headless: true,
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox'
+        ]
     });
 
     const page = await browser.newPage();
