@@ -14876,6 +14876,7 @@ class CompanyController extends Controller
 
     public function fetchHTML($url)
     {
+
         ini_set('max_execution_time', 300000000000000000000000000000000000000000000000000000000000000000000);
 
         $nodeLocalPath = base_path('node-local/bin/node');
