@@ -12571,11 +12571,8 @@ class CompanyController extends Controller
             $jobLinkNode = $xpath->query(".//a[contains(@class, 'job-grid-item__link')]", $jobRow);
             $jobLink = $jobLinkNode->length > 0 ? $jobLinkNode->item(0)->getAttribute("href") : '#';
 
-            $closingDateNode = $xpath->query(".//div[contains(@class, 'job-list-item__job-info-label--posting-date')]/following-sibling::div[contains(@class, 'job-list-item__job-info-value-container')]/div[contains(@class, 'job-list-item__job-info-value')]", $jobRow);
-            $closingDateText = trim($closingDateNode->length > 0 ? $closingDateNode->item(0)->nodeValue : '');
 
-            $closingDateObj = \DateTime::createFromFormat('m/d/Y', $closingDateText);
-            $closingDate = $closingDateObj ? $closingDateObj->format('Y-m-d') : Carbon::now()->addWeeks(4)->format('Y-m-d');
+            $closingDate =  Carbon::now()->addWeeks(5)->format('Y-m-d');
 
             if ($jobTitle) {
                 $jobs[] = [
