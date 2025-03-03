@@ -63,6 +63,8 @@ Route::prefix('admin')->group(function () {
 
 
     Route::get('/cities-by-state', [AdminController::class, 'getCitiesByState'])->name('cities.byState');
+    Route::post('/send-email', [CompanyController::class, 'sendEmail'])->name('send.email');
+    Route::get('/send-email-test', [CompanyController::class, 'sendEmail'])->name('send.email.test');
 
     Route::middleware(['auth:admin'])->group(function () {
         //Dashboard Route
@@ -96,8 +98,6 @@ Route::prefix('admin')->group(function () {
 
 
         Route::get('/company/report/{id}', [CompanyController::class, 'reportCompany'])->name('company.report');
-        Route::post('/send-email', [CompanyController::class, 'sendEmail'])->name('send.email');
-        Route::get('/send-email-test', [CompanyController::class, 'sendEmail'])->name('send.email.test');
 
 
         Route::get('/feature/companies', [CompanyController::class, 'featureCompany'])->name('admin.feature.company');
@@ -240,7 +240,7 @@ Route::prefix('admin')->group(function () {
 
 
         // CityMoretonBay, WollondillyShire, WesternDownsRegional,
-        // HornsbyShire, GriffithCity, GoulburnMulwaree, 
+        // HornsbyShire, GriffithCity, GoulburnMulwaree,
 
 
         // Candidate Route
