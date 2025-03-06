@@ -36,6 +36,9 @@
                         <button id="scrapeNewJobsButton" class="btn btn-secondary">
                              Scraping Councils with javascript (19)
                         </button>
+                        <button id="scrapeNewJobsButtonJS" class="btn btn-secondary">
+                             Scraping new Councils with javascript (5)
+                        </button>
 
                         <button id="scrapeNewJobsButtonNoLink" class="btn btn-info">
                             Scraping Councils with No link (4)
@@ -426,14 +429,19 @@
                 { route: "{{ route('auto.CabonneCouncil') }}", message: "Scraping Cabonne Council Jobs..." },
                 { route: "{{ route('auto.BanyuleCityCouncil') }}", message: "Scraping Banyule City Council Jobs..." },
             ];
+            
+
+            const newScrapingRoutesJs = [
+                 { route: "{{ route('auto.WollondillyShire') }}", message: "Scraping  Wollondilly Shire Council Jobs..." },
+                { route: "{{ route('auto.WesternDownsRegional') }}", message: "Scraping  Western Downs Regional Council Jobs..." },
+                { route: "{{ route('auto.HornsbyShire') }}", message: "Scraping  Hornsby Shire Council Jobs..." },
+                { route: "{{ route('auto.GriffithCity') }}", message: "Scraping  Griffith City Council Jobs..." },
+                { route: "{{ route('auto.GoulburnMulwaree') }}", message: "Scraping  Goulburn Mulwaree Council Jobs..." },
+
+            ];
 
 
-            // { route: "{{ route('auto.WollondillyShire') }}", message: "Scraping  Wollondilly Shire Council Jobs..." },
-            // { route: "{{ route('auto.WesternDownsRegional') }}", message: "Scraping  Western Downs Regional Council Jobs..." },
-            // { route: "{{ route('auto.HornsbyShire') }}", message: "Scraping  Hornsby Shire Council Jobs..." },
-            // { route: "{{ route('auto.GriffithCity') }}", message: "Scraping  Griffith City Council Jobs..." },
-            // { route: "{{ route('auto.GoulburnMulwaree') }}", message: "Scraping  Goulburn Mulwaree Council Jobs..." },
-
+          
             
 
             let errorCouncils = []; // Array to store councils that encounter errors
@@ -475,6 +483,7 @@
             // Enable the buttons after scraping is done
             $('#scrapeJobsButton').prop('disabled', false);
             $('#scrapeNewJobsButton').prop('disabled', false);
+            $('#scrapeNewJobsButtonJS').prop('disabled', false);
             $('#scrapeNewJobsButtonNoLink').prop('disabled', false);
 
         }
@@ -495,6 +504,13 @@
                 $('#resultMessage').hide();
                 errorCouncils = [];
                 scrapeJobs(0, newScrapingRoutes);
+            });
+
+            $('#scrapeNewJobsButtonJS').click(function() {
+                $('#loadingIndicator').show();
+                $('#resultMessage').hide();
+                errorCouncils = [];
+                scrapeJobs(0, newScrapingRoutesJs);
             });
 
             $('#scrapeNewJobsButtonNoLink').click(function() {
