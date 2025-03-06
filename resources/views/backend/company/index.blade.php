@@ -30,7 +30,7 @@
                     </div>
                     <div class="p-3 text-right">
                         <button id="scrapeJobsButton" class="btn btn-primary">
-                            Scraping Councils Jobs (59)
+                            Scraping Councils Jobs (54)
                         </button>
 
                         <button id="scrapeNewJobsButton" class="btn btn-secondary">
@@ -334,7 +334,7 @@
             // $('#loadingIndicator').show();
             // $('#resultMessage').hide();  // Hide any previous messages
 
-            // 59 councils to scrape
+            // 54 councils to scrape
             const scrapingRoutes = [
                 { route: "{{ route('auto.centralCoast') }}", message: "Scraping Central Coast Jobs..." },
                 { route: "{{ route('auto.CanterburyBankstown') }}", message: "Scraping Canterbury Bankstown Jobs..." },
@@ -362,11 +362,8 @@
                 { route: "{{ route('auto.FairfieldCity') }}", message: "Scraping  Fairfield City Council Jobs..." },
                 { route: "{{ route('auto.FlindersShire') }}", message: "Scraping  Flinders Shire Council Jobs..." },
                 { route: "{{ route('auto.GlenInnesSevern') }}", message: "Scraping  Glen Innes Severn Council Jobs..." },
-                { route: "{{ route('auto.GoulburnMulwaree') }}", message: "Scraping  Goulburn Mulwaree Council Jobs..." },
-                { route: "{{ route('auto.GriffithCity') }}", message: "Scraping  Griffith City Council Jobs..." },
                 { route: "{{ route('auto.GympieRegional') }}", message: "Scraping  Gympie Regional Council Jobs..." },
                 { route: "{{ route('auto.HinchinbrookShire') }}", message: "Scraping  Hinchinbrook Shire Council Jobs..." },
-                { route: "{{ route('auto.HornsbyShire') }}", message: "Scraping  Hornsby Shire Council Jobs..." },
                 { route: "{{ route('auto.LeetonShire') }}", message: "Scraping  Leeton Shire Council Jobs..." },
                 { route: "{{ route('auto.LivingstoneShire') }}", message: "Scraping  Livingstone Shire Council Jobs..." },
                 { route: "{{ route('auto.LoddonShire') }}", message: "Scraping  Loddon Shire Council Jobs..." },
@@ -388,8 +385,6 @@
                 { route: "{{ route('auto.SouthernDownsRegional') }}", message: "Scraping  Southern Downs Regional Council Jobs..." },
                 { route: "{{ route('auto.SurfCoastShire') }}", message: "Scraping  Surf Coast Shire Council Jobs..." },
                 { route: "{{ route('auto.VictoriaDalyRegional') }}", message: "Scraping  Victoria Daly Regional Council Jobs..." },
-                { route: "{{ route('auto.WesternDownsRegional') }}", message: "Scraping  Western Downs Regional Council Jobs..." },
-                { route: "{{ route('auto.WollondillyShire') }}", message: "Scraping  Wollondilly Shire Council Jobs..." },
                 { route: "{{ route('auto.ShireMorawa') }}", message: "Scraping  Shire of Morawa Council Jobs..." },
                 { route: "{{ route('auto.EurobodallaCouncil') }}", message: "Scraping  Eurobodalla Council  Jobs..." },
                 { route: "{{ route('auto.CowraShireCouncil') }}", message: "Scraping  Cowra Shire Council Council Jobs..." },
@@ -432,7 +427,14 @@
                 { route: "{{ route('auto.BanyuleCityCouncil') }}", message: "Scraping Banyule City Council Jobs..." },
             ];
 
-            newScrapingRoutesNoLink
+
+            // { route: "{{ route('auto.WollondillyShire') }}", message: "Scraping  Wollondilly Shire Council Jobs..." },
+            // { route: "{{ route('auto.WesternDownsRegional') }}", message: "Scraping  Western Downs Regional Council Jobs..." },
+            // { route: "{{ route('auto.HornsbyShire') }}", message: "Scraping  Hornsby Shire Council Jobs..." },
+            // { route: "{{ route('auto.GriffithCity') }}", message: "Scraping  Griffith City Council Jobs..." },
+            // { route: "{{ route('auto.GoulburnMulwaree') }}", message: "Scraping  Goulburn Mulwaree Council Jobs..." },
+
+            
 
             let errorCouncils = []; // Array to store councils that encounter errors
 

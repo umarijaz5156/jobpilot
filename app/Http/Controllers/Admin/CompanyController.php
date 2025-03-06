@@ -9554,164 +9554,7 @@ class CompanyController extends Controller
     }
 
 
-    public function WollondillyShire()
-    {
-        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
-
-        $user = User::where('name', 'Wollondilly Shire Council')->first();
-        $allJobs = [];
-        $client = new Client();
-
-        $mainUrl = 'https://www.ezisuite.net/eziJob/Wollondilly/HRRegistry/default.cfm?act=listVacancies'; // Your target URL
-        $crawler = $client->request('GET', $mainUrl);
-        $savedJobs = [];
-        $crawler->filter('table.list tbody tr')->each(function ($row) use (&$allJobs) {
-            // Extract the title and apply link
-
-            $titleElement = $row->filter('td:nth-child(1) a');
-            $title = $titleElement->text('No title available');
-            $applyLink = $titleElement->attr('href');
-
-            // Extract the closing date
-            $rawCloseDate = $row->filter('td:nth-child(3)')->text('No closing date available');
-            $formattedCloseDate = '';
-
-            // Format the closing date or use a default
-            try {
-                $formattedCloseDate = (new DateTime($rawCloseDate))->format('Y-m-d');
-            } catch (Exception $e) {
-                $formattedCloseDate = (new DateTime('now'))->modify('+4 weeks')->format('Y-m-d');
-            }
-
-            // Append job data to the array
-            $allJobs[] = [
-                'title' => $title,
-                'url' => 'https://www.ezisuite.net/eziJob/Wollondilly/HRRegistry/' . $applyLink,
-                'expires' => $formattedCloseDate,
-            ];
-        });
-
-
-
-
-
-        $jobAdded = 0;
-        foreach ($allJobs as $job) {
-
-            $jobUrl = $job['url'];
-
-            $existingJob = Job::where('apply_url', $jobUrl)->first();
-            if (!$existingJob) {
-
-                $jobAdded++;
-
-                $title = $job['title'];
-                $formattedExpiryDate = $job['expires'];
-                $location = 'Wollondilly Shire Council';
-
-                $categoryId = 3;
-                $jobCrawler = $client->request('GET', $jobUrl);
-
-                $dataContainer = $jobCrawler->filter('.main-content .section');
-
-
-                $jobDescription = $dataContainer->html();
-
-
-
-
-                $stateFullName = 'New South Wales';
-                $clientC = new ClientC();
-                $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
-                $nominatimResponse = $clientC->get($nominatimUrl, [
-                    'query' => [
-                        'q' => $location,
-                        'format' => 'json',
-                        'limit' => 1
-                    ],
-                    'headers' => [
-                        'User-Agent' => 'YourAppName/1.0'
-                    ]
-                ]);
-                $nominatimData = json_decode($nominatimResponse->getBody(), true);
-
-                if (!empty($nominatimData)) {
-                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455';
-                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
-                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
-                } else {
-                    $lat = '18.65060012243828';
-                    $lng =  '146.154338';
-                    $exact_location = $location;
-                }
-
-
-                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
-                if ($stateId) {
-                    $sId = $stateId->id;
-                } else {
-                    $sId = 3909;
-                }
-
-                // Prepare job data for insertion
-                $jobRequest = [
-                    'title' => $title,
-                    'category_id' => $categoryId,
-                    'company_id' => $user->company->id,
-                    'company_name' => 'Wollondilly Shire Council',
-                    'apply_on' => 'custom_url',
-                    'apply_url' => $jobUrl,
-                    'description' => $jobDescription,
-                    'state_id' => $sId,
-                    'vacancies' => 1,
-                    'deadline' => $formattedExpiryDate,
-                    'salary_mode' => 'custom',
-                    'salary_type_id' => 1,
-                    'custom_salary' => 'Competitive',
-                    'job_type_id' => 1,
-                    'role_id' => 1,
-                    'education_id' => 2,
-                    'experience_id' => 4,
-                    'featured' => 0,
-                    'highlight' => 0,
-                    'status' => 'active',
-                    'ongoing' => 0,
-                ];
-                // Save the job to the database
-                $done = $this->createJobFromScrape($jobRequest);
-
-                // Update categories
-                $categories = [0 => $categoryId];
-                $done->selectedCategories()->sync($categories);
-
-                $done->update([
-                    'address' => $exact_location,
-                    'neighborhood' => $exact_location,
-                    'locality' => $exact_location,
-                    'place' => $exact_location,
-                    'country' => 'Australia',
-                    'district' => $stateFullName, // Assuming state is NSW
-                    'region' => $stateFullName, // Assuming state is NSW
-                    'long' => $lng, // Default longitude, can be adjusted if coordinates are available
-                    'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
-                    'exact_location' => $exact_location,
-                ]);
-
-                $savedJobs[] = $done->id;
-                // Add to allJobs array
-            }
-        };
-
-        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
-
-        if (count($detailedJobs) > 0) {
-            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
-        }
-        // Return the number of jobs scraped
-        return response()->json([
-            'message' => $jobAdded . ' job(s) scraped from Wollondilly Shire Council ',
-        ]);
-    }
+  
 
 
     // ShireMorawa
@@ -14040,6 +13883,180 @@ class CompanyController extends Controller
     }
 
 
+    // change 5 councils with js
+    public function WollondillyShire()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+        $user = User::where('name', 'Wollondilly Shire Council')->first();
+        $allJobs = [];
+        $client = new Client();
+
+        $url = 'https://www.ezisuite.net/eziJob/Wollondilly/HRRegistry/default.cfm?act=listVacancies';
+        $html = $this->fetchHTML($url);
+        $dom = new \DOMDocument();
+        @$dom->loadHTML($html);
+        $xpath = new \DOMXPath($dom);
+        $jobs = [];
+        
+        $jobRows = $xpath->query("//table[contains(@class, 'list')]//tbody//tr");
+        
+        foreach ($jobRows as $row) {
+            // Extract job title
+            $titleNode = $xpath->query(".//td[1]/a", $row)->item(0);
+            $title = $titleNode ? trim($titleNode->textContent) : '';
+        
+            // Extract apply link
+            $applyLink = $titleNode ? trim($titleNode->getAttribute('href')) : '';
+        
+            // Extract closing date
+            $dateNode = $xpath->query(".//td[3]", $row)->item(0);
+            if ($dateNode) {
+                $dateText = trim($dateNode->textContent);
+                preg_match('/\d{2}\/\d{2}\/\d{4}/', $dateText, $matches);
+                if (!empty($matches)) {
+                    $dateObj = DateTime::createFromFormat('d/m/Y', $matches[0]);
+                    $date = $dateObj ? $dateObj->format('Y-m-d') : date('Y-m-d', strtotime('+4 weeks'));
+                } else {
+                    $date = date('Y-m-d', strtotime('+4 weeks'));
+                }
+            } else {
+                $date = date('Y-m-d', strtotime('+4 weeks'));
+            }
+        
+            // Store job details
+            $jobs[] = [
+                'title' => $title,
+                'url' => 'https://www.ezisuite.net/eziJob/Wollondilly/HRRegistry/' . $applyLink,
+                'closing_date' => $date,
+            ];
+        }
+        
+        // Output or store $jobs array as needed
+        
+
+dd($jobs);
+
+
+
+
+        $jobAdded = 0;
+        foreach ($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                $jobAdded++;
+
+                $title = $job['title'];
+                $formattedExpiryDate = $job['expires'];
+                $location = 'Wollondilly Shire Council';
+
+                $categoryId = 3;
+                $jobCrawler = $client->request('GET', $jobUrl);
+
+                $dataContainer = $jobCrawler->filter('.main-content .section');
+
+
+                $jobDescription = $dataContainer->html();
+
+
+
+
+                $stateFullName = 'New South Wales';
+                $clientC = new ClientC();
+                $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                $nominatimResponse = $clientC->get($nominatimUrl, [
+                    'query' => [
+                        'q' => $location,
+                        'format' => 'json',
+                        'limit' => 1
+                    ],
+                    'headers' => [
+                        'User-Agent' => 'YourAppName/1.0'
+                    ]
+                ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455';
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+                } else {
+                    $lat = '18.65060012243828';
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if ($stateId) {
+                    $sId = $stateId->id;
+                } else {
+                    $sId = 3909;
+                }
+
+                // Prepare job data for insertion
+                $jobRequest = [
+                    'title' => $title,
+                    'category_id' => $categoryId,
+                    'company_id' => $user->company->id,
+                    'company_name' => 'Wollondilly Shire Council',
+                    'apply_on' => 'custom_url',
+                    'apply_url' => $jobUrl,
+                    'description' => $jobDescription,
+                    'state_id' => $sId,
+                    'vacancies' => 1,
+                    'deadline' => $formattedExpiryDate,
+                    'salary_mode' => 'custom',
+                    'salary_type_id' => 1,
+                    'custom_salary' => 'Competitive',
+                    'job_type_id' => 1,
+                    'role_id' => 1,
+                    'education_id' => 2,
+                    'experience_id' => 4,
+                    'featured' => 0,
+                    'highlight' => 0,
+                    'status' => 'active',
+                    'ongoing' => 0,
+                ];
+                // Save the job to the database
+                $done = $this->createJobFromScrape($jobRequest);
+
+                // Update categories
+                $categories = [0 => $categoryId];
+                $done->selectedCategories()->sync($categories);
+
+                $done->update([
+                    'address' => $exact_location,
+                    'neighborhood' => $exact_location,
+                    'locality' => $exact_location,
+                    'place' => $exact_location,
+                    'country' => 'Australia',
+                    'district' => $stateFullName, // Assuming state is NSW
+                    'region' => $stateFullName, // Assuming state is NSW
+                    'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                    'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                    'exact_location' => $exact_location,
+                ]);
+
+                $savedJobs[] = $done->id;
+                // Add to allJobs array
+            }
+        };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
+        // Return the number of jobs scraped
+        return response()->json([
+            'message' => $jobAdded . ' job(s) scraped from Wollondilly Shire Council ',
+        ]);
+    }
 
 
 
@@ -14877,6 +14894,7 @@ class CompanyController extends Controller
         ini_set('max_execution_time', 300000000000000000000000000000000000000000000000000000000000000000000);
 
         $nodeLocalPath = base_path('node-local/bin/node');
+
         $scriptPath = base_path('fetchHTML.js');
         if (!$this->isNodeAvailable($nodeLocalPath)) {
             $this->installLocalNode();
