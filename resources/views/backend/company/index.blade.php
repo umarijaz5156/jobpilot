@@ -30,7 +30,7 @@
                     </div>
                     <div class="p-3 text-right">
                         <button id="scrapeJobsButton" class="btn btn-primary">
-                            Scraping Councils Jobs (54)
+                            Scraping Councils Jobs (55)
                         </button>
 
                         <button id="scrapeNewJobsButton" class="btn btn-secondary">
@@ -41,7 +41,7 @@
                         </button>
 
                         <button id="scrapeNewJobsButtonNoLink" class="btn btn-info">
-                            Scraping Councils with No link (4)
+                            Scraping Councils with No link (5)
                         </button>
 
 
@@ -337,7 +337,7 @@
             // $('#loadingIndicator').show();
             // $('#resultMessage').hide();  // Hide any previous messages
 
-            // 54 councils to scrape
+            // 55 councils to scrape
             const scrapingRoutes = [
                 { route: "{{ route('auto.centralCoast') }}", message: "Scraping Central Coast Jobs..." },
                 { route: "{{ route('auto.CanterburyBankstown') }}", message: "Scraping Canterbury Bankstown Jobs..." },
@@ -393,6 +393,8 @@
                 { route: "{{ route('auto.CowraShireCouncil') }}", message: "Scraping  Cowra Shire Council Council Jobs..." },
                 { route: "{{ route('auto.CityMoretonBay') }}", message: "Scraping  City Moreton Bay Council Jobs..." },
                 { route: "{{ route('auto.CityCharlesSturt') }}", message: "Scraping  City Charles Sturt Council Jobs..." },
+                { route: "{{ route('auto.ForbesShireCouncil') }}", message: "Scraping  Forbes Shire Council Jobs..." },
+
 
 
             ];
@@ -422,14 +424,16 @@
 
             ];
 
-            // 4 councils to scrape
+            // 5 councils to scrape
             const newScrapingRoutesNoLink = [
                 { route: "{{ route('auto.WingecarribeeShireCouncil') }}", message: "Scraping Wingecarribee Shire Council Jobs..." },
                 { route: "{{ route('auto.CityKalgoorlieBoulder') }}", message: "Scraping City Kalgoorlie Boulder Jobs..." },
                 { route: "{{ route('auto.CabonneCouncil') }}", message: "Scraping Cabonne Council Jobs..." },
                 { route: "{{ route('auto.BanyuleCityCouncil') }}", message: "Scraping Banyule City Council Jobs..." },
+                { route: "{{ route('auto.ShireofAshburton') }}", message: "Scraping Shire of Ashburton Council Jobs..." },
+
             ];
-            
+
 
             const newScrapingRoutesJs = [
                  { route: "{{ route('auto.WollondillyShire') }}", message: "Scraping  Wollondilly Shire Council Jobs..." },
@@ -441,8 +445,8 @@
             ];
 
 
-          
-            
+
+
 
             let errorCouncils = []; // Array to store councils that encounter errors
 

@@ -163,7 +163,7 @@ Route::prefix('admin')->group(function () {
 
 
 
-        // 30dec to 5 jan (13)
+        // 30dec to 5 jan (14)
         Route::get('/auto-get-RoperGulfRegional', [CompanyController::class, 'RoperGulfRegional'])->name('auto.RoperGulfRegional');
         Route::get('/auto-get-ShireAugustaMargaretRiver', [CompanyController::class, 'ShireAugustaMargaretRiver'])->name('auto.ShireAugustaMargaretRiver');
         Route::get('/auto-get-ShireEastPilbara', [CompanyController::class, 'ShireEastPilbara'])->name('auto.ShireEastPilbara');
@@ -178,6 +178,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-CowraShireCouncil', [CompanyController::class, 'CowraShireCouncil'])->name('auto.CowraShireCouncil');
         Route::get('/auto-get-CityCharlesSturt', [CompanyController::class, 'CityCharlesSturt'])->name('auto.CityCharlesSturt');
         Route::get('/auto-get-CityMoretonBay', [CompanyController::class, 'CityMoretonBay'])->name('auto.CityMoretonBay');
+        Route::get('/auto-get-ForbesShireCouncil', [CompanyController::class, 'ForbesShireCouncil'])->name('auto.ForbesShireCouncil');
 
 
 
@@ -211,7 +212,8 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-CityKalgoorlieBoulder', [CompanyController::class, 'CityKalgoorlieBoulder'])->name('auto.CityKalgoorlieBoulder');
         Route::get('/auto-get-CabonneCouncil', [CompanyController::class, 'CabonneCouncil'])->name('auto.CabonneCouncil');
         Route::get('/auto-get-BanyuleCityCouncil', [CompanyController::class, 'BanyuleCityCouncil'])->name('auto.BanyuleCityCouncil');
-  
+        Route::get('/auto-get-ShireofAshburton', [CompanyController::class, 'ShireofAshburton'])->name('auto.ShireofAshburton');
+
 
 
         // upper 77 councils are done

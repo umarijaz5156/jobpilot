@@ -5007,7 +5007,7 @@ class CompanyController extends Controller
         ]);
     }
 
-  
+
 
 
 
@@ -8911,7 +8911,7 @@ class CompanyController extends Controller
         ]);
     }
 
- 
+
 
 
 
@@ -9558,6 +9558,182 @@ class CompanyController extends Controller
             'message' => $jobAdded . ' job(s) scraped from Moreton Bay Regional Council',
         ]);
     }
+
+    public function ForbesShireCouncil()
+    {
+        ini_set('max_execution_time', 3000000); // Set maximum execution time (5 minutes)
+
+
+        $user = User::where('name', 'Forbes Shire Council')->first();
+        $allJobs = [];
+        $client = new Client();
+        $savedJobs = [];
+        $mainUrl = 'https://forbesshirecouncil.elmotalent.com.au/careers/external/jobs'; // Your target URL
+        $crawler = $client->request('GET', $mainUrl);
+
+        $crawler->filter('.list-group-item')->each(function ($row) use (&$allJobs) {
+
+            // Extract Job Title
+            $jobTitle = $row->filter('a.e-clickable')->text() ?? 'No title available';
+
+            // Extract Apply Link
+            $applyLink = $row->filter('a.e-clickable')->attr('href') ?? 'No link available';
+
+
+            // Extract Expiration Date
+            $row->filter('.glyphicon-calendar')->each(function ($node) use (&$expiryDate) {
+                $parent = $node->closest('.row'); // Locate the parent `.row` element
+                if ($parent) {
+                    $rawDate = trim($parent->filter('.col-md-10, .col-sm-10, .col-xs-10')->text());
+                    $expiryDate = \DateTime::createFromFormat('d/m/Y', $rawDate)->format('Y-m-d');
+                } else {
+                    $expiryDate = Carbon::now()->addWeeks(4)->format('Y-m-d');
+                }
+            });
+
+            // Append job details
+            $allJobs[] = [
+                'title' => $jobTitle,
+                'url' => 'https://forbesshirecouncil.elmotalent.com.au' . $applyLink,
+                'expires' => $expiryDate,
+            ];
+        });
+
+
+
+        $jobAdded = 0;
+        foreach ($allJobs as $job) {
+
+            $jobUrl = $job['url'];
+
+            $existingJob = Job::where('apply_url', $jobUrl)->first();
+            if (!$existingJob) {
+
+                $jobAdded++;
+
+                $title = $job['title'];
+                $formattedExpiryDate = $job['expires'];
+                $location = 'Forbes Shire Council';
+
+                $categoryId = 3;
+                $jobCrawler = $client->request('GET', $jobUrl);
+
+                $dataContainer = $jobCrawler->filter('.portal_content .e-padding-10');
+
+                $jobDescription = $dataContainer->outerHtml();
+
+                // Check if salary exists, otherwise set to "Competitive"
+                $salaryNode = $jobCrawler->filter('.portal_content .job-ad-salary');
+
+                if ($salaryNode->count() > 0) {
+                    $salaryText = $salaryNode->text();
+
+                    // Extract only numbers, commas, and dots (for decimal values)
+                    preg_match_all('/[\d,\.]+/', $salaryText, $matches);
+
+                    // Join the extracted numbers (in case of ranges like 85,000 - 111,000)
+                    $salary = implode(' - ', $matches[0]);
+                } else {
+                    $salary = "Competitive"; // Default if salary is missing
+                }
+
+
+
+
+                $stateFullName = 'New South Wales';
+                $clientC = new ClientC();
+                $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                $nominatimResponse = $clientC->get($nominatimUrl, [
+                    'query' => [
+                        'q' => $location,
+                        'format' => 'json',
+                        'limit' => 1
+                    ],
+                    'headers' => [
+                        'User-Agent' => 'YourAppName/1.0'
+                    ]
+                ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455';
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+                } else {
+                    $lat = '18.65060012243828';
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if ($stateId) {
+                    $sId = $stateId->id;
+                } else {
+                    $sId = 3909;
+                }
+
+                // Prepare job data for insertion
+                $jobRequest = [
+                    'title' => $title,
+                    'category_id' => $categoryId,
+                    'company_id' => $user->company->id,
+                    'company_name' => $location,
+                    'apply_on' => 'custom_url',
+                    'apply_url' => $jobUrl,
+                    'description' => $jobDescription,
+                    'state_id' => $sId,
+                    'vacancies' => 1,
+                    'deadline' => $formattedExpiryDate,
+                    'salary_mode' => 'custom',
+                    'salary_type_id' => 4,
+                    'custom_salary' => $salary,
+                    'job_type_id' => 1,
+                    'role_id' => 1,
+                    'education_id' => 2,
+                    'experience_id' => 4,
+                    'featured' => 0,
+                    'highlight' => 0,
+                    'status' => 'active',
+                    'ongoing' => 0,
+                ];
+                // Save the job to the database
+                $done = $this->createJobFromScrape($jobRequest);
+
+                // Update categories
+                $categories = [0 => $categoryId];
+                $done->selectedCategories()->sync($categories);
+
+                $done->update([
+                    'address' => $exact_location,
+                    'neighborhood' => $exact_location,
+                    'locality' => $exact_location,
+                    'place' => $exact_location,
+                    'country' => 'Australia',
+                    'district' => $stateFullName, // Assuming state is NSW
+                    'region' => $stateFullName, // Assuming state is NSW
+                    'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                    'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                    'exact_location' => $exact_location,
+                ]);
+
+                $savedJobs[] = $done->id;
+                // Add to allJobs array
+            }
+        };
+
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
+        // Return the number of jobs scraped
+        return response()->json([
+            'message' => $jobAdded . ' job(s) scraped from Forbes Shire Council',
+        ]);
+    }
+
 
 
     // CityCharlesSturt
@@ -13256,17 +13432,17 @@ class CompanyController extends Controller
         @$dom->loadHTML($html);
         $xpath = new \DOMXPath($dom);
         $jobs = [];
-        
+
         $jobRows = $xpath->query("//table[contains(@class, 'list')]//tbody//tr");
-        
+
         foreach ($jobRows as $row) {
             // Extract job title
             $titleNode = $xpath->query(".//td[1]/a", $row)->item(0);
             $title = $titleNode ? trim($titleNode->textContent) : '';
-        
+
             // Extract apply link
             $applyLink = $titleNode ? trim($titleNode->getAttribute('href')) : '';
-        
+
             // Extract closing date
             $dateNode = $xpath->query(".//td[3]", $row)->item(0);
             if ($dateNode) {
@@ -13281,7 +13457,7 @@ class CompanyController extends Controller
             } else {
                 $date = date('Y-m-d', strtotime('+4 weeks'));
             }
-        
+
             // Store job details
             $jobs[] = [
                 'title' => $title,
@@ -13289,9 +13465,9 @@ class CompanyController extends Controller
                 'closing_date' => $date,
             ];
         }
-        
+
         // Output or store $jobs array as needed
-        
+
 
 
 
@@ -13424,26 +13600,26 @@ class CompanyController extends Controller
         $savedJobs = [];
         $url = 'https://www.ezisuite.net/eziJob/WDRC/HRRegistry/default.cfm?act=listVacancies';
         $html = $this->fetchHTML($url);
-        
+
         $dom = new \DOMDocument();
         @$dom->loadHTML($html);
-        
+
         $xpath = new \DOMXPath($dom);
         $jobs = [];
-        
+
         // Select vacancy rows, skipping the header
         $jobRows = $xpath->query("//table[contains(@class, 'wdrc-vacancies')]/tbody/tr[position() > 1]");
-        
+
         foreach ($jobRows as $row) {
             // Extract job title and apply link
             $titleNode = $xpath->query(".//td[1]/a", $row)->item(0);
             $jobTitle = $titleNode ? trim($titleNode->textContent) : 'No title available';
             $applyLink = $titleNode ? trim($titleNode->getAttribute('href')) : '';
-        
+
             // Extract closing date
             $dateNode = $xpath->query(".//td[3]", $row)->item(0);
             $rawCloseDate = $dateNode ? trim($dateNode->textContent) : 'No closing date available';
-        
+
             // Format the closing date
             try {
                 if (!empty($rawCloseDate) && $rawCloseDate !== 'No closing date available') {
@@ -13454,7 +13630,7 @@ class CompanyController extends Controller
             } catch (Exception $e) {
                 $formattedCloseDate = (new DateTime('now'))->modify('+4 weeks')->format('Y-m-d');
             }
-        
+
             // Append job details
             $jobs[] = [
                 'title' => $jobTitle,
@@ -13462,7 +13638,7 @@ class CompanyController extends Controller
                 'expires' => $formattedCloseDate,
             ];
         }
-        
+
 
 
 
@@ -13598,27 +13774,27 @@ class CompanyController extends Controller
 
         $url = 'https://www.ezisuite.net/eziJob/Hornsby/HRRegistry/default.cfm';
         $html = $this->fetchHTML($url);
-        
+
         $dom = new \DOMDocument();
         @$dom->loadHTML($html);
-        
+
         $xpath = new \DOMXPath($dom);
         $jobs = [];
-        
+
         // Select vacancy rows from the table
         $jobRows = $xpath->query("//table[contains(@class, 'list')]/tbody/tr");
-        
+
         foreach ($jobRows as $row) {
             try {
                 // Extract job title and apply link
                 $titleNode = $xpath->query(".//td[1]/a", $row)->item(0);
                 $jobTitle = $titleNode ? trim($titleNode->textContent) : 'No title available';
                 $applyLink = $titleNode ? trim($titleNode->getAttribute('href')) : '';
-        
+
                 // Extract closing date
                 $dateNode = $xpath->query(".//td[3]", $row)->item(0);
                 $rawCloseDate = $dateNode ? trim($dateNode->textContent) : '';
-        
+
                 // Format the closing date
                 try {
                     if (!empty($rawCloseDate)) {
@@ -13629,7 +13805,7 @@ class CompanyController extends Controller
                 } catch (Exception $e) {
                     $formattedCloseDate = (new DateTime('now'))->modify('+4 weeks')->format('Y-m-d');
                 }
-        
+
                 // Append job details
                 $jobs[] = [
                     'title' => $jobTitle,
@@ -13640,7 +13816,7 @@ class CompanyController extends Controller
                 error_log("Error parsing job: " . $e->getMessage());
             }
         }
-        
+
 
 
         $jobAdded = 0;
@@ -13771,30 +13947,30 @@ class CompanyController extends Controller
 
         $url = 'https://www.ezisuite.net/eziJob/Griffith/HRRegistry/default.cfm';
         $html = $this->fetchHTML($url);
-        
+
         $dom = new \DOMDocument();
         @$dom->loadHTML($html);
-        
+
         $xpath = new \DOMXPath($dom);
         $jobs = [];
-        
+
         // Select all job rows from the table body
         $jobRows = $xpath->query("//table/tbody/tr");
-        
+
         foreach ($jobRows as $row) {
             try {
                 // Extract job title and apply link
                 $titleNode = $xpath->query(".//td[1]/a", $row)->item(0);
                 $jobTitle = $titleNode ? trim($titleNode->textContent) : 'No title available';
                 $applyLink = $titleNode ? trim($titleNode->getAttribute('href')) : '';
-        
+
                 // Construct the full apply link
                 $applyLink = rtrim($url, 'default.cfm') . $applyLink;
-        
+
                 // Extract closing date
                 $dateNode = $xpath->query(".//td[3]", $row)->item(0);
                 $rawCloseDate = $dateNode ? trim($dateNode->textContent) : '';
-        
+
                 // Format the closing date
                 try {
                     if (!empty($rawCloseDate)) {
@@ -13805,7 +13981,7 @@ class CompanyController extends Controller
                 } catch (Exception $e) {
                     $formattedCloseDate = (new DateTime('now'))->modify('+4 weeks')->format('Y-m-d');
                 }
-        
+
                 // Append job details
                 $jobs[] = [
                     'title' => $jobTitle,
@@ -13816,7 +13992,7 @@ class CompanyController extends Controller
                 error_log("Error parsing job: " . $e->getMessage());
             }
         }
-        
+
 
         $jobAdded = 0;
         foreach ($allJobs as $job) {
@@ -13951,30 +14127,30 @@ class CompanyController extends Controller
 
         $url = 'https://www.ezisuite.net/eziJob/Goulburn/HRRegistry/default.cfm?act=listVacancies';
         $html = $this->fetchHTML($url);
-        
+
         $dom = new \DOMDocument();
         @$dom->loadHTML($html);
-        
+
         $xpath = new \DOMXPath($dom);
         $jobs = [];
-        
+
         // Select all job rows from the table body
         $jobRows = $xpath->query("//table/tbody/tr");
-        
+
         foreach ($jobRows as $row) {
             try {
                 // Extract job title and apply link
                 $titleNode = $xpath->query(".//td[1]/a", $row)->item(0);
                 $jobTitle = $titleNode ? trim($titleNode->textContent) : 'No title available';
                 $applyLink = $titleNode ? trim($titleNode->getAttribute('href')) : '';
-        
+
                 // Construct the full apply link
                 $applyLink = 'https://www.ezisuite.net/eziJob/Goulburn/HRRegistry/' . $applyLink;
-        
+
                 // Extract closing date
                 $dateNode = $xpath->query(".//td[3]", $row)->item(0);
                 $rawCloseDate = $dateNode ? trim($dateNode->textContent) : '';
-        
+
                 // Format the closing date
                 try {
                     if (!empty($rawCloseDate)) {
@@ -13985,7 +14161,7 @@ class CompanyController extends Controller
                 } catch (Exception $e) {
                     $formattedCloseDate = (new DateTime('now'))->modify('+4 weeks')->format('Y-m-d');
                 }
-        
+
                 // Append job details
                 $jobs[] = [
                     'title' => $jobTitle,
@@ -13996,7 +14172,7 @@ class CompanyController extends Controller
                 error_log("Error parsing job: " . $e->getMessage());
             }
         }
-        
+
 
 
 
@@ -14855,6 +15031,183 @@ class CompanyController extends Controller
 
 
                 $stateFullName = 'Victoria';
+                $clientC = new ClientC();
+                $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
+                $nominatimResponse = $clientC->get($nominatimUrl, [
+                    'query' => [
+                        'q' => $location,
+                        'format' => 'json',
+                        'limit' => 1
+                    ],
+                    'headers' => [
+                        'User-Agent' => 'YourAppName/1.0'
+                    ]
+                ]);
+                $nominatimData = json_decode($nominatimResponse->getBody(), true);
+
+                if (!empty($nominatimData)) {
+                    $lat = $nominatimData[0]['lat'] ?? '-16.4614455';
+                    $lng = $nominatimData[0]['lon'] ?? '145.372664';
+                    $exact_location = $nominatimData[0]['display_name'] ?? $location;
+                } else {
+                    $lat = '18.65060012243828';
+                    $lng =  '146.154338';
+                    $exact_location = $location;
+                }
+
+
+                $stateId = State::where('name', 'like', '%' . $stateFullName . '%')->first();
+                if ($stateId) {
+                    $sId = $stateId->id;
+                } else {
+                    $sId = 3909;
+                }
+
+                // Prepare job data for insertion
+                $jobRequest = [
+                    'title' => $title,
+                    'category_id' => $categoryId,
+                    'company_id' => $user->company->id,
+                    'company_name' =>  $companyName,
+                    'apply_on' => 'custom_url',
+                    'apply_url' => $jobUrl,
+                    'description' => $jobDescription,
+                    'state_id' => $sId,
+                    'vacancies' => 1,
+                    'deadline' => $formattedExpiryDate,
+                    'salary_mode' => 'custom',
+                    'salary_type_id' => 1,
+                    'custom_salary' => $salary ?? 'Competitive',
+                    'job_type_id' => 1,
+                    'role_id' => 1,
+                    'education_id' => 2,
+                    'experience_id' => 4,
+                    'featured' => 0,
+                    'highlight' => 0,
+                    'status' => 'active',
+                    'ongoing' => 0,
+                ];
+                // Save the job to the database
+                $done = $this->createJobFromScrape($jobRequest);
+
+                // Update categories
+                $categories = [0 => $categoryId];
+                $done->selectedCategories()->sync($categories);
+
+                $done->update([
+                    'address' => $exact_location,
+                    'neighborhood' => $exact_location,
+                    'locality' => $exact_location,
+                    'place' => $exact_location,
+                    'country' => 'Australia',
+                    'district' => $stateFullName, // Assuming state is NSW
+                    'region' => $stateFullName, // Assuming state is NSW
+                    'long' => $lng, // Default longitude, can be adjusted if coordinates are available
+                    'lat' => $lat, // Default latitude, can be adjusted if coordinates are available
+                    'exact_location' => $exact_location,
+                ]);
+
+                $savedJobs[] = $done->id;
+
+                // Add to allJobs array
+            }
+        };
+
+        $detailedJobs = Job::whereIn('id', $savedJobs)->get();
+
+        if (count($detailedJobs) > 0) {
+            Mail::to($user->email)->send(new JobScrapedNotification($detailedJobs, $user));
+        }
+
+        // Return the number of jobs scraped
+        return response()->json([
+            'message' => $jobAdded . ' job(s) scraped from ' .  $companyName,
+        ]);
+    }
+
+    public function ShireofAshburton()
+    {
+        ini_set('max_execution_time', 300000000000000000000000000); // Set maximum execution time (5 minutes)
+        $companyName = 'Shire of Ashburton';
+        $user = User::where('name',  $companyName)->first();
+        $allJobs = [];
+        $savedJobs = [];
+
+
+
+        $url = 'https://ashburton.pulsesoftware.com/Pulse/jobs';
+        $html = $this->fetchHTML($url);
+
+        $dom = new \DOMDocument();
+        @$dom->loadHTML($html);
+
+        $xpath = new \DOMXPath($dom);
+        $jobs = [];
+
+        $jobPanels = $xpath->query("//div[contains(@class, 'pulse-container') and contains(@class, 'detail-card')]");
+
+        foreach ($jobPanels as $panel) {
+            // Extract job title
+            $titleNode = $xpath->query(".//div[contains(@class, 'job-title')]/span", $panel)->item(0);
+            $title = $titleNode ? trim($titleNode->textContent) : '';
+
+            // Extract closing date
+
+            $dateNode = $xpath->query(".//div[contains(@style, 'margin-top: 5px')]/span[contains(text(), 'Closing date:')]/following-sibling::span", $panel)->item(0);
+            if ($dateNode) {
+                $dateText = trim($dateNode->textContent);
+                preg_match('/\d{2}\/\d{2}\/\d{4}/', $dateText, $matches);
+                if (!empty($matches)) {
+                    $dateObj = DateTime::createFromFormat('d/m/Y', $matches[0]);
+                    $date = $dateObj ? $dateObj->format('Y-m-d') : date('Y-m-d', strtotime('+4 weeks'));
+                } else {
+                    $date = date('Y-m-d', strtotime('+4 weeks'));
+                }
+            } else {
+                $date = date('Y-m-d', strtotime('+4 weeks'));
+            }
+
+
+            $compensationNode = $xpath->query(".//div[contains(@style, 'margin-top: 5px')]/span[contains(., 'Compensation:')]/following-sibling::span", $panel)->item(0);
+            $compensation = $compensationNode ? trim($compensationNode->textContent) : 'Competitive';
+
+
+            $jobs[] = [
+                'title' => $title,
+                'closing_date' => $date,
+                'location' => $companyName,
+                'compensation' => $compensation,
+            ];
+        }
+
+
+        $allJobs = $jobs;
+
+        $jobAdded = 0;
+        foreach ($allJobs as $job) {
+
+            $jobUrl = 'https://ashburton.pulsesoftware.com/Pulse/jobs';
+            $title = $job['title'];
+            $formattedExpiryDate = $job['closing_date'];
+
+
+            $existingJob = Job::where('title', $title)->where('company_id', $user->company->id)->where('deadline', $formattedExpiryDate)->first();
+            if (!$existingJob) {
+
+                $jobAdded++;
+
+
+                $location =  $job['location'];
+                $salary = $job['compensation'];
+
+                $categoryId = 3;
+
+                $jobDescription = '
+                                <div><h2><span style="color: rgb(0, 0, 0);">Applying for a Position at the Shire of Ashburton</span></h2><h3><span style="color: rgb(0, 0, 0);">How to Apply</span></h3><p><span style="color: rgb(0, 0, 0);">Please apply for a position, click on the view details and apply button. Applications should include a covering letter that introduces yourself to the selection panel and should include the title of the position you are applying for, as well as the position reference number, and explains why you are applying for the position and how you may be contacted during normal business hours, along with your resume and referees.</span></p></div>
+                                ';
+
+
+                $stateFullName = 'Western Australia';
                 $clientC = new ClientC();
                 $nominatimUrl = 'https://nominatim.openstreetmap.org/search';
                 $nominatimResponse = $clientC->get($nominatimUrl, [
