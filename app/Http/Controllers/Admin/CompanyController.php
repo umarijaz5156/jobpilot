@@ -14567,7 +14567,7 @@ class CompanyController extends Controller
             $title = $titleNode ? trim($titleNode->textContent) : '';
 
             // Extract closing date
-            $dateNode = $xpath->query(".//div[contains(@style, 'margin-top: 5px')]/span[contains(text(), 'Closing date:')]/following-sibling::span", $panel)->item(0);
+            $dateNode = $xpath->query(".//span[.//b[contains(text(), 'Closing date:')]]/following-sibling::span", $panel)->item(0);
             if ($dateNode) {
                 $dateText = trim($dateNode->textContent);
                 preg_match('/\d{2}\/\d{2}\/\d{4}/', $dateText, $matches);
@@ -14580,7 +14580,6 @@ class CompanyController extends Controller
             } else {
                 $date = date('Y-m-d', strtotime('+4 weeks'));
             }
-
 
             $compensationNode = $xpath->query(".//div[contains(@style, 'margin-top: 5px')]/span[contains(., 'Compensation:')]/following-sibling::span", $panel)->item(0);
             $compensation = $compensationNode ? trim($compensationNode->textContent) : 'Competitive';
@@ -14606,8 +14605,9 @@ class CompanyController extends Controller
             $title = $job['title'];
             $formattedExpiryDate = $job['closing_date'];
 
+            $existingJob = Job::where('title', $title)->where('company_id', $user->company->id)->first();
 
-            $existingJob = Job::where('title', $title)->where('company_id', $user->company->id)->where('deadline', $formattedExpiryDate)->first();
+            // $existingJob = Job::where('title', $title)->where('company_id', $user->company->id)->where('deadline', $formattedExpiryDate)->first();
             if (!$existingJob) {
 
                 $jobAdded++;
@@ -14749,7 +14749,8 @@ class CompanyController extends Controller
             $title = $titleNode ? trim($titleNode->textContent) : '';
 
             // Extract closing date
-            $dateNode = $xpath->query(".//div[contains(@style, 'margin-top: 5px')]/span[contains(text(), 'Closing date:')]/following-sibling::span", $panel)->item(0);
+            $dateNode = $xpath->query(".//span[.//b[contains(text(), 'Closing date:')]]/following-sibling::span", $panel)->item(0);
+
             if ($dateNode) {
                 $dateText = trim($dateNode->textContent);
                 preg_match('/\d{2}\/\d{2}\/\d{4}/', $dateText, $matches);
@@ -14762,7 +14763,6 @@ class CompanyController extends Controller
             } else {
                 $date = date('Y-m-d', strtotime('+4 weeks'));
             }
-
 
             $compensationNode = $xpath->query(".//div[contains(@style, 'margin-top: 5px')]/span[contains(., 'Compensation:')]/following-sibling::span", $panel)->item(0);
             $compensation = $compensationNode ? trim($compensationNode->textContent) : 'Competitive';
@@ -14788,8 +14788,9 @@ class CompanyController extends Controller
             $title = $job['title'];
             $formattedExpiryDate = $job['closing_date'];
 
+            // $existingJob = Job::where('title', $title)->where('company_id', $user->company->id)->where('deadline', $formattedExpiryDate)->first();
 
-            $existingJob = Job::where('title', $title)->where('company_id', $user->company->id)->where('deadline', $formattedExpiryDate)->first();
+            $existingJob = Job::where('title', $title)->where('company_id', $user->company->id)->first();
             if (!$existingJob) {
 
                 $jobAdded++;
