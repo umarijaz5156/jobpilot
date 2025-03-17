@@ -1,4 +1,9 @@
-<link rel="icon" type="image/png" href="{{ asset($setting->favicon_image) }}">
+{{-- <link rel="icon" type="image/png" href="{{ asset($setting->favicon_image) }}"> --}}
+<link rel="icon" href="{{ asset($setting->favicon_image) }}" type="image/x-icon">
+<link rel="shortcut icon" href="{{ asset($setting->favicon_image) }}" type="image/x-icon">
+<link rel="apple-touch-icon"  href="{{ asset($setting->favicon_image) }}">
+
+
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="dns-prefetch" href="//fonts.googleapis.com">

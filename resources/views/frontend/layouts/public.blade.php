@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="@yield('description')">
-    <meta property="og:image" content="@yield('og:image')">
+    <meta property="og:image" content="{{ asset($setting->favicon_image) }}">
+
+    {{-- <meta property="og:image" content="@yield('og:image')"> --}}
     <title>@yield('title') - {{ config('app.name') }}</title>
 
     @yield('ld-data')
@@ -35,7 +37,7 @@
 
     {{-- Main --}}
     @yield('main')
-    
+
     {{-- footer --}}
     @include('frontend.partials.footer')
 
