@@ -4320,13 +4320,18 @@ class CompanyController extends Controller
                 // Extract location (from the <span> with class 'location')
                 $location = trim($item->filter('.location')->text());
 
-                // Extract the expires date (from the <span> with class 'expires')
                 $expiresRaw = $item->filter('.expires')->text();
                 $expiresRaw = str_replace(' AEDT', '', $expiresRaw); // Remove ' AEDT' if it exists
+                $expiresRaw = trim($expiresRaw); // Trim any extra whitespace
 
-                // Convert to the correct date format (e.g., Y-m-d)
-                $closeDate = Carbon::createFromFormat('d M Y', trim($expiresRaw))->format('Y-m-d');
-
+                // Check if we have a valid date format before parsing
+                if (preg_match('/^\d{1,2} \w{3} \d{4}$/', $expiresRaw)) {
+                    // Convert to the correct date format (e.g., Y-m-d)
+                    $closeDate = Carbon::createFromFormat('d M Y', $expiresRaw)->format('Y-m-d');
+                } else {
+                    // Fallback to today's date if the format is unexpected
+                    $closeDate = Carbon::now()->addWeeks(5)->format('Y-m-d');
+                }
                 // Append the job details to the array
                 $allJobs[] = [
                     'title' => $jobTitle,
@@ -4339,7 +4344,6 @@ class CompanyController extends Controller
                 // error_log("Error parsing job: " . $e->getMessage());
             }
         });
-
 
         $jobAdded = 0;
         foreach ($allJobs as $job) {
@@ -7513,37 +7517,75 @@ class CompanyController extends Controller
         $mainUrl = 'https://ropergulf.nt.gov.au/jobs/job-vacancies'; // Your target URL
         $crawler = $client->request('GET', $mainUrl); // Assuming $client is a configured HTTP client
 
-        $savedJobs = []; // Array to hold extracted job data
+        $allJobs = []; // Array to hold all extracted job data
+        // Extract jobs and store them in the savedJobs array
+        $savedJobs = [];
 
-        // Filter for job listings
+        // Filter for the main item-list which can have multiple nested vacancy-list items
         $crawler->filter('.item-list')->each(function (Crawler $node) use (&$allJobs) {
-            try {
-                // Extract the job title
-                $jobTitle = $node->filter('h3 > a')->text();
-
-                // Extract the apply link
-                $applyLink = $node->filter('h3 > a')->attr('href');
-                $applyLink = 'https://ropergulf.nt.gov.au' . $applyLink; // Ensure full URL
-
-                // Extract the closing date
-                $closingDate = $node->filter('time')->attr('datetime');
-
-                // Format the closing date
+            // First, check for any .vacancy-list items that might be present in this .item-list
+            $node->filter('.vacancy-list-item')->each(function (Crawler $vacancyNode) use (&$allJobs) {
                 try {
-                    $formattedCloseDate = Carbon::parse($closingDate)->format('Y-m-d');
-                } catch (\Exception $e) {
-                    $formattedCloseDate = Carbon::now()->addWeeks(4)->format('Y-m-d'); // Default to 4 weeks from today
-                }
+                    // Extract the job title
+                    $jobTitle = $vacancyNode->filter('h3 > a')->text();
 
-                // Append extracted job data to the array
-                $allJobs[] = [
-                    'title' => $jobTitle,
-                    'expires' => $formattedCloseDate,
-                    'url' => $applyLink,
-                ];
-            } catch (\Exception $e) {
-                // Handle exceptions gracefully (e.g., log the error)
-            }
+                    // Extract the apply link
+                    $applyLink = $vacancyNode->filter('h3 > a')->attr('href');
+                    $applyLink = 'https://ropergulf.nt.gov.au' . $applyLink; // Ensure full URL
+
+                    // Extract the closing date
+                    $closingDate = $vacancyNode->filter('time')->attr('datetime');
+
+                    // Format the closing date
+                    try {
+                        $formattedCloseDate = Carbon::parse($closingDate)->format('Y-m-d');
+                    } catch (\Exception $e) {
+                        $formattedCloseDate = Carbon::now()->addWeeks(4)->format('Y-m-d'); // Default to 4 weeks from today
+                    }
+
+                    // Append extracted job data to the array
+                    $allJobs1[] = [
+                        'title' => $jobTitle,
+                        'expires' => $formattedCloseDate,
+                        'url' => $applyLink,
+                    ];
+                } catch (\Exception $e) {
+                    // Handle exceptions gracefully (e.g., log the error)
+                }
+            });
+
+            // Then check for any nested .vacancy-list within each .item-list
+            $node->filter('.vacancy-list')->each(function (Crawler $vacancyListNode) use (&$allJobs) {
+                $vacancyListNode->filter('.vacancy-list-item')->each(function (Crawler $vacancyNode) use (&$allJobs) {
+                    try {
+                        // Extract the job title
+                        $jobTitle = $vacancyNode->filter('h3 > a')->text();
+
+                        // Extract the apply link
+                        $applyLink = $vacancyNode->filter('h3 > a')->attr('href');
+                        $applyLink = 'https://ropergulf.nt.gov.au' . $applyLink; // Ensure full URL
+
+                        // Extract the closing date
+                        $closingDate = $vacancyNode->filter('time')->attr('datetime');
+
+                        // Format the closing date
+                        try {
+                            $formattedCloseDate = Carbon::parse($closingDate)->format('Y-m-d');
+                        } catch (\Exception $e) {
+                            $formattedCloseDate = Carbon::now()->addWeeks(4)->format('Y-m-d'); // Default to 4 weeks from today
+                        }
+
+                        // Append extracted job data to the array
+                        $allJobs[] = [
+                            'title' => $jobTitle,
+                            'expires' => $formattedCloseDate,
+                            'url' => $applyLink,
+                        ];
+                    } catch (\Exception $e) {
+                        // Handle exceptions gracefully (e.g., log the error)
+                    }
+                });
+            });
         });
 
 
@@ -7921,7 +7963,6 @@ class CompanyController extends Controller
                 'closing_date' => $formattedClosingDate,
             ];
         });
-
 
 
 
@@ -10139,7 +10180,6 @@ class CompanyController extends Controller
 
 
         $allJobs = $jobs;
-
         $jobAdded = 0;
         foreach ($allJobs as $job) {
 
@@ -11238,7 +11278,6 @@ class CompanyController extends Controller
 
 
         $allJobs = $jobs;
-
         $jobAdded = 0;
         foreach ($allJobs as $job) {
 

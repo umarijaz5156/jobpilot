@@ -239,13 +239,13 @@ Route::prefix('admin')->group(function () {
         //If you have a trouble locating i can search and send the link
 
         // Hi Umar. If you can check the scrapes for;
-        // Pilbara
-        // Ashburton
-        // Roper gulf
-        // Nambucca
-        // Glenelg
-        // Cumberland
-        // Joondalup
+        // Pilbara (its work fine)
+        // Ashburton (its work fine)
+        // Roper gulf (get half jobs fixed now)
+        // Nambucca (its work fine)
+        // Glenelg (we don't scrape it not possible)
+        // Cumberland (get half jobs fixed now)
+        // Joondalup (work fine)
 
 
         //    not possible (13)
