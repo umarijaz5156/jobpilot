@@ -207,7 +207,7 @@ Route::prefix('admin')->group(function () {
 
 
 
-        // with js but apply link not found (4)
+        // with js but apply link not found (5)
         Route::get('/auto-get-WingecarribeeShireCouncil', [CompanyController::class, 'WingecarribeeShireCouncil'])->name('auto.WingecarribeeShireCouncil');
         Route::get('/auto-get-CityKalgoorlieBoulder', [CompanyController::class, 'CityKalgoorlieBoulder'])->name('auto.CityKalgoorlieBoulder');
         Route::get('/auto-get-CabonneCouncil', [CompanyController::class, 'CabonneCouncil'])->name('auto.CabonneCouncil');
@@ -228,6 +228,24 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-GoulburnMulwaree', [CompanyController::class, 'GoulburnMulwaree'])->name('auto.GoulburnMulwaree');
 
 
+
+
+
+        // Alice Springs Town Council
+        // Hobart City Council
+        // Fairfield City Council
+        // All have new job pages. Can you please update for the scrape.
+        //I dont have the links. Can you search them on the website for the councils.
+        //If you have a trouble locating i can search and send the link
+
+        // Hi Umar. If you can check the scrapes for;
+        // Pilbara
+        // Ashburton
+        // Roper gulf
+        // Nambucca
+        // Glenelg
+        // Cumberland
+        // Joondalup
 
 
         //    not possible (13)
