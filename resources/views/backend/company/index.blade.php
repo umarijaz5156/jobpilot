@@ -30,7 +30,7 @@
                     </div>
                     <div class="p-3 text-right">
                         <button id="scrapeJobsButton" class="btn btn-primary">
-                            Scraping Councils Jobs (55)
+                            Scraping Councils Jobs (54)
                         </button>
 
                         <button id="scrapeNewJobsButton" class="btn btn-secondary">
@@ -41,7 +41,7 @@
                         </button>
 
                         <button id="scrapeNewJobsButtonNoLink" class="btn btn-info">
-                            Scraping Councils with No link (5)
+                            Scraping Councils with No link (6)
                         </button>
 
 
@@ -337,7 +337,7 @@
             // $('#loadingIndicator').show();
             // $('#resultMessage').hide();  // Hide any previous messages
 
-            // 55 councils to scrape
+            // 54 councils to scrape
             const scrapingRoutes = [
                 { route: "{{ route('auto.centralCoast') }}", message: "Scraping Central Coast Jobs..." },
                 { route: "{{ route('auto.CanterburyBankstown') }}", message: "Scraping Canterbury Bankstown Jobs..." },
@@ -362,7 +362,6 @@
                 { route: "{{ route('auto.ClarenceValley') }}", message: "Scraping  Clarence Valley Council Jobs..." },
                 { route: "{{ route('auto.CookShire') }}", message: "Scraping  Cook Shire Council Jobs..." },
                 { route: "{{ route('auto.CumberlandCity') }}", message: "Scraping  Cumberland City Council Jobs..." },
-                { route: "{{ route('auto.FairfieldCity') }}", message: "Scraping  Fairfield City Council Jobs..." },
                 { route: "{{ route('auto.FlindersShire') }}", message: "Scraping  Flinders Shire Council Jobs..." },
                 { route: "{{ route('auto.GlenInnesSevern') }}", message: "Scraping  Glen Innes Severn Council Jobs..." },
                 { route: "{{ route('auto.GympieRegional') }}", message: "Scraping  Gympie Regional Council Jobs..." },
@@ -431,6 +430,8 @@
                 { route: "{{ route('auto.CabonneCouncil') }}", message: "Scraping Cabonne Council Jobs..." },
                 { route: "{{ route('auto.BanyuleCityCouncil') }}", message: "Scraping Banyule City Council Jobs..." },
                 { route: "{{ route('auto.ShireofAshburton') }}", message: "Scraping Shire of Ashburton Council Jobs..." },
+                { route: "{{ route('auto.FairfieldCity') }}", message: "Scraping  Fairfield City Council Jobs..." },
+
 
             ];
 

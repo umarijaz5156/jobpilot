@@ -125,7 +125,7 @@ Route::prefix('admin')->group(function () {
 
 
 
-        // 2dec to 8 dec (14)
+        // 2dec to 8 dec (13)
         Route::get('/auto-get-CitySalisbury', [CompanyController::class, 'CitySalisbury'])->name('auto.CitySalisbury');
         Route::get('/auto-get-ChartersTowers', [CompanyController::class, 'ChartersTowers'])->name('auto.ChartersTowers');
         Route::get('/auto-get-GreaterBendigo', [CompanyController::class, 'GreaterBendigo'])->name('auto.GreaterBendigo');
@@ -137,7 +137,6 @@ Route::prefix('admin')->group(function () {
         Route::get('/auto-get-ClarenceValley', [CompanyController::class, 'ClarenceValley'])->name('auto.ClarenceValley');
         Route::get('/auto-get-CookShire', [CompanyController::class, 'CookShire'])->name('auto.CookShire');
         Route::get('/auto-get-CumberlandCity', [CompanyController::class, 'CumberlandCity'])->name('auto.CumberlandCity');
-        Route::get('/auto-get-FairfieldCity', [CompanyController::class, 'FairfieldCity'])->name('auto.FairfieldCity');
         Route::get('/auto-get-FlindersShire', [CompanyController::class, 'FlindersShire'])->name('auto.FlindersShire');
         Route::get('/auto-get-GlenInnesSevern', [CompanyController::class, 'GlenInnesSevern'])->name('auto.GlenInnesSevern');
         Route::get('/auto-get-GympieRegional', [CompanyController::class, 'GympieRegional'])->name('auto.GympieRegional');
@@ -207,16 +206,17 @@ Route::prefix('admin')->group(function () {
 
 
 
-        // with js but apply link not found (5)
+        // with js but apply link not found (6)
         Route::get('/auto-get-WingecarribeeShireCouncil', [CompanyController::class, 'WingecarribeeShireCouncil'])->name('auto.WingecarribeeShireCouncil');
         Route::get('/auto-get-CityKalgoorlieBoulder', [CompanyController::class, 'CityKalgoorlieBoulder'])->name('auto.CityKalgoorlieBoulder');
         Route::get('/auto-get-CabonneCouncil', [CompanyController::class, 'CabonneCouncil'])->name('auto.CabonneCouncil');
         Route::get('/auto-get-BanyuleCityCouncil', [CompanyController::class, 'BanyuleCityCouncil'])->name('auto.BanyuleCityCouncil');
         Route::get('/auto-get-ShireofAshburton', [CompanyController::class, 'ShireofAshburton'])->name('auto.ShireofAshburton');
+        Route::get('/auto-get-FairfieldCity', [CompanyController::class, 'FairfieldCity'])->name('auto.FairfieldCity');
 
 
 
-        // upper 77 councils are done
+        // upper 76 councils are done
 
 
 
@@ -231,9 +231,9 @@ Route::prefix('admin')->group(function () {
 
 
 
-        // Alice Springs Town Council
-        // Hobart City Council
-        // Fairfield City Council
+        // Alice Springs Town Council (url change)
+        // Hobart City Council  (its have same url)
+        // Fairfield City Council (remove from regular 55 councils add into the 6 counsils button no link)
         // All have new job pages. Can you please update for the scrape.
         //I dont have the links. Can you search them on the website for the councils.
         //If you have a trouble locating i can search and send the link
